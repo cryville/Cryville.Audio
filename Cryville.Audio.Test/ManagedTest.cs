@@ -4,6 +4,19 @@ using System;
 using System.Threading;
 
 namespace Cryville.Audio.Test {
+	public static partial class ManagedTestCaseResources {
+		/*
+		/// <summary>
+		/// The path to an audio file of a common format that has only one stream, encoded with a common audio codec.
+		/// </summary>
+		public const string AudioFile = @"";
+		/// <summary>
+		/// The path to a video file of a common format that has one audio stream and one video stream. The audio stream is encoded with a common audio codec.
+		/// </summary>
+		public const string VideoFile = @"";
+		*/
+	}
+
 	[TestFixture(typeof(Wasapi.MMDeviceEnumerator))]
 	[TestFixture(typeof(WinMM.WaveDeviceManager))]
 	public class ManagedTest<T> where T : IAudioDeviceManager, new() {
@@ -89,8 +102,8 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
-		[TestCase(@"G:\Backup\UDisk_music\3_bangumi\CLANNAD\だんご大家族 (Off Vocal).mp3")]
-		[TestCase(@"F:\videos\Fluorite Eye's Song -Piano Version-\Fluorite Eye's Song -Piano Version-.mp4")]
+		[TestCase(ManagedTestCaseResources.AudioFile)]
+		[TestCase(ManagedTestCaseResources.VideoFile)]
 		public virtual void PlayWithLibAV(string file) {
 			TestContext.WriteLine("API: {0}", typeof(T).Namespace);
 			var source = new LibavFileAudioSource(file);
@@ -110,7 +123,7 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
-		[TestCase(@"G:\Backup\UDisk_music\3_bangumi\CLANNAD\だんご大家族 (Off Vocal).mp3", @"G:\Backup\UDisk_music\3_bangumi\CLANNAD\だんご大家族 (Off Vocal).mp3")]
+		[TestCase(ManagedTestCaseResources.AudioFile, ManagedTestCaseResources.AudioFile)]
 		public virtual void PlayWithSimpleQueue(string file1, string file2) {
 			TestContext.WriteLine("API: {0}", typeof(T).Namespace);
 			var source = new SimpleSequencerSource();
@@ -141,7 +154,7 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
-		[TestCase(@"G:\Backup\UDisk_music\3_bangumi\CLANNAD\だんご大家族 (Off Vocal).mp3")]
+		[TestCase(ManagedTestCaseResources.AudioFile)]
 		public virtual void PlayCachedWithSimpleQueue(string file) {
 			TestContext.WriteLine("API: {0}", typeof(T).Namespace);
 			var source = new SimpleSequencerSource();
