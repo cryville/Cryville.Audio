@@ -8,13 +8,13 @@ namespace Cryville.Audio.Source {
 	/// <remarks>
 	/// <para>To use this class, take the following steps:</para>
 	/// <list type="number">
-	/// <item>Create an instance of <see cref="SimpleSequencerSource" /> and <see cref="AudioClient" /> respectively.</item>
-	/// <item>Attach the <see cref="SimpleSequencerSource" /> to the <see cref="AudioClient" /> by setting <see cref="AudioClient.Source" />.</item>
+	/// <item>Create an instance of <see cref="SimpleSequencerSource" />.</item>
+	/// <item>Attach the <see cref="SimpleSequencerSource" /> to an <see cref="AudioClient" /> by setting <see cref="AudioClient.Source" />.</item>
 	/// <item>Create a new <see cref="SimpleSequencerSession" /> by calling <see cref="NewSession" />.</item>
 	/// <item>Start playback by calling <see cref="AudioClient.Start" /> and setting <see cref="Playing" /> to <see langword="true" />.</item>
 	/// </list>
 	/// <para>You can sequence <see cref="AudioSource" />s to the <see cref="SimpleSequencerSession" /> both before and after playback starts. See <see cref="SimpleSequencerSession.Sequence" />.</para>
-	/// <para>If <see cref="Playing" /> is set to <see langword="false" />, the playback will be paused.</para>
+	/// <para>If <see cref="Playing" /> is set to <see langword="false" />, the output will become silence.</para>
 	/// </remarks>
 	public class SimpleSequencerSource : AudioSource {
 		/// <summary>
