@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netframework35</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="gen.bat" />
+    <None Remove="i.py" />
+    <None Remove="oboe.i" />
+  </ItemGroup>
+
+</Project>

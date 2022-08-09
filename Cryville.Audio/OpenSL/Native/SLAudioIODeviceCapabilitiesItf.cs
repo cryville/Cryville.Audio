@@ -1,0 +1,20 @@
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace OpenSL.Native {
+	[Guid("b2564dc0-ddd3-11db-62bd-0002a5d5c51b")]
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SLAudioIODeviceCapabilitiesItf {
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_GetAvailableAudioInputs GetAvailableAudioInputs;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_QueryAudioInputCapabilities QueryAudioInputCapabilities;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_RegisterAvailableAudioInputsChangedCallback RegisterAvailableAudioInputsChangedCallback;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_GetAvailableAudioOutputs GetAvailableAudioOutputs;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_QueryAudioOutputCapabilities QueryAudioOutputCapabilities;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_RegisterAvailableAudioOutputsChangedCallback RegisterAvailableAudioOutputsChangedCallback;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_RegisterDefaultDeviceIDMapChangedCallback RegisterDefaultDeviceIDMapChangedCallback;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_GetAssociatedAudioInputs GetAssociatedAudioInputs;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_GetAssociatedAudioOutputs GetAssociatedAudioOutputs;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_GetDefaultAudioDevices GetDefaultAudioDevices;
+		[MarshalAs(UnmanagedType.FunctionPtr)] public SLAudioIODeviceCapabilitiesItf_QuerySampleFormatsSupported QuerySampleFormatsSupported;
+	}
+}

@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netframework35|AnyCPU'">
+	  <DebugType>none</DebugType>
+	  <DefineConstants>$(DefineConstants)</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+	  <DebugType>none</DebugType>
+	  <DefineConstants>$(DefineConstants)</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netframework35|AnyCPU'">
+	  <DefineConstants>$(DefineConstants)</DefineConstants>
+	  <DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+	  <DefineConstants>$(DefineConstants)</DefineConstants>
+	  <DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="AAudio\**" />
+	  <Compile Remove="Oboe\**" />
+	  <Compile Remove="TinyAlsa\**" />
+	  <EmbeddedResource Remove="AAudio\**" />
+	  <EmbeddedResource Remove="Oboe\**" />
+	  <EmbeddedResource Remove="TinyAlsa\**" />
+	  <None Remove="AAudio\**" />
+	  <None Remove="Oboe\**" />
+	  <None Remove="TinyAlsa\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="OpenSL\Native\SLAudioInputDescriptor.cs" />
+	  <Compile Remove="OpenSL\Native\SLAudioIODeviceCapabilitiesItf.cs" />
+	  <Compile Remove="OpenSL\Native\SLAudioOutputDescriptor.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="Common\Platform\Windows\mmdeviceapi.h" />
+		<None Remove="Common\Platform\Windows\mmreg.h" />
+		<None Remove="Common\Platform\Windows\mmreg_extract.py" />
+		<None Remove="Common\Platform\Windows\pkey_extract.py" />
+		<None Remove="Common\Platform\Windows\propkey.h" />
+		<None Remove="Common\Platform\Windows\_devpkey.h" />
+		<None Remove="OpenSL\libOpenSLES.so" />
+		<None Remove="OpenSL\OpenSLES.h" />
+		<None Remove="OpenSL\OpenSLES_Platform.h" />
+		<None Remove="OpenSL\OpenSL_ES_Specification_1.0.1.pdf" />
+		<None Remove="OpenSL\OpenSL_ES_Specification_1.1.pdf" />
+	</ItemGroup>
+
+</Project>

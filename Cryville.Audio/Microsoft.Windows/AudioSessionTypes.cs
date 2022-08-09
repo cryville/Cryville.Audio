@@ -1,0 +1,24 @@
+﻿using System;
+
+namespace Microsoft.Windows.AudioSessionTypes {
+	[Flags]
+	public enum AUDCLNT_SESSIONFLAGS : UInt32 {
+		EXPIREWHENUNOWNED       = 0x10000000,
+		DISPLAY_HIDE            = 0x20000000,
+		DISPLAY_HIDEWHENEXPIRED = 0x40000000,
+	}
+	public enum AUDCLNT_SHAREMODE : UInt32 {
+		SHARED,
+		EXCLUSIVE
+	}
+	[Flags]
+	public enum AUDCLNT_STREAMFLAGS : UInt32 {
+		CROSSPROCESS        = 0x00010000,
+		LOOPBACK            = 0x00020000,
+		EVENTCALLBACK       = 0x00040000,
+		NOPERSIST           = 0x00080000,
+		RATEADJUST          = 0x00100000,
+		SRC_DEFAULT_QUALITY = 0x08000000,
+		AUTOCONVERTPCM      = 0x80000000,
+	}
+}

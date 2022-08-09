@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Cryville.Audio.Test": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
