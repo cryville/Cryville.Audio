@@ -17,11 +17,11 @@ namespace Cryville.Audio.WinMM {
 				MmSysComExports.MMR(MmeExports.waveOutReset(_waveOutHandle));
 				for (int i = 0; i < _buffers.Length; i++) {
 					// while ((_buffers[i].Header.dwFlags & (uint)WHDR.DONE) == 0) Thread.Sleep(10);
-					MmSysComExports.MMR(MmeExports.waveOutUnprepareHeader(
+					_ = MmeExports.waveOutUnprepareHeader(
 						_waveOutHandle,
 						ref _buffers[i].Header,
 						SIZE_WAVEHDR
-					));
+					);
 					_buffers[i].Dispose();
 				}
 				MmSysComExports.MMR(MmeExports.waveOutClose(_waveOutHandle));

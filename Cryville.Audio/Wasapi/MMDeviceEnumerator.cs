@@ -9,10 +9,6 @@ namespace Cryville.Audio.Wasapi {
 	public class MMDeviceEnumerator : ComInterfaceWrapper<IMMDeviceEnumerator>, IAudioDeviceManager {
 		public MMDeviceEnumerator() : base(new CMMDeviceEnumerator() as IMMDeviceEnumerator) { }
 
-		public bool IsSupported
-			=> Environment.OSVersion.Platform == PlatformID.Win32NT
-			&& Environment.OSVersion.Version.Major >= 6;
-
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
 			ComObject.EnumAudioEndpoints(
 				Util.ToInternalDataFlowEnum(dataFlow),

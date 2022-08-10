@@ -5,7 +5,10 @@ using System.Collections.Generic;
 
 namespace Cryville.Audio.WinMM {
 	public class WaveDeviceManager : IAudioDeviceManager {
-		public WaveDeviceManager() { }
+		public WaveDeviceManager() {
+			if (MmeExports.waveOutGetNumDevs() == 0)
+				throw new NotSupportedException();
+		}
 
 		public void Dispose() {
 			Dispose(true);
@@ -13,9 +16,6 @@ namespace Cryville.Audio.WinMM {
 		}
 
 		protected virtual void Dispose(bool disposing) { }
-
-		public bool IsSupported
-			=> Environment.OSVersion.Platform == PlatformID.Win32NT;
 
 		/// <summary>
 		/// Gets the default audio device for the specified <paramref name="dataFlow" />.
@@ -39,7 +39,7 @@ namespace Cryville.Audio.WinMM {
 			switch (dataFlow) {
 				case DataFlow.Out: return new WaveOutDeviceCollection();
 				case DataFlow.In: throw new NotImplementedException();
-				default: throw new NotImplementedException();
+				default: throw new NotSupportedException();
 			}
 		}
 

@@ -5,12 +5,10 @@ namespace Cryville.Audio {
 	/// <summary>
 	/// Audio device manager that manages <see cref="IAudioDevice" />.
 	/// </summary>
+	/// <remarks>
+	/// If the <see cref="IAudioDeviceManager" /> is not supported, an exception is thrown when trying to create an instance.
+	/// </remarks>
 	public interface IAudioDeviceManager : IDisposable {
-		/// <summary>
-		/// Whether this API is supported.
-		/// </summary>
-		bool IsSupported { get; }
-
 		/// <summary>
 		/// Gets all audio devices for the specified <paramref name="dataFlow" />.
 		/// </summary>

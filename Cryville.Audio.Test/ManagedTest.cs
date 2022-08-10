@@ -17,17 +17,31 @@ namespace Cryville.Audio.Test {
 		*/
 	}
 
+	public class DefaultManagedTest : ManagedTest {
+		protected override IAudioDeviceManager CreateEngine() {
+			return EngineBuilder.Create();
+		}
+	}
+
 	[TestFixture(typeof(Wasapi.MMDeviceEnumerator))]
 	[TestFixture(typeof(WinMM.WaveDeviceManager))]
-	public class ManagedTest<T> where T : IAudioDeviceManager, new() {
+	public class SpecificManagedTest<T> : ManagedTest where T : IAudioDeviceManager, new() {
+		protected override IAudioDeviceManager CreateEngine() {
+			return new T();
+		}
+	}
+
+	public abstract class ManagedTest {
 		IAudioDeviceManager manager;
 		IAudioDevice device;
 		AudioClient client;
 
+		protected abstract IAudioDeviceManager CreateEngine();
+
 		[OneTimeSetUp]
 		public void OneTimeSetUp() {
 			FFmpeg.AutoGen.ffmpeg.RootPath = "";
-			manager = new T();
+			manager = CreateEngine();
 			device = manager.GetDefaultDevice(DataFlow.Out);
 			client = device.Connect();
 			WaveFormat? format = WaveFormat.Default;
@@ -105,7 +119,7 @@ namespace Cryville.Audio.Test {
 		[TestCase(ManagedTestCaseResources.AudioFile)]
 		[TestCase(ManagedTestCaseResources.VideoFile)]
 		public virtual void PlayWithLibAV(string file) {
-			TestContext.WriteLine("API: {0}", typeof(T).Namespace);
+			TestContext.WriteLine("API: {0}", manager.GetType().Namespace);
 			var source = new LibavFileAudioSource(file);
 			TestContext.WriteLine("Duration: {0}s", source.GetDuration());
 			TestContext.WriteLine("Best stream index: {0}", source.BestStreamIndex);
@@ -125,7 +139,7 @@ namespace Cryville.Audio.Test {
 		[Test]
 		[TestCase(ManagedTestCaseResources.AudioFile, ManagedTestCaseResources.AudioFile)]
 		public virtual void PlayWithSimpleQueue(string file1, string file2) {
-			TestContext.WriteLine("API: {0}", typeof(T).Namespace);
+			TestContext.WriteLine("API: {0}", manager.GetType().Namespace);
 			var source = new SimpleSequencerSource();
 			client.Source = source;
 			client.Start();
@@ -156,7 +170,7 @@ namespace Cryville.Audio.Test {
 		[Test]
 		[TestCase(ManagedTestCaseResources.AudioFile)]
 		public virtual void PlayCachedWithSimpleQueue(string file) {
-			TestContext.WriteLine("API: {0}", typeof(T).Namespace);
+			TestContext.WriteLine("API: {0}", manager.GetType().Namespace);
 			var source = new SimpleSequencerSource();
 			client.Source = source;
 

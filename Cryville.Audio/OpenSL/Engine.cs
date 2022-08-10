@@ -29,17 +29,13 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
-		public bool IsSupported
-			=> Environment.OSVersion.Platform == PlatformID.Unix;
-
 		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) {
 			return new OutputDevice(this);
 		}
 
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
 			switch (dataFlow) {
-				case DataFlow.Out:
-					throw new NotImplementedException();
+				case DataFlow.Out: return new List<IAudioDevice> { new OutputDevice(this) };
 				case DataFlow.In: throw new NotImplementedException();
 				default: throw new NotSupportedException();
 			}
