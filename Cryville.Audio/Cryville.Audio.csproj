@@ -28,13 +28,19 @@
 
 	<ItemGroup>
 	  <Compile Remove="AAudio\**" />
+	  <Compile Remove="Common\Platform\Windows\NonCode\**" />
 	  <Compile Remove="Oboe\**" />
+	  <Compile Remove="OpenSL\NonCode\**" />
 	  <Compile Remove="TinyAlsa\**" />
 	  <EmbeddedResource Remove="AAudio\**" />
+	  <EmbeddedResource Remove="Common\Platform\Windows\NonCode\**" />
 	  <EmbeddedResource Remove="Oboe\**" />
+	  <EmbeddedResource Remove="OpenSL\NonCode\**" />
 	  <EmbeddedResource Remove="TinyAlsa\**" />
 	  <None Remove="AAudio\**" />
+	  <None Remove="Common\Platform\Windows\NonCode\**" />
 	  <None Remove="Oboe\**" />
+	  <None Remove="OpenSL\NonCode\**" />
 	  <None Remove="TinyAlsa\**" />
 	</ItemGroup>
 
