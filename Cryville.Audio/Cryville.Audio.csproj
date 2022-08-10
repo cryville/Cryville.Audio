@@ -49,19 +49,4 @@
 	  <Compile Remove="OpenSL\Native\SLAudioIODeviceCapabilitiesItf.cs" />
 	  <Compile Remove="OpenSL\Native\SLAudioOutputDescriptor.cs" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<None Remove="Common\Platform\Windows\mmdeviceapi.h" />
-		<None Remove="Common\Platform\Windows\mmreg.h" />
-		<None Remove="Common\Platform\Windows\mmreg_extract.py" />
-		<None Remove="Common\Platform\Windows\pkey_extract.py" />
-		<None Remove="Common\Platform\Windows\propkey.h" />
-		<None Remove="Common\Platform\Windows\_devpkey.h" />
-		<None Remove="OpenSL\libOpenSLES.so" />
-		<None Remove="OpenSL\OpenSLES.h" />
-		<None Remove="OpenSL\OpenSLES_Platform.h" />
-		<None Remove="OpenSL\OpenSL_ES_Specification_1.0.1.pdf" />
-		<None Remove="OpenSL\OpenSL_ES_Specification_1.1.pdf" />
-	</ItemGroup>
-
 </Project>
