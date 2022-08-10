@@ -36,7 +36,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
-    <AndroidLinkMode>Full</AndroidLinkMode>
+    <AndroidLinkMode>None</AndroidLinkMode>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <AotAssemblies>false</AotAssemblies>
     <EnableLLVM>false</EnableLLVM>
@@ -78,6 +78,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libavcodec.so" />
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libavdevice.so" />
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libavfilter.so" />
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libavformat.so" />
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libavutil.so" />
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libswresample.so" />
+    <AndroidNativeLibrary Include="lib\arm64-v8a\libswscale.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libavcodec.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libavdevice.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libavfilter.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libavformat.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libavutil.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libswresample.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libswscale.so" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
@@ -109,7 +123,6 @@
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="lib\armeabi-v7a\" />
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>

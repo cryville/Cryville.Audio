@@ -43,6 +43,7 @@ namespace Cryville.Audio.Test.Android {
 
 				var file = await FilePicker.PickAsync();
 				var source = new LibavFileAudioSource(file.FullPath);
+				log.Text += string.Format("File: {0}\n", file.FullPath);
 				log.Text += string.Format("Duration: {0}s\n", source.GetDuration());
 				log.Text += string.Format("Best stream index: {0}\n", source.BestStreamIndex);
 				log.Text += string.Format("Best stream duration: {0}s\n", source.GetDuration(source.BestStreamIndex));

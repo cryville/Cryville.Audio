@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.OpenSL {
+	/// <summary>
+	/// An <see cref="AudioClient" /> for OpenSL.
+	/// </summary>
+	/// <remarks>
+	/// See <see cref="CallbackFunction" /> if AOT is used.
+	/// </remarks>
 	public class OutputClient : AudioClient {
 		static List<OutputClient> _instances = new List<OutputClient>();
 		int _id;
@@ -66,10 +72,27 @@ namespace Cryville.Audio.OpenSL {
 		double m_bufferPosition;
 		public override double BufferPosition => m_bufferPosition;
 
+		private static slBufferQueueCallback _cb = Callback;
+		/// <summary>
+		/// The buffer queue callback function.
+		/// </summary>
+		/// <remarks>
+		/// <para>In the case where AOT is used, override this so it points to a proper function, which calls <see cref="Callback(IntPtr, IntPtr)" />, as the following code snippet:</para>
+		/// <code>
+		/// [MonoPInvokeCallback(typeof(slBufferQueueCallback))]
+		/// static void AOTCallback(IntPtr caller, IntPtr context) {
+		///	    OutputClient.Callback(caller, context);
+		/// }
+		/// </code>
+		/// <para>You should not override this function in other cases.</para>
+		/// </remarks>
+		public static slBufferQueueCallback CallbackFunction { get => _cb; set => _cb = value; }
+
 		const int BUFFER_COUNT = 2;
 		int _bufi;
 		byte[][] _buf = new byte[BUFFER_COUNT][];
 		GCHandle[] _hbuf = new GCHandle[BUFFER_COUNT];
+
 		public override void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (shareMode == AudioShareMode.Exclusive)
 				throw new NotSupportedException("Exclusive mode not supported");
@@ -109,7 +132,7 @@ namespace Cryville.Audio.OpenSL {
 				_hbuf[i] = GCHandle.Alloc(_buf[i], GCHandleType.Pinned);
 			}
 
-			Util.SLR(_bq.Obj.RegisterCallback(_bq, Callback, new IntPtr(_id)));
+			Util.SLR(_bq.Obj.RegisterCallback(_bq, OutputClient.CallbackFunction, new IntPtr(_id)));
 		}
 
 		public override bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
@@ -123,7 +146,7 @@ namespace Cryville.Audio.OpenSL {
 					return false;
 			}
 			switch (format.SampleRate) {
-				case  8000:
+				case 8000:
 				case 11025:
 				case 12000:
 				case 16000:
@@ -134,7 +157,7 @@ namespace Cryville.Audio.OpenSL {
 				case 48000:
 					break;
 				default:
-					if      (format.SampleRate <  8000) format.SampleRate =  8000;
+					if (format.SampleRate < 8000) format.SampleRate = 8000;
 					else if (format.SampleRate < 11025) format.SampleRate = 11025;
 					else if (format.SampleRate < 12000) format.SampleRate = 12000;
 					else if (format.SampleRate < 16000) format.SampleRate = 16000;
@@ -142,7 +165,7 @@ namespace Cryville.Audio.OpenSL {
 					else if (format.SampleRate < 24000) format.SampleRate = 24000;
 					else if (format.SampleRate < 32000) format.SampleRate = 32000;
 					else if (format.SampleRate < 44100) format.SampleRate = 44100;
-					else                                format.SampleRate = 48000;
+					else format.SampleRate = 48000;
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
@@ -152,8 +175,8 @@ namespace Cryville.Audio.OpenSL {
 					suggestion = format;
 					return true;
 				default:
-					if (format.BitsPerSample < 8) format.BitsPerSample =  8;
-					else                          format.BitsPerSample = 16;
+					if (format.BitsPerSample < 8) format.BitsPerSample = 8;
+					else format.BitsPerSample = 16;
 					suggestion = format;
 					return false;
 			}
@@ -184,7 +207,7 @@ namespace Cryville.Audio.OpenSL {
 			m_bufferPosition += (double)BufferSize / Format.BytesPerSecond;
 		}
 
-		static void Callback(IntPtr caller, IntPtr pContext) {
+		public static void Callback(IntPtr caller, IntPtr pContext) {
 			_instances[pContext.ToInt32()].Enqueue();
 		}
 	}
