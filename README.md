@@ -1,3 +1,5 @@
+[普通话（简体）](README_cmn-hans.md)
+
 # Cryville.Audio
 **This project is currently under development. Do NOT use in production.**
 
