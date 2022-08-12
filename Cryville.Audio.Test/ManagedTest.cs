@@ -45,7 +45,7 @@ namespace Cryville.Audio.Test {
 			device = manager.GetDefaultDevice(DataFlow.Out);
 			client = device.Connect();
 			WaveFormat? format = WaveFormat.Default;
-			TestContext.WriteLine("Client Default Format: {0}", format);
+			Log("Client Default Format: {0}", format);
 			client.IsFormatSupported(format.Value, out format);
 			if (format != null) client.Init(format.Value);
 			else throw new NotSupportedException("No supported format is found.");
@@ -55,24 +55,24 @@ namespace Cryville.Audio.Test {
 		public virtual void EnumerateDevices() {
 			uint count = 0;
 			foreach (var dev in manager.GetDevices(DataFlow.Out)) {
-				TestContext.WriteLine("Device: {0}", dev.Name);
+				Log("Device: {0}", dev.Name);
 				dev.Dispose();
 				count++;
 			}
-			TestContext.WriteLine("Count: {0}", count);
+			Log("Count: {0}", count);
 		}
 
 		[Test]
 		public virtual void GetDeviceInformation() {
-			TestContext.WriteLine("Name: {0}", device.Name);
-			TestContext.WriteLine("Data Flow: {0}", device.DataFlow);
-			TestContext.WriteLine("Default Buffer Duration: {0}", client.DefaultBufferDuration);
-			TestContext.WriteLine("Minimum Buffer Duration: {0}", client.MinimumBufferDuration);
-			TestContext.WriteLine("Device Default Format: {0}", client.DefaultFormat);
-			TestContext.WriteLine("Connection Format: {0}", client.Format);
-			TestContext.WriteLine("Buffer Size: {0}B", client.BufferSize);
-			TestContext.WriteLine("Maximum Latency: {0}ms", client.MaximumLatency);
-			TestContext.WriteLine("Actual Latency: {0}ms", (float)client.BufferSize / client.Format.BytesPerSecond * 1000 + client.MaximumLatency);
+			Log("Name: {0}", device.Name);
+			Log("Data Flow: {0}", device.DataFlow);
+			Log("Default Buffer Duration: {0}", client.DefaultBufferDuration);
+			Log("Minimum Buffer Duration: {0}", client.MinimumBufferDuration);
+			Log("Device Default Format: {0}", client.DefaultFormat);
+			Log("Connection Format: {0}", client.Format);
+			Log("Buffer Size: {0}B", client.BufferSize);
+			Log("Maximum Latency: {0}ms", client.MaximumLatency);
+			Log("Actual Latency: {0}ms", (float)client.BufferSize / client.Format.BytesPerSecond * 1000 + client.MaximumLatency);
 		}
 
 		[Test]
@@ -119,11 +119,11 @@ namespace Cryville.Audio.Test {
 		[TestCase(ManagedTestCaseResources.AudioFile)]
 		[TestCase(ManagedTestCaseResources.VideoFile)]
 		public virtual void PlayWithLibAV(string file) {
-			TestContext.WriteLine("API: {0}", manager.GetType().Namespace);
+			Log("API: {0}", manager.GetType().Namespace);
 			var source = new LibavFileAudioSource(file);
-			TestContext.WriteLine("Duration: {0}s", source.GetDuration());
-			TestContext.WriteLine("Best stream index: {0}", source.BestStreamIndex);
-			TestContext.WriteLine("Best stream duration: {0}s", source.GetDuration(source.BestStreamIndex));
+			Log("Duration: {0}s", source.GetDuration());
+			Log("Best stream index: {0}", source.BestStreamIndex);
+			Log("Best stream duration: {0}s", source.GetDuration(source.BestStreamIndex));
 			source.SelectStream();
 			client.Source = source;
 			client.Start();
@@ -139,7 +139,7 @@ namespace Cryville.Audio.Test {
 		[Test]
 		[TestCase(ManagedTestCaseResources.AudioFile, ManagedTestCaseResources.AudioFile)]
 		public virtual void PlayWithSimpleQueue(string file1, string file2) {
-			TestContext.WriteLine("API: {0}", manager.GetType().Namespace);
+			Log("API: {0}", manager.GetType().Namespace);
 			var source = new SimpleSequencerSource();
 			client.Source = source;
 			client.Start();
@@ -170,7 +170,7 @@ namespace Cryville.Audio.Test {
 		[Test]
 		[TestCase(ManagedTestCaseResources.AudioFile)]
 		public virtual void PlayCachedWithSimpleQueue(string file) {
-			TestContext.WriteLine("API: {0}", manager.GetType().Namespace);
+			Log("API: {0}", manager.GetType().Namespace);
 			var source = new SimpleSequencerSource();
 			client.Source = source;
 
@@ -200,8 +200,16 @@ namespace Cryville.Audio.Test {
 			source.Dispose();
 		}
 
-		void LogPosition(string desc) {
-			TestContext.WriteLine(
+		protected virtual void Log(string msg) {
+			TestContext.WriteLine(msg);
+		}
+
+		protected void Log(string format, params object[] args) {
+			Log(string.Format(format, args));
+		}
+
+		protected void LogPosition(string desc) {
+			Log(
 				"Clock: {0:F6}s | Buffer: {1:F6}s | Latency: {2:F3}ms | {3}",
 				client.Position, client.BufferPosition,
 				(client.BufferPosition - client.Position) * 1e3, desc

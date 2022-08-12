@@ -79,14 +79,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidNativeLibrary Include="lib\arm64-v8a\libavcodec.so" />
-    <AndroidNativeLibrary Include="lib\arm64-v8a\libavdevice.so" />
     <AndroidNativeLibrary Include="lib\arm64-v8a\libavfilter.so" />
     <AndroidNativeLibrary Include="lib\arm64-v8a\libavformat.so" />
     <AndroidNativeLibrary Include="lib\arm64-v8a\libavutil.so" />
     <AndroidNativeLibrary Include="lib\arm64-v8a\libswresample.so" />
     <AndroidNativeLibrary Include="lib\arm64-v8a\libswscale.so" />
     <AndroidNativeLibrary Include="lib\armeabi-v7a\libavcodec.so" />
-    <AndroidNativeLibrary Include="lib\armeabi-v7a\libavdevice.so" />
     <AndroidNativeLibrary Include="lib\armeabi-v7a\libavfilter.so" />
     <AndroidNativeLibrary Include="lib\armeabi-v7a\libavformat.so" />
     <AndroidNativeLibrary Include="lib\armeabi-v7a\libavutil.so" />
@@ -131,6 +129,10 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cryville.Audio.Test\Cryville.Audio.Test.csproj">
+      <Project>{2e9b7ae9-d822-4b46-8046-469c87e545f6}</Project>
+      <Name>Cryville.Audio.Test</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj">
       <Project>{48b40913-aedd-4493-94dd-1435ed5fecba}</Project>
       <Name>Cryville.Audio</Name>

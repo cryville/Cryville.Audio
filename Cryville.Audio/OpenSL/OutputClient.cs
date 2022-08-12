@@ -185,15 +185,14 @@ namespace Cryville.Audio.OpenSL {
 		public override void Pause() {
 			if (Playing) {
 				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
-				Util.SLR(_bq.Obj.Clear(_bq));
-				m_bufferPosition = 0;
 				base.Pause();
 			}
 		}
 
 		public override void Start() {
 			if (!Playing) {
-				for (int i = 0; i < BUFFER_COUNT; i++) Enqueue();
+				Util.SLR(_bq.Obj.GetState(_bq, out var state));
+				for (int i = 0; i < BUFFER_COUNT - state.count; i++) Enqueue();
 				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PLAYING));
 				base.Start();
 			}
@@ -208,7 +207,8 @@ namespace Cryville.Audio.OpenSL {
 		}
 
 		public static void Callback(IntPtr caller, IntPtr pContext) {
-			_instances[pContext.ToInt32()].Enqueue();
+			var i = _instances[pContext.ToInt32()];
+			if (i.Playing) i.Enqueue();
 		}
 	}
 }
