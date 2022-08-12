@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cryville.Common.Math;
+using System;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
@@ -28,15 +29,15 @@ namespace Cryville.Audio.Source {
 					float v = Func(_time, j);
 					switch (Format.BitsPerSample) {
 						case 8:
-							buffer[i++] = C8(v);
+							buffer[i++] = ClampScale.ToByte(v);
 							break;
 						case 16:
-							short d16 = C16(v);
+							short d16 = ClampScale.ToInt16(v);
 							buffer[i++] = (byte)d16;
 							buffer[i++] = (byte)(d16 >> 8);
 							break;
 						case 32:
-							int d32 = C32(v);
+							int d32 = ClampScale.ToInt32(v);
 							buffer[i++] = (byte)d32;
 							buffer[i++] = (byte)(d32 >> 8);
 							buffer[i++] = (byte)(d32 >> 16);
@@ -45,24 +46,6 @@ namespace Cryville.Audio.Source {
 					}
 				}
 			}
-		}
-		static byte C8(float v) {
-			v = v * 0x80 + 0x80;
-			if (v >= byte.MaxValue) return byte.MaxValue;
-			if (v < byte.MinValue) return byte.MinValue;
-			return (byte)v;
-		}
-		static short C16(float v) {
-			v *= 0x8000;
-			if (v >= short.MaxValue) return short.MaxValue;
-			if (v < short.MinValue) return short.MinValue;
-			return (short)v;
-		}
-		static int C32(float v) {
-			v *= 0x80000000;
-			if (v >= int.MaxValue) return int.MaxValue;
-			if (v < int.MinValue) return int.MinValue;
-			return (int)v;
 		}
 
 		/// <summary>

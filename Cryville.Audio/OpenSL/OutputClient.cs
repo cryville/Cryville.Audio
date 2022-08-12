@@ -1,4 +1,5 @@
-﻿using OpenSL.Native;
+﻿using FFmpeg.AutoGen;
+using OpenSL.Native;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -198,17 +199,24 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
+		object _enqlock = new object();
+		int _bufc;
 		void Enqueue() {
-			if (Source.Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
-			else Source.FillBuffer(_buf[_bufi], 0, BufferSize);
-			Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)BufferSize));
-			_bufi %= BUFFER_COUNT;
-			m_bufferPosition += (double)BufferSize / Format.BytesPerSecond;
+			lock (_enqlock) {
+				if (_bufc >= BUFFER_COUNT) return;
+				_bufc++;
+				if (Source.Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
+				else Source.FillBuffer(_buf[_bufi], 0, BufferSize);
+				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)BufferSize));
+				_bufi %= BUFFER_COUNT;
+				m_bufferPosition += (double)BufferSize / Format.BytesPerSecond;
+			}
 		}
 
 		public static void Callback(IntPtr caller, IntPtr pContext) {
 			var i = _instances[pContext.ToInt32()];
-			if (i.Playing) i.Enqueue();
+			i._bufc--;
+			i.Enqueue();
 		}
 	}
 }
