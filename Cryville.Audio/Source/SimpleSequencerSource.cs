@@ -172,6 +172,7 @@ namespace Cryville.Audio.Source {
 		/// </remarks>
 		public SimpleSequencerSession NewSession() {
 			if (BufferSize == 0) throw new InvalidOperationException("Audio source not attached to client");
+			_sources.Clear();
 			m_playing = false;
 			_time = 0;
 			return Session = new SimpleSequencerSession(Format, BufferSize);
