@@ -206,12 +206,14 @@ namespace Cryville.Audio.Source {
 			_internal = new Internal(file);
 		}
 
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				_internal.Close();
 			}
 		}
 
+		/// <inheritdoc />
 		public override bool EndOfData => _internal.EOF;
 
 		/// <summary>
@@ -248,6 +250,7 @@ namespace Cryville.Audio.Source {
 			return _internal.GetDuration(streamId);
 		}
 
+		/// <inheritdoc />
 		protected override void OnSetFormat() {
 			base.OnSetFormat();
 			_internal.OutFormat = Format;
@@ -255,10 +258,12 @@ namespace Cryville.Audio.Source {
 			_internal.TryConnect();
 		}
 
+		/// <inheritdoc />
 		protected internal override void FillBuffer(byte[] buffer, int offset, int length) {
 			_internal.FillBuffer(buffer, offset, length);
 		}
 
+		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format)
 			=> format.BitsPerSample == 8
 			|| format.BitsPerSample == 16

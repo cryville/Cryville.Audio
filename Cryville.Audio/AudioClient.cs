@@ -6,11 +6,16 @@ namespace Cryville.Audio {
 	/// Audio client that manages connection to a <see cref="IAudioDevice" />.
 	/// </summary>
 	public abstract class AudioClient : IDisposable {
+		/// <inheritdoc />
 		public void Dispose() {
-			Dispose(disposing: true);
+			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected abstract void Dispose(bool disposing);
 
 		/// <summary>

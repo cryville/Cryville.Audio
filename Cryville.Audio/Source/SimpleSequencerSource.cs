@@ -29,12 +29,15 @@ namespace Cryville.Audio.Source {
 			_rmsources = new List<AudioSource>(maxPolyphony);
 		}
 
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			Playing = false;
 		}
 
+		/// <inheritdoc />
 		public override bool EndOfData => false;
 
+		/// <inheritdoc />
 		protected override void OnSetFormat() {
 			base.OnSetFormat();
 			_pribuf = new double[BufferSize / (Format.BitsPerSample / 8)];
@@ -42,6 +45,7 @@ namespace Cryville.Audio.Source {
 			if (BufferSize == 0) Playing = false;
 		}
 
+		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format) {
 			return format.BitsPerSample == 8
 				|| format.BitsPerSample == 16
@@ -69,6 +73,7 @@ namespace Cryville.Audio.Source {
 		readonly List<AudioSource> _rmsources;
 		double[] _pribuf;
 		byte[] _secbuf;
+		/// <inheritdoc />
 		protected internal override unsafe void FillBuffer(byte[] buffer, int offset, int length) {
 			if (m_playing) {
 				switch (Format.BitsPerSample) {

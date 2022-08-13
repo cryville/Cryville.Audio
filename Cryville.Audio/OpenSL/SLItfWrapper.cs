@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.OpenSL {
-	public class SLItfWrapper<T> where T : struct {
+	internal class SLItfWrapper<T> where T : struct {
 		private readonly IntPtr _p;
 		public IntPtr Ptr => _p;
 

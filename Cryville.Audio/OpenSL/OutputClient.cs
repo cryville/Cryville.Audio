@@ -1,19 +1,18 @@
-﻿using FFmpeg.AutoGen;
-using OpenSL.Native;
+﻿using OpenSL.Native;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.OpenSL {
 	/// <summary>
-	/// An <see cref="AudioClient" /> for OpenSL.
+	/// An <see cref="AudioClient" /> that interacts with OpenSL ES.
 	/// </summary>
 	/// <remarks>
 	/// See <see cref="CallbackFunction" /> if AOT is used.
 	/// </remarks>
 	public class OutputClient : AudioClient {
-		static List<OutputClient> _instances = new List<OutputClient>();
-		int _id;
+		readonly static List<OutputClient> _instances = new List<OutputClient>();
+		readonly int _id;
 		internal OutputClient(Engine engine, OutputDevice device) {
 			_id = _instances.Count;
 			_instances.Add(this);
@@ -21,34 +20,39 @@ namespace Cryville.Audio.OpenSL {
 			m_device = device;
 		}
 
-		public bool Disposed { get; private set; }
+		bool _disposed;
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
-			if (!Disposed) {
+			if (!_disposed) {
 				if (Playing) Pause();
 				if (_objPlayer != null) _objPlayer.Obj.Destroy(_objPlayer);
 				if (_objMix != null) _objMix.Obj.Destroy(_objMix);
 				foreach (var h in _hbuf) h.Free();
 				foreach (var h in _handles) h.Free();
 				_instances.Remove(this);
-				Disposed = true;
+				_disposed = true;
 			}
 		}
 
-		List<GCHandle> _handles = new List<GCHandle>();
-		Engine _objEngine;
+		readonly List<GCHandle> _handles = new List<GCHandle>();
+		readonly Engine _objEngine;
 		SLItfWrapper<SLEngineItf> _engine;
 		SLItfWrapper<SLObjectItf> _objMix;
 		SLItfWrapper<SLObjectItf> _objPlayer;
 		SLItfWrapper<SLBufferQueueItf> _bq;
 		SLItfWrapper<SLPlayItf> _play;
 
-		OutputDevice m_device;
+		readonly OutputDevice m_device;
+		/// <inheritdoc />
 		public override IAudioDevice Device => m_device;
 
+		/// <inheritdoc />
 		public override float DefaultBufferDuration => 20;
 
+		/// <inheritdoc />
 		public override float MinimumBufferDuration => 0;
 
+		/// <inheritdoc />
 		public override WaveFormat DefaultFormat => new WaveFormat {
 			Channels = 2,
 			SampleRate = 48000,
@@ -56,13 +60,17 @@ namespace Cryville.Audio.OpenSL {
 		};
 
 		WaveFormat m_format;
+		/// <inheritdoc />
 		public override WaveFormat Format => m_format;
 
 		int m_bufferSize;
+		/// <inheritdoc />
 		public override int BufferSize => m_bufferSize;
 
+		/// <inheritdoc />
 		public override float MaximumLatency => 0;
 
+		/// <inheritdoc />
 		public override double Position {
 			get {
 				Util.SLR(_play.Obj.GetPosition(_play, out uint msec));
@@ -71,6 +79,7 @@ namespace Cryville.Audio.OpenSL {
 		}
 
 		double m_bufferPosition;
+		/// <inheritdoc />
 		public override double BufferPosition => m_bufferPosition;
 
 		private static slBufferQueueCallback _cb = Callback;
@@ -91,9 +100,10 @@ namespace Cryville.Audio.OpenSL {
 
 		const int BUFFER_COUNT = 2;
 		int _bufi;
-		byte[][] _buf = new byte[BUFFER_COUNT][];
-		GCHandle[] _hbuf = new GCHandle[BUFFER_COUNT];
+		readonly byte[][] _buf = new byte[BUFFER_COUNT][];
+		readonly GCHandle[] _hbuf = new GCHandle[BUFFER_COUNT];
 
+		/// <inheritdoc />
 		public override void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (shareMode == AudioShareMode.Exclusive)
 				throw new NotSupportedException("Exclusive mode not supported");
@@ -136,6 +146,7 @@ namespace Cryville.Audio.OpenSL {
 			Util.SLR(_bq.Obj.RegisterCallback(_bq, OutputClient.CallbackFunction, new IntPtr(_id)));
 		}
 
+		/// <inheritdoc />
 		public override bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
 			switch (format.Channels) {
 				case 1:
@@ -183,6 +194,7 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
+		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
 				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
@@ -190,6 +202,7 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
+		/// <inheritdoc />
 		public override void Start() {
 			if (!Playing) {
 				Util.SLR(_bq.Obj.GetState(_bq, out var state));
@@ -199,7 +212,7 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
-		object _enqlock = new object();
+		readonly object _enqlock = new object();
 		int _bufc;
 		void Enqueue() {
 			lock (_enqlock) {
@@ -213,6 +226,9 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
+		/// <summary>
+		/// See <see cref="CallbackFunction" />.
+		/// </summary>
 		public static void Callback(IntPtr caller, IntPtr pContext) {
 			var i = _instances[pContext.ToInt32()];
 			i._bufc--;

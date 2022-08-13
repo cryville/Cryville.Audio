@@ -60,22 +60,27 @@ namespace Cryville.Audio.Source {
 		Cache _cache;
 		int _pos;
 
+		/// <inheritdoc />
 		public override bool EndOfData => _pos >= _cache.Buffer.Length;
 
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			_cache.Buffer = null;
 		}
 
+		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format) {
 			return _cache.Source.IsFormatSupported(format);
 		}
 
+		/// <inheritdoc />
 		protected override void OnSetFormat() {
 			base.OnSetFormat();
 			if (_cache.Buffer != null) return;
 			_cache.SetFormat(Format, BufferSize);
 		}
 
+		/// <inheritdoc />
 		protected internal override void FillBuffer(byte[] buffer, int offset, int length) {
 			int loadTo = Math.Min(_cache.Buffer.Length, _pos + length);
 			if (loadTo > _cache.LoadPosition) _cache.FillBufferTo(loadTo);

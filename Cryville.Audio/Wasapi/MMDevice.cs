@@ -4,15 +4,21 @@ using Microsoft.Windows.MMDevice;
 using Microsoft.Windows.PropSys;
 using System;
 using System.Runtime.InteropServices;
-using CIAudioClient = Microsoft.Windows.AudioClient.IAudioClient;
 
 namespace Cryville.Audio.Wasapi {
-	public class MMDevice : ComInterfaceWrapper<IMMDevice>, IAudioDevice {
-		internal MMDevice(IMMDevice obj) : base(obj) { }
+	/// <summary>
+	/// An <see cref="IAudioDevice" /> that interacts with Wasapi.
+	/// </summary>
+	public class MMDevice : ComInterfaceWrapper, IAudioDevice {
+		internal MMDevice(IntPtr obj) : base(obj) { }
 
+		/// <summary>
+		/// The properties of the device.
+		/// </summary>
 		public PropertyStore Properties { get; private set; }
 
 		string m_name;
+		/// <inheritdoc />
 		public string Name {
 			get {
 				if (m_name == null) {
@@ -23,34 +29,35 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		static Guid GUID_MM_ENDPOINT = typeof(IMMEndpoint).GUID;
+		static Guid GUID_MM_ENDPOINT = new Guid("1BE09788-6894-4089-8586-9A2A6C265AC5");
 		DataFlow? m_dataFlow;
+		/// <inheritdoc />
 		public DataFlow DataFlow {
 			get {
 				if (m_dataFlow == null) {
 					Marshal.QueryInterface(
-						Marshal.GetIUnknownForObject(ComObject),
+						ComObject,
 						ref GUID_MM_ENDPOINT,
-						out var pendpoint
+						out var endpoint
 					);
-					var endpoint = Marshal.GetObjectForIUnknown(pendpoint) as IMMEndpoint;
-					endpoint.GetDataFlow(out var presult);
+					IMMEndpoint.GetDataFlow(endpoint, out var presult);
 					m_dataFlow = Util.FromInternalDataFlowEnum(presult);
-					Marshal.ReleaseComObject(endpoint);
+					Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(endpoint));
 				}
 				return m_dataFlow.Value;
 			}
 		}
 
-		static Guid GUID_AUDIOCLIENT = typeof(CIAudioClient).GUID;
+		static Guid GUID_AUDIOCLIENT = new Guid("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2");
+		/// <inheritdoc />
 		public Audio.AudioClient Connect() {
-			ComObject.Activate(ref GUID_AUDIOCLIENT, (uint)CLSCTX.ALL, IntPtr.Zero, out var result);
-			return new AudioClient(result as CIAudioClient, this);
+			IMMDevice.Activate(ComObject, ref GUID_AUDIOCLIENT, (uint)CLSCTX.ALL, IntPtr.Zero, out var result);
+			return new AudioClient(result, this);
 		}
 
 		private void EnsureOpenPropertyStore() {
 			if (Properties != null) return;
-			ComObject.OpenPropertyStore((uint)STGM.READ, out var result);
+			IMMDevice.OpenPropertyStore(ComObject, (uint)STGM.READ, out var result);
 			Properties = new PropertyStore(result);
 		}
 	}

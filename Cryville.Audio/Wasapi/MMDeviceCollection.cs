@@ -5,9 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Cryville.Audio.Wasapi {
-	public class MMDeviceCollection : ComInterfaceWrapper<IMMDeviceCollection>, IEnumerable<IAudioDevice> {
-		internal MMDeviceCollection(IMMDeviceCollection obj) : base(obj) {
-			ComObject.GetCount(out m_count);
+	internal class MMDeviceCollection : ComInterfaceWrapper, IEnumerable<IAudioDevice> {
+		internal MMDeviceCollection(IntPtr obj) : base(obj) {
+			IMMDeviceCollection.GetCount(ComObject, out m_count);
 		}
 
 		private uint m_count;
@@ -16,7 +16,7 @@ namespace Cryville.Audio.Wasapi {
 		public MMDevice this[int index] {
 			get {
 				if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-				ComObject.Item((uint)index, out var result);
+				IMMDeviceCollection.Item(ComObject, (uint)index, out var result);
 				return new MMDevice(result);
 			}
 		}

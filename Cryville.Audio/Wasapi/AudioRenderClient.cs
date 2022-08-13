@@ -1,20 +1,21 @@
 ﻿using Cryville.Common.Platform.Windows;
 using Microsoft.Windows.AudioClient;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.Wasapi {
-	internal class AudioRenderClient : ComInterfaceWrapper<IAudioRenderClient> {
-		internal AudioRenderClient(IAudioRenderClient obj) : base(obj) { }
+	internal class AudioRenderClient : ComInterfaceWrapper {
+		internal AudioRenderClient(IntPtr obj) : base(obj) { }
 		public void FillBuffer(byte[] buffer, uint frames, uint length) {
-			ComObject.GetBuffer(frames, out var result);
+			IAudioRenderClient.GetBuffer(ComObject, frames, out var result);
 			Marshal.Copy(buffer, 0, result, (int)length);
 		}
 		public void SilentBuffer(uint frames) {
-			ComObject.GetBuffer(frames, out _);
-			ComObject.ReleaseBuffer(frames, (uint)AUDCLNT_BUFFERFLAGS.SILENT);
+			IAudioRenderClient.GetBuffer(ComObject, frames, out _);
+			IAudioRenderClient.ReleaseBuffer(ComObject, frames, (uint)AUDCLNT_BUFFERFLAGS.SILENT);
 		}
 		public void ReleaseBuffer(uint frames) {
-			ComObject.ReleaseBuffer(frames, 0);
+			IAudioRenderClient.ReleaseBuffer(ComObject, frames, 0);
 		}
 	}
 }

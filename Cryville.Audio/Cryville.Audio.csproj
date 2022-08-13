@@ -10,6 +10,7 @@
 		<Authors>Cryville</Authors>
 		<VersionPrefix>1.0.0</VersionPrefix>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netframework35|AnyCPU'">
@@ -54,5 +55,11 @@
 	  <Compile Remove="OpenSL\Native\SLAudioInputDescriptor.cs" />
 	  <Compile Remove="OpenSL\Native\SLAudioIODeviceCapabilitiesItf.cs" />
 	  <Compile Remove="OpenSL\Native\SLAudioOutputDescriptor.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Cryville.Audio.WasapiWrapper.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 </Project>

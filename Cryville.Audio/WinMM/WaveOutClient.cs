@@ -6,11 +6,18 @@ using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Cryville.Audio.WinMM {
+	/// <summary>
+	/// An <see cref="AudioClient" /> that interacts with WinMM.
+	/// </summary>
 	public class WaveOutClient : AudioClient {
 		internal WaveOutClient(WaveOutDevice device) {
 			m_device = device;
 		}
 
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected override void Dispose(bool disposing) {
 			if (_waveOutHandle != IntPtr.Zero) {
 				if (Playing) Pause();
@@ -34,12 +41,16 @@ namespace Cryville.Audio.WinMM {
 		WaveBuffer[] _buffers;
 
 		readonly WaveOutDevice m_device;
+		/// <inheritdoc />
 		public override IAudioDevice Device => m_device;
 
+		/// <inheritdoc />
 		public override float DefaultBufferDuration => 40;
 
+		/// <inheritdoc />
 		public override float MinimumBufferDuration => 0;
 
+		/// <inheritdoc />
 		public override WaveFormat DefaultFormat {
 			get {
 				IsFormatSupported(
@@ -52,14 +63,18 @@ namespace Cryville.Audio.WinMM {
 
 		WAVEFORMATEX _format;
 		WaveFormat m_format;
+		/// <inheritdoc />
 		public override WaveFormat Format => m_format;
 
 		int m_bufferSize;
+		/// <inheritdoc />
 		public override int BufferSize => m_bufferSize;
 
+		/// <inheritdoc />
 		public override float MaximumLatency => 0;
 
 		MMTIME _time = new MMTIME { wType = (uint)TIME_TYPE.BYTES };
+		/// <inheritdoc />
 		public override double Position {
 			get {
 				MmSysComExports.MMR(MmeExports.waveOutGetPosition(_waveOutHandle, ref _time, (uint)Marshal.SizeOf(_time)));
@@ -68,10 +83,12 @@ namespace Cryville.Audio.WinMM {
 		}
 
 		double m_bufferPosition;
+		/// <inheritdoc />
 		public override double BufferPosition => m_bufferPosition;
 
 		const int BUFFER_COUNT = 3;
 		readonly static uint SIZE_WAVEHDR = (uint)Marshal.SizeOf(typeof(WAVEHDR));
+		/// <inheritdoc />
 		public override void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (shareMode == AudioShareMode.Exclusive)
 				throw new NotSupportedException("Exclusive mode not supported");
@@ -101,6 +118,7 @@ namespace Cryville.Audio.WinMM {
 			}
 		}
 
+		/// <inheritdoc />
 		public override bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
 			ushort ch = format.Channels;
 			byte flagch;
@@ -201,6 +219,7 @@ namespace Cryville.Audio.WinMM {
 			}
 		}
 
+		/// <inheritdoc />
 		public override void Start() {
 			if (!Playing) {
 				_thread = new Thread(new ThreadStart(ThreadLogic)) {
@@ -213,6 +232,7 @@ namespace Cryville.Audio.WinMM {
 			}
 		}
 
+		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
 				MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));

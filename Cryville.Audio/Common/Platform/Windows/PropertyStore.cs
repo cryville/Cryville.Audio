@@ -2,10 +2,10 @@
 using System.Runtime.InteropServices;
 
 namespace Cryville.Common.Platform.Windows {
-	public class PropertyStore : ComInterfaceWrapper<IPropertyStore> {
-		public PropertyStore(IPropertyStore obj) : base(obj) { }
+	public class PropertyStore : ComInterfaceWrapper {
+		public PropertyStore(IPropertyStore obj) : base(Marshal.GetIUnknownForObject(obj)) { }
 		public object Get(PROPERTYKEY key) {
-			ComObject.GetValue(ref key, out var result);
+			(Marshal.GetObjectForIUnknown(ComObject) as IPropertyStore).GetValue(ref key, out var result);
 			return result.ToObject(null);
 		}
 	}

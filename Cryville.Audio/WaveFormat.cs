@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace Cryville.Audio {
@@ -20,6 +19,9 @@ namespace Cryville.Audio {
 		/// </summary>
 		public ushort BitsPerSample { get; set; }
 
+		/// <summary>
+		/// Bytes per second.
+		/// </summary>
 		public uint BytesPerSecond => Channels * SampleRate * BitsPerSample / 8;
 
 		/// <summary>
@@ -39,6 +41,7 @@ namespace Cryville.Audio {
 			return (int)Math.Ceiling(size / block) * block;
 		}
 
+		/// <inheritdoc />
 		public override string ToString() {
 			return string.Format(CultureInfo.InvariantCulture, "{0}ch * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample);
 		}

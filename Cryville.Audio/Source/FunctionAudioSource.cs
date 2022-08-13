@@ -13,16 +13,20 @@ namespace Cryville.Audio.Source {
 		/// </summary>
 		protected int Channels => Format.Channels;
 
+		/// <inheritdoc />
 		protected sealed override void Dispose(bool disposing) { }
 
+		/// <inheritdoc />
 		public override bool EndOfData => false;
 
+		/// <inheritdoc />
 		protected internal sealed override bool IsFormatSupported(WaveFormat format) {
 			return format.BitsPerSample == 8
 				|| format.BitsPerSample == 16
 				|| format.BitsPerSample == 32;
 		}
 
+		/// <inheritdoc />
 		protected internal sealed override void FillBuffer(byte[] buffer, int offset, int length) {
 			for (int i = offset; i < length + offset; _time += 1d / Format.SampleRate) {
 				for (int j = 0; j < Format.Channels; j++) {

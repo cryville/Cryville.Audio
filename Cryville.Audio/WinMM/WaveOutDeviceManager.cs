@@ -4,17 +4,28 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Cryville.Audio.WinMM {
+	/// <summary>
+	/// an <see cref="IAudioDeviceManager" /> that interacts with WinMM.
+	/// </summary>
 	public class WaveDeviceManager : IAudioDeviceManager {
+		/// <summary>
+		/// Creates an instance of the <see cref="WaveDeviceManager" /> class.
+		/// </summary>
 		public WaveDeviceManager() {
 			if (MmeExports.waveOutGetNumDevs() == 0)
 				throw new NotSupportedException();
 		}
 
+		/// <inheritdoc />
 		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected virtual void Dispose(bool disposing) { }
 
 		/// <summary>

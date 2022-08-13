@@ -17,6 +17,7 @@ namespace Cryville.Audio.Source {
 		/// The amplitude of the wave.
 		/// </summary>
 		public float Amplitude { get; set; }
+		/// <inheritdoc />
 		protected override float Func(double time, int channel) {
 			float v = Amplitude;
 			switch (Type) {

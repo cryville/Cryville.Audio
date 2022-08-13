@@ -10,53 +10,63 @@ using BAudioClient = Cryville.Audio.AudioClient;
 using MmUtil = Cryville.Audio.WinMM.Util;
 
 namespace Cryville.Audio.Wasapi {
+	/// <summary>
+	/// An <see cref="BAudioClient" /> that interact with Wasapi.
+	/// </summary>
 	public class AudioClient : BAudioClient {
 		readonly Internal _internal;
-		private class Internal : ComInterfaceWrapper<IAudioClient> {
-			public Internal(IAudioClient obj) : base(obj) { }
-			public new IAudioClient ComObject => base.ComObject;
+		private class Internal : ComInterfaceWrapper {
+			public Internal(IntPtr obj) : base(obj) { }
+			public new IntPtr ComObject => base.ComObject;
 		}
 
-		internal AudioClient(IAudioClient obj, MMDevice device) {
+		internal AudioClient(IntPtr obj, MMDevice device) {
 			m_device = device;
 			_internal = new Internal(obj);
-			_internal.ComObject.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
+			IAudioClient.GetDevicePeriod(_internal.ComObject, out m_defaultBufferDuration, out m_minimumBufferDuration);
 		}
 
+		/// <inheritdoc />
 		~AudioClient() {
 			Dispose(false);
 		}
 
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			if (Playing) Pause();
 			if (_eventHandle != IntPtr.Zero) Handle.CloseHandle(_eventHandle);
 			if (_renderClient != null) _renderClient.Dispose();
-			if (_clock != null) Marshal.ReleaseComObject(_clock);
+			if (_clock != default(IntPtr)) Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(_clock));
 			_internal.Dispose();
 		}
 
 		IntPtr _eventHandle;
 		AudioRenderClient _renderClient;
-		IAudioClock _clock;
+		IntPtr _clock;
 
 		readonly IAudioDevice m_device;
+		/// <inheritdoc />
 		public override IAudioDevice Device => m_device;
 
 		private readonly long m_defaultBufferDuration;
+		/// <inheritdoc />
 		public override float DefaultBufferDuration => FromReferenceTime(m_defaultBufferDuration);
 
 		private readonly long m_minimumBufferDuration;
+		/// <inheritdoc />
 		public override float MinimumBufferDuration => FromReferenceTime(m_minimumBufferDuration);
 
+		/// <inheritdoc />
 		public override WaveFormat DefaultFormat {
 			get {
-				_internal.ComObject.GetMixFormat(out var presult);
+				IAudioClient.GetMixFormat(_internal.ComObject, out var presult);
 				var result = (WAVEFORMATEX)Marshal.PtrToStructure(presult, typeof(WAVEFORMATEX));
 				return MmUtil.FromInternalFormat(result);
 			}
 		}
 
 		private WAVEFORMATEX m_format;
+		/// <inheritdoc />
 		public override WaveFormat Format {
 			get {
 				if (_eventHandle == IntPtr.Zero)
@@ -66,6 +76,7 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		uint m_bufferFrames;
+		/// <inheritdoc />
 		public override int BufferSize {
 			get {
 				if (_eventHandle == IntPtr.Zero)
@@ -74,29 +85,33 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
+		/// <inheritdoc />
 		public override float MaximumLatency {
 			get {
-				_internal.ComObject.GetStreamLatency(out var result);
+				IAudioClient.GetStreamLatency(_internal.ComObject, out var result);
 				return FromReferenceTime(result);
 			}
 		}
 
 		ulong _clockFreq;
+		/// <inheritdoc />
 		public override double Position {
 			get {
 				if (_clockFreq == 0)
 					throw new InvalidOperationException("Connection not initialized");
-				_clock.GetPosition(out var pos, out _);
+				IAudioClock.GetPosition(_clock, out var pos, out _);
 				return (double)pos / _clockFreq;
 			}
 		}
 
 		double m_bufferPosition;
+		/// <inheritdoc />
 		public override double BufferPosition => m_bufferPosition;
 
+		/// <inheritdoc />
 		public override bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var iformat = MmUtil.ToInternalFormat(format);
-			int hr = _internal.ComObject.IsFormatSupported(ToInternalShareModeEnum(shareMode), ref iformat, out var presult);
+			int hr = IAudioClient.IsFormatSupported(_internal.ComObject, ToInternalShareModeEnum(shareMode), ref iformat, out var presult);
 			if (hr == 0) { // S_OK
 				suggestion = format;
 				if (presult != IntPtr.Zero) Marshal.FreeCoTaskMem(presult);
@@ -116,8 +131,8 @@ namespace Cryville.Audio.Wasapi {
 			throw new NotSupportedException("Theoretically unreachable");
 		}
 
-		static Guid GUID_AUDIO_CLOCK = typeof(IAudioClock).GUID;
-		static Guid GUID_AUDIO_RENDER_CLIENT = typeof(IAudioRenderClient).GUID;
+		static Guid GUID_AUDIO_CLOCK = new Guid("CD63314F-3FBA-4a1b-812C-EF96358728E7");
+		static Guid GUID_AUDIO_RENDER_CLIENT = new Guid("F294ACFC-3146-4483-A7BF-ADDCA7C260E2");
 		/// <summary>
 		/// Initialize the client.
 		/// </summary>
@@ -133,7 +148,8 @@ namespace Cryville.Audio.Wasapi {
 			bool retryFlag = false;
 		retry:
 			try {
-				_internal.ComObject.Initialize(
+				IAudioClient.Initialize(
+					_internal.ComObject,
 					ToInternalShareModeEnum(shareMode),
 					(uint)AUDCLNT_STREAMFLAGS.EVENTCALLBACK,
 					ToReferenceTime(bufferDuration),
@@ -143,7 +159,7 @@ namespace Cryville.Audio.Wasapi {
 			}
 			catch (COMException ex) {
 				if (!retryFlag && (ex.ErrorCode & 0x7ffffff) == 0x08890019) { // AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED
-					_internal.ComObject.GetBufferSize(out uint nFrames);
+					IAudioClient.GetBufferSize(_internal.ComObject, out uint nFrames);
 					period = bufferDuration = (long)(1e7 / m_format.nSamplesPerSec * nFrames + 0.5);
 					retryFlag = true;
 					goto retry;
@@ -152,21 +168,21 @@ namespace Cryville.Audio.Wasapi {
 			}
 			_eventHandle = Synch.CreateEventW(IntPtr.Zero, false, false, null);
 			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
-			_internal.ComObject.SetEventHandle(_eventHandle);
+			IAudioClient.SetEventHandle(_internal.ComObject, _eventHandle);
 
-			_internal.ComObject.GetService(ref GUID_AUDIO_CLOCK, out var pac);
-			_clock = pac as IAudioClock;
-			_clock.GetFrequency(out _clockFreq);
+			IAudioClient.GetService(_internal.ComObject, ref GUID_AUDIO_CLOCK, out _clock);
+			IAudioClock.GetFrequency(_clock, out _clockFreq);
 
-			_internal.ComObject.GetBufferSize(out m_bufferFrames);
+			IAudioClient.GetBufferSize(_internal.ComObject, out m_bufferFrames);
 			if (m_device.DataFlow == DataFlow.Out) {
-				_internal.ComObject.GetService(ref GUID_AUDIO_RENDER_CLIENT, out var prc);
-				_renderClient = new AudioRenderClient(prc as IAudioRenderClient);
+				IAudioClient.GetService(_internal.ComObject, ref GUID_AUDIO_RENDER_CLIENT, out var prc);
+				_renderClient = new AudioRenderClient(prc);
 			}
 			else
 				throw new NotImplementedException();
 		}
 
+		/// <inheritdoc />
 		public override void Start() {
 			if (!Playing) {
 				_thread = new Thread(new ThreadStart(ThreadLogic)) {
@@ -174,14 +190,15 @@ namespace Cryville.Audio.Wasapi {
 					IsBackground = true,
 				};
 				_thread.Start();
-				_internal.ComObject.Start();
+				IAudioClient.Start(_internal.ComObject);
 				base.Start();
 			}
 		}
 
+		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
-				_internal.ComObject.Stop();
+				IAudioClient.Stop(_internal.ComObject);
 				/*_internal.ComObject.Reset();
 				m_bufferPosition = 0;*/
 				_thread.Abort();
@@ -197,7 +214,7 @@ namespace Cryville.Audio.Wasapi {
 			while (true) {
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
 					throw new InvalidOperationException("Error while pending for event");
-				_internal.ComObject.GetCurrentPadding(out var padding);
+				IAudioClient.GetCurrentPadding(_internal.ComObject, out var padding);
 				var frames = m_bufferFrames - padding;
 				if (frames == 0) continue;
 				if (Source == null || Source.Muted) {
