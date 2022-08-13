@@ -46,6 +46,8 @@ namespace Cryville.Audio.Test.Android {
 				test.PlayWithSimpleQueue(file.FullPath, file.FullPath);
 				log.Text += $"= PlayCachedWithSimpleQueue =\n";
 				test.PlayCachedWithSimpleQueue(file.FullPath);
+				log.Text += $"= PlayTwoSessions =\n";
+				test.PlayTwoSessions(file.FullPath, file.FullPath);
 			}
 			catch (Exception ex) {
 				log.Text += $"= Error =\n{ex}\n";

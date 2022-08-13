@@ -200,6 +200,47 @@ namespace Cryville.Audio.Test {
 			source.Dispose();
 		}
 
+		[Test]
+		[TestCase(ManagedTestCaseResources.AudioFile, ManagedTestCaseResources.AudioFile)]
+		public virtual void PlayTwoSessions(string file1, string file2) {
+			Log("API: {0}", manager.GetType().Namespace);
+			var source = new SimpleSequencerSource();
+			client.Source = source;
+			client.Start();
+
+			var session = source.NewSession();
+
+			var source1 = new LibavFileAudioSource(file1);
+			source1.SelectStream();
+			session.Sequence(0, source1);
+
+			source.Playing = true;
+
+			for (int i = 0; i < 5; i++) {
+				LogPosition(string.Format("Polyphony: {0}", source.Polyphony));
+				Thread.Sleep(1000);
+			}
+
+			session = source.NewSession();
+
+			var source2 = new LibavFileAudioSource(file2);
+			source2.SelectStream();
+			session.Sequence(0, source2);
+
+			source.Playing = true;
+
+			for (int i = 0; i < 5; i++) {
+				LogPosition(string.Format("Polyphony: {0}", source.Polyphony));
+				Thread.Sleep(1000);
+			}
+
+			client.Source = null;
+			client.Pause();
+			source1.Dispose();
+			source2.Dispose();
+			source.Dispose();
+		}
+
 		protected virtual void Log(string msg) {
 			TestContext.WriteLine(msg);
 		}
