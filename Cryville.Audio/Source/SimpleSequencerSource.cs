@@ -61,12 +61,10 @@ namespace Cryville.Audio.Source {
 				if (Session == null && value)
 					throw new InvalidOperationException("No session is attached");
 				m_playing = value;
-				if (!value) {
-					_sources.Clear();
-				}
 			}
 		}
 		double _time;
+		readonly object _lock = new object();
 		readonly List<AudioSource> _sources;
 		readonly List<AudioSource> _rmsources;
 		double[] _pribuf;
@@ -78,23 +76,25 @@ namespace Cryville.Audio.Source {
 					case 16: Array.Clear(_pribuf, 0, length / sizeof(short)); break;
 					case 32: Array.Clear(_pribuf, 0, length / sizeof(int)); break;
 				}
-				_rmsources.Clear();
-				foreach (var source in _sources) {
-					FillBufferInternal(source, 0, length);
-					if (source.EndOfData) _rmsources.Add(source);
-				}
-				foreach (var source in _rmsources)
-					_sources.Remove(source);
-				var seq = Session._seq;
-				_time += (double)length / Format.BytesPerSecond;
-				while (seq.Count > 0 && seq[0].Time < _time) {
-					var item = seq[0];
-					seq.RemoveAt(0);
-					if (_sources.Count >= MaxPolyphony) continue;
-					var source = item.Source;
-					_sources.Add(source);
-					int len = Math.Min(length, Format.Align((_time - item.Time) * Format.BytesPerSecond));
-					FillBufferInternal(source, length - len, len);
+				lock (_lock) {
+					_rmsources.Clear();
+					foreach (var source in _sources) {
+						FillBufferInternal(source, 0, length);
+						if (source.EndOfData) _rmsources.Add(source);
+					}
+					foreach (var source in _rmsources)
+						_sources.Remove(source);
+					var seq = Session._seq;
+					_time += (double)length / Format.BytesPerSecond;
+					while (seq.Count > 0 && seq[0].Time < _time) {
+						var item = seq[0];
+						seq.RemoveAt(0);
+						if (_sources.Count >= MaxPolyphony) continue;
+						var source = item.Source;
+						_sources.Add(source);
+						int len = Math.Min(length, Format.Align((_time - item.Time) * Format.BytesPerSecond));
+						FillBufferInternal(source, length - len, len);
+					}
 				}
 				switch (Format.BitsPerSample) {
 					case 8:
@@ -172,8 +172,8 @@ namespace Cryville.Audio.Source {
 		/// </remarks>
 		public SimpleSequencerSession NewSession() {
 			if (BufferSize == 0) throw new InvalidOperationException("Audio source not attached to client");
-			_sources.Clear();
 			m_playing = false;
+			lock (_lock) _sources.Clear();
 			_time = 0;
 			return Session = new SimpleSequencerSession(Format, BufferSize);
 		}
