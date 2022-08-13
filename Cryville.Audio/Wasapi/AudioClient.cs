@@ -34,9 +34,18 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			if (Playing) Pause();
-			if (_eventHandle != IntPtr.Zero) Handle.CloseHandle(_eventHandle);
-			if (_renderClient != null) _renderClient.Dispose();
-			if (_clock != default(IntPtr)) Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(_clock));
+			if (_eventHandle != IntPtr.Zero) {
+				Handle.CloseHandle(_eventHandle);
+				_eventHandle = IntPtr.Zero;
+			}
+			if (_renderClient != null) {
+				_renderClient.Dispose();
+				_renderClient = null;
+			}
+			if (_clock != default(IntPtr)) {
+				Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(_clock));
+				_clock = default(IntPtr);
+			}
 			_internal.Dispose();
 		}
 

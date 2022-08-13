@@ -32,8 +32,12 @@ namespace Cryville.Audio.WinMM {
 					_buffers[i].Dispose();
 				}
 				MmSysComExports.MMR(MmeExports.waveOutClose(_waveOutHandle));
+				_waveOutHandle = IntPtr.Zero;
 			}
-			if (_eventHandle != IntPtr.Zero) Handle.CloseHandle(_eventHandle);
+			if (_eventHandle != IntPtr.Zero) {
+				Handle.CloseHandle(_eventHandle);
+				_eventHandle = IntPtr.Zero;
+			}
 		}
 
 		IntPtr _waveOutHandle;

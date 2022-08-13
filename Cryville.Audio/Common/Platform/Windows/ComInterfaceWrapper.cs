@@ -20,6 +20,7 @@ namespace Cryville.Common.Platform.Windows {
 		protected virtual void Dispose(bool disposing) {
 			if (ComObject != default(IntPtr)) {
 				Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(ComObject));
+				ComObject = default(IntPtr);
 			}
 		}
 	}
