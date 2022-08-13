@@ -8,8 +8,8 @@
 	
 	<PropertyGroup>
 		<Authors>Cryville</Authors>
-		<VersionPrefix>1.0.0</VersionPrefix>
-		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<VersionPrefix>1.1.0</VersionPrefix>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
