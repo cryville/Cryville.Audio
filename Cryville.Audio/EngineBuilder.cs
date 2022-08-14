@@ -24,7 +24,7 @@ namespace Cryville.Audio {
 			foreach (var type in Engines) {
 				if (!typeof(IAudioDeviceManager).IsAssignableFrom(type)) continue;
 				try {
-					return (IAudioDeviceManager)ReflectionHelper.InvokeEmptyConstructor(type);
+					return (IAudioDeviceManager)Activator.CreateInstance(type);
 				}
 				catch (Exception) { }
 			}
