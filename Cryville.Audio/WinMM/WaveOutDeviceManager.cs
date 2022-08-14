@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Cryville.Audio.WinMM {
 	/// <summary>
-	/// an <see cref="IAudioDeviceManager" /> that interacts with WinMM.
+	/// An <see cref="IAudioDeviceManager" /> that interacts with WinMM.
 	/// </summary>
 	public class WaveDeviceManager : IAudioDeviceManager {
 		/// <summary>
