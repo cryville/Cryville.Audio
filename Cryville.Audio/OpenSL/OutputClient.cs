@@ -197,8 +197,10 @@ namespace Cryville.Audio.OpenSL {
 		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
-				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
-				base.Pause();
+				lock (_enqlock) {
+					Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
+					base.Pause();
+				}
 			}
 		}
 

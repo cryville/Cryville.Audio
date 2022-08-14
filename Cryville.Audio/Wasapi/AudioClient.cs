@@ -207,18 +207,19 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
-				IAudioClient.Stop(_internal.ComObject);
-				/*_internal.ComObject.Reset();
-				m_bufferPosition = 0;*/
-				_thread.Abort();
+				_threadAbortFlag = true;
+				if (!_thread.Join(1000))
+					throw new InvalidOperationException("Failed to pause audio client");
 				_thread = null;
+				IAudioClient.Stop(_internal.ComObject);
 				base.Pause();
 			}
 		}
 
 		Thread _thread;
-
+		bool _threadAbortFlag;
 		void ThreadLogic() {
+			_threadAbortFlag = false;
 			var buffer = new byte[BufferSize];
 			while (true) {
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
@@ -236,6 +237,7 @@ namespace Cryville.Audio.Wasapi {
 					_renderClient.ReleaseBuffer(frames);
 				}
 				m_bufferPosition += (double)frames / m_format.nSamplesPerSec;
+				if (_threadAbortFlag) break;
 			}
 		}
 

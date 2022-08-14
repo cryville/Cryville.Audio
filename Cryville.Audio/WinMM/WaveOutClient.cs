@@ -239,18 +239,19 @@ namespace Cryville.Audio.WinMM {
 		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
-				MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
-				/*MmSysComExports.MMR(MmeExports.waveOutReset(_waveOutHandle));
-				m_bufferPosition = 0;*/
-				_thread.Abort();
+				_threadAbortFlag = true;
+				if (!_thread.Join(1000))
+					throw new InvalidOperationException("Failed to pause audio client");
 				_thread = null;
+				MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
 				base.Pause();
 			}
 		}
 
 		Thread _thread;
-
+		bool _threadAbortFlag;
 		void ThreadLogic() {
+			_threadAbortFlag = false;
 			while (true) {
 				for (int i = 0; i < BUFFER_COUNT; i++) {
 					var b = _buffers[i];
@@ -266,6 +267,7 @@ namespace Cryville.Audio.WinMM {
 						m_bufferPosition += (double)BufferSize / m_format.BytesPerSecond;
 					}
 				}
+				if (_threadAbortFlag) break;
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
 					throw new InvalidOperationException("Error while pending for event");
 			}
