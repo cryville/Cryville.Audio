@@ -1,0 +1,8 @@
+This file states modifications to FFmpeg.AutoGen.
+
+== Native/FunctionLoader.cs ==
+Line 36 and 54: Added symbols `NET35` and `NETSTANDARD2_0`
+
+== Native/LibraryLoader.cs ==
+Line 17: Added symbols `NET35` and `NETSTANDARD2_0`
+Line 33: Removed version suffix
