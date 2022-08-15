@@ -33,7 +33,7 @@
 - libavutil
 - libswresample
 
-本项目只使用 `file` 协议、解流器、解析器和解码器。另外，重采样需要 `aresample` 滤镜。
+本项目只使用 `file` 协议、解流器、解析器和解码器。另外，重采样需要 `aresample` 滤波器。
 
 ## 支持硬件 API
 - WASAPI（Windows Vista+）
