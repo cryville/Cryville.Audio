@@ -4,7 +4,7 @@
 	/// </summary>
 	public enum AudioShareMode {
 		/// <summary>
-		/// The device is shared with other connections, at the cost of a higher latency than <see cref="Exclusive"/>. The output data is mixed by the audio service.
+		/// The device is shared with other connections, at the cost of a higher latency than <see cref="Exclusive" />. The output data is mixed by the audio service.
 		/// </summary>
 		Shared,
 		/// <summary>

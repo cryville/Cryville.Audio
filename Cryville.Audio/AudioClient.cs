@@ -23,11 +23,11 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract IAudioDevice Device { get; }
 		/// <summary>
-		/// The default buffer duration of the client.
+		/// The default buffer duration of the client in milliseconds.
 		/// </summary>
 		public abstract float DefaultBufferDuration { get; }
 		/// <summary>
-		/// The minimum buffer duration of the client.
+		/// The minimum buffer duration of the client in milliseconds.
 		/// </summary>
 		public abstract float MinimumBufferDuration { get; }
 		/// <summary>

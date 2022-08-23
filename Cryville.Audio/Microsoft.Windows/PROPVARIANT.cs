@@ -88,13 +88,6 @@ namespace Microsoft.Windows {
 #pragma warning restore IDE0044 // Add readonly modifier
 
 
-		/// <summary>
-		/// CopyBytes - Poor man's mem copy.  Copies cbData from pbFrom to pbTo.
-		/// </summary>
-		/// <param name="pbTo"> byte* pointing to the "to" array.</param>
-		/// <param name="cbTo"> int - count of bytes of receiving buffer.</param>
-		/// <param name="pbFrom"> byte* pointing to the "from" array.</param>
-		/// <param name="cbFrom"> int - count of bytes to copy from buffer.</param>
 		[SecurityCritical]
 		private static unsafe void CopyBytes(
 			byte* pbTo,
