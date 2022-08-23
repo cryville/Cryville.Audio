@@ -80,7 +80,7 @@ namespace Cryville.Audio {
 		/// Gets whether <paramref name="format" /> is supported by the device.
 		/// </summary>
 		/// <param name="format">The specified wave format.</param>
-		/// <param name="suggestion">A suggestion wave format provided by the device.</param>
+		/// <param name="suggestion">A wave format suggested by the device. <paramref name="format" /> if it is supported. <see langword="null" /> if no format is supported.</param>
 		/// <param name="shareMode">The share mode.</param>
 		/// <returns>Whether <paramref name="format" /> is supported.</returns>
 		public abstract bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared);

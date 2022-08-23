@@ -10,6 +10,9 @@ namespace Cryville.Audio.Source {
 	/// <summary>
 	/// An <see cref="AudioSource" /> that uses Libav to demux and decode audio files.
 	/// </summary>
+	/// <remarks>
+	/// You must select a stream using <see cref="SelectStream()" /> or <see cref="SelectStream(int)" /> before playback.
+	/// </remarks>
 	public class LibavFileAudioSource : AudioSource {
 		internal unsafe class Internal {
 			readonly AVFormatContext* formatCtx;
@@ -52,6 +55,8 @@ namespace Cryville.Audio.Source {
 			}
 
 			public void OpenStream(int index) {
+				if (codecCtx != null)
+					throw new InvalidOperationException("Stream already opened");
 				if (index >= formatCtx->nb_streams)
 					throw new ArgumentOutOfRangeException(nameof(index));
 				selectedStream = index;
