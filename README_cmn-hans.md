@@ -40,5 +40,6 @@
 - WinMM（Windows 2000+）
 - OpenSL ES（Android 2.3+）
 - AAudio（Android 8+，开发中）
+- Core Audio（iOS 2.0+，iPadOS 2.0+，MacOS 10.0+，开发中）
 - ~~TinyALSA（Android 3.2+）~~
 - ~~Oboe（Android 4.4+）~~
