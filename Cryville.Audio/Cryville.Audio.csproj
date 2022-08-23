@@ -8,9 +8,9 @@
 	
 	<PropertyGroup>
 		<Authors>Cryville</Authors>
-		<VersionPrefix>1.1.1</VersionPrefix>
-		<AssemblyVersion>1.1.1</AssemblyVersion>
+		<Version>1.2.0</Version>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<DocumentationFile>Cryville.Audio.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netframework35|AnyCPU'">
@@ -62,7 +62,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Update="Cryville.Audio.cmn-hans.xml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	  <None Update="Cryville.Audio.WasapiWrapper.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Cryville.Audio.xml">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
