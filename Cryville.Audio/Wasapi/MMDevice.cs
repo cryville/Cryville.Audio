@@ -12,19 +12,23 @@ namespace Cryville.Audio.Wasapi {
 	public class MMDevice : ComInterfaceWrapper, IAudioDevice {
 		internal MMDevice(IntPtr obj) : base(obj) { }
 
+		PropertyStore m_properties;
 		/// <summary>
 		/// The properties of the device.
 		/// </summary>
-		public PropertyStore Properties { get; private set; }
+		public PropertyStore Properties {
+			get {
+				EnsureOpenPropertyStore();
+				return m_properties;
+			}
+		}
 
 		string m_name;
 		/// <inheritdoc />
 		public string Name {
 			get {
-				if (m_name == null) {
-					EnsureOpenPropertyStore();
+				if (m_name == null)
 					m_name = (string)Properties.Get(new PROPERTYKEY("a45c254e-df1c-4efd-8020-67d146a850e0", 14));
-				}
 				return m_name;
 			}
 		}
@@ -56,9 +60,9 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		private void EnsureOpenPropertyStore() {
-			if (Properties != null) return;
+			if (m_properties != null) return;
 			IMMDevice.OpenPropertyStore(ComObject, (uint)STGM.READ, out var result);
-			Properties = new PropertyStore(result);
+			m_properties = new PropertyStore(result);
 		}
 	}
 }
