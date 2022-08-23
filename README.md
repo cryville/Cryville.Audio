@@ -40,5 +40,6 @@ Only `file` protocol, demuxers, parsers, and decoders are required. Besides, `ar
 - WinMM (Windows 2000+)
 - OpenSL ES (Android 2.3+)
 - AAudio (Android 8+, WIP)
+- Core Audio (iOS 2.0+, iPadOS 2.0+, MacOS 10.0+, WIP)
 - ~~TinyALSA (Android 3.2+)~~
 - ~~Oboe (Android 4.4+)~~
