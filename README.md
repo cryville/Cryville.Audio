@@ -3,8 +3,6 @@
 # Cryville.Audio
 **This project is currently under development. Do NOT use in production.**
 
-**Currently this project cannot be built with Unity IL2CPP due to a bug of IL2CPP, which fails the downstream C++ compiler.**
-
 Project #A012 [cau] Cryville.Audio is a realtime audio playback library under .NET.
 
 This project was created on 2022-04-08. It has been open-sourced since 2022-08-09.

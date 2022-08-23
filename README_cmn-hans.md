@@ -3,8 +3,6 @@
 # Cryville.Audio
 **本项目目前处于开发状态。请勿用于生产环境。**
 
-**由于 IL2CPP 的一个 bug，目前本项目无法于 Unity IL2CPP 中构建。尝试构建将会使下游 C++ 编译器报错。**
-
 项目 #A012 [cau] Cryville.Audio 是一个 .NET 下的实时音频播放库。
 
 本项目于 2022-04-08 创建，于 2022-08-09 开源。
@@ -35,7 +33,7 @@
 - libavutil
 - libswresample
 
-本项目只使用 `file` 协议、解流器、解析器和解码器。另外，重采样需要 `aresample` 滤镜。
+本项目只使用 `file` 协议、解流器、解析器和解码器。另外，重采样需要 `aresample` 滤波器。
 
 ## 支持硬件 API
 - WASAPI（Windows Vista+）
