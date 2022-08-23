@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio", "Cryville.Audio\Cryville.Audio.csproj", "{48B40913-AEDD-4493-94DD-1435ED5FECBA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2924B386-E017-4A6F-96EB-049CA76AAB9C} = {2924B386-E017-4A6F-96EB-049CA76AAB9C}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.Test", "Cryville.Audio.Test\Cryville.Audio.Test.csproj", "{2E9B7AE9-D822-4B46-8046-469C87E545F6}"
 EndProject
