@@ -145,69 +145,69 @@
 		</member>
 		<member name="T:Cryville.Audio.EngineBuilder">
 			<summary>
-			The recommended entry for Cryville.Audio that creates an <see cref="T:Cryville.Audio.IAudioDeviceManager" />.
+			Cryville.Audio 的推荐入口，用于创建一个 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.EngineBuilder.Engines">
 			<summary>
-			The list of available engines.
+			可用引擎列表。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.EngineBuilder.Create">
 			<summary>
-			Creates a recommended <see cref="T:Cryville.Audio.IAudioDeviceManager" />.
+			创建一个推荐的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
 			</summary>
-			<returns>A recommended <see cref="T:Cryville.Audio.IAudioDeviceManager" />. <see langword="null" /> if no engine is supported.</returns>
+			<returns>一个推荐的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。如果没有支持的引擎则返回 <see langword="null" />。</returns>
 		</member>
 		<member name="T:Cryville.Audio.IAudioDevice">
 			<summary>
-			Audio device.
+			音频设备。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.IAudioDevice.Name">
 			<summary>
-			The friendly name of the device.
+			设备的通俗名称。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.IAudioDevice.DataFlow">
 			<summary>
-			The data-flow direction of the device.
+			设备的数据流向。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.IAudioDevice.Connect">
 			<summary>
-			Connects to the device.
+			连接到设备。
 			</summary>
-			<returns>An <see cref="T:Cryville.Audio.AudioClient" /> for interaction with the device.</returns>
+			<returns>一个用于与设备交互的 <see cref="T:Cryville.Audio.AudioClient" />。</returns>
 		</member>
 		<member name="T:Cryville.Audio.IAudioDeviceManager">
 			<summary>
-			Audio device manager that manages <see cref="T:Cryville.Audio.IAudioDevice" />.
+			管理 <see cref="T:Cryville.Audio.IAudioDevice" /> 的音频设备管理器。
 			</summary>
 			<remarks>
-			If the <see cref="T:Cryville.Audio.IAudioDeviceManager" /> is not supported, an exception is thrown when trying to create an instance.
+			如果系统不支持一个 <see cref="T:Cryville.Audio.IAudioDeviceManager" />，尝试创建其实例时将抛出异常。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.IAudioDeviceManager.GetDevices(Cryville.Audio.DataFlow)">
 			<summary>
-			Gets all audio devices for the specified <paramref name="dataFlow" />.
+			获取指定 <paramref name="dataFlow" /> 的所有音频设备。
 			</summary>
-			<param name="dataFlow">The data-flow direction.</param>
+			<param name="dataFlow">数据流向。</param>
 		</member>
 		<member name="M:Cryville.Audio.IAudioDeviceManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
 			<summary>
-			Gets the default audio device for the specified <paramref name="dataFlow" />.
+			获取指定 <paramref name="dataFlow" /> 的默认音频设备。
 			</summary>
-			<param name="dataFlow">The data-flow direction.</param>
+			<param name="dataFlow">数据流向。</param>
 		</member>
 		<member name="T:Cryville.Audio.OpenSL.Engine">
 			<summary>
-			An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with OpenSL ES.
+			一个与 OpenSL ES 交互的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.Engine.#ctor">
 			<summary>
-			Creates an instance of the <see cref="T:Cryville.Audio.OpenSL.Engine" /> class.
+			创建一个 <see cref="T:Cryville.Audio.OpenSL.Engine" /> 类的实例。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.Engine.Finalize">
@@ -218,9 +218,9 @@
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.Engine.Dispose(System.Boolean)">
 			<summary>
-			Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			执行与释放或重置非托管资源关联的应用程序定义的任务。
 			</summary>
-			<param name="disposing">Whether the method is being called by user.</param>
+			<param name="disposing">该方法是否由用户调用。</param>
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.Engine.GetDefaultDevice(Cryville.Audio.DataFlow)">
 			<inheritdoc />
@@ -230,10 +230,10 @@
 		</member>
 		<member name="T:Cryville.Audio.OpenSL.OutputClient">
 			<summary>
-			An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with OpenSL ES.
+			一个与 OpenSL ES 交互的 <see cref="T:Cryville.Audio.AudioClient" />。
 			</summary>
 			<remarks>
-			See <see cref="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction" /> if AOT is used.
+			如果使用了 AOT，参见 <see cref="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction" />。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.OutputClient.Dispose(System.Boolean)">
@@ -268,17 +268,17 @@
 		</member>
 		<member name="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction">
 			<summary>
-			The buffer queue callback function.
+			缓存队列回调函数。
 			</summary>
 			<remarks>
-			<para>In the case where AOT is used, override this so it points to a proper function, which calls <see cref="M:Cryville.Audio.OpenSL.OutputClient.Callback(System.IntPtr,System.IntPtr)" />, as the following code snippet:</para>
+			<para>在使用了 AOT 的情况下，应当用一个支持 AOT 的函数覆盖该属性。覆盖的函数应当调用 <see cref="M:Cryville.Audio.OpenSL.OutputClient.Callback(System.IntPtr,System.IntPtr)" />，如下面这个代码片段所示：</para>
 			<code>
 			[MonoPInvokeCallback(typeof(slBufferQueueCallback))]
 			static void AOTCallback(IntPtr caller, IntPtr context) {
 				OutputClient.Callback(caller, context);
 			}
 			</code>
-			<para>You should not override this function in other cases.</para>
+			<para>其它情况下，不应当覆盖默认回调函数。</para>
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.OutputClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
@@ -300,7 +300,7 @@
 		</member>
 		<member name="T:Cryville.Audio.OpenSL.OutputDevice">
 			<summary>
-			An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with OpenSL ES.
+			一个与 OpenSL ES 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.OutputDevice.Finalize">
@@ -311,9 +311,9 @@
 		</member>
 		<member name="M:Cryville.Audio.OpenSL.OutputDevice.Dispose(System.Boolean)">
 			<summary>
-			Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			执行与释放或重置非托管资源关联的应用程序定义的任务。
 			</summary>
-			<param name="disposing">Whether the method is being called by user.</param>
+			<param name="disposing">该方法是否由用户调用。</param>
 		</member>
 		<member name="P:Cryville.Audio.OpenSL.OutputDevice.Name">
 			<inheritdoc />
@@ -326,7 +326,7 @@
 		</member>
 		<member name="T:Cryville.Audio.Source.AudioSource">
 			<summary>
-			Audio source that provides wave data.
+			提供波形数据的音频源。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.Dispose">
@@ -334,102 +334,102 @@
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.Dispose(System.Boolean)">
 			<summary>
-			Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			执行与释放或重置非托管资源关联的应用程序定义的任务。
 			</summary>
-			<param name="disposing">Whether the method is being called by user.</param>
+			<param name="disposing">该方法是否由用户调用。</param>
 		</member>
 		<member name="P:Cryville.Audio.Source.AudioSource.Muted">
 			<summary>
-			Whether the audio source is muted.
+			音频源是否被静音。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.AudioSource.Format">
 			<summary>
-			The output wave format.
+			输出波形格式。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.AudioSource.BufferSize">
 			<summary>
-			The buffer size in bytes.
+			缓存大小（字节）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.AudioSource.EndOfData">
 			<summary>
-			Whether if the source has reached the end of data.
+			音频源是否到达了数据末尾。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.OnSetFormat">
 			<summary>
-			Called when the wave format is set and the buffer size is determined.
+			当波形格式和缓存大小被设置时被调用。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
 			<summary>
-			Gets whether <paramref name="format" /> is supported by the audio source.
+			获取音频源是否支持 <paramref name="format" />。
 			</summary>
-			<param name="format">The wave format.</param>
+			<param name="format">波形格式。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
 			<summary>
-			Fills the buffer with wave data requested by <see cref="T:Cryville.Audio.AudioClient" />.
+			将 <see cref="T:Cryville.Audio.AudioClient" /> 请求的波形数据填充到缓存。
 			</summary>
-			<param name="buffer">The buffer to be filled.</param>
-			<param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-			<param name="length">The length in bytes to be filled.</param>
+			<param name="buffer">被填充的缓存。</param>
+			<param name="offset"><paramref name="buffer" /> 中开始填充处的索引（字节）。</param>
+			<param name="length">需要填充的长度（字节）。</param>
 			<remarks>
-			To optimize performance, the caller must ensure <paramref name="buffer" /> is not <see langword="null" /> and <paramref name="length" /> is not greater than the length of <paramref name="buffer" />.
+			出于性能优化，调用者必须确保 <paramref name="buffer" /> 不为 <see langword="null" /> 且 <paramref name="length" /> 不大于 <paramref name="buffer" /> 的长度。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.SilentBuffer(System.Byte[],System.Int32,System.Int32)">
 			<summary>
-			Fills the buffer with silence.
+			将静音填充到缓存。
 			</summary>
-			<param name="buffer">The buffer to be filled.</param>
-			<param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-			<param name="length">The length in bytes to be filled.</param>
+			<param name="buffer">被填充的缓存。</param>
+			<param name="offset"><paramref name="buffer" /> 中开始填充处的索引（字节）。</param>
+			<param name="length">需要填充的长度（字节）。</param>
 			<remarks>
-			To optimize performance, the caller must ensure <paramref name="buffer" /> is not <see langword="null" /> and <paramref name="length" /> is not greater than the length of <paramref name="buffer" />.
+			出于性能优化，调用者必须确保 <paramref name="buffer" /> 不为 <see langword="null" /> 且 <paramref name="length" /> 不大于 <paramref name="buffer" /> 的长度。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.AudioSource.SilentBuffer(Cryville.Audio.WaveFormat,System.Byte[],System.Int32,System.Int32)">
 			<summary>
-			Fills the buffer with silence.
+			将静音填充到缓存。
 			</summary>
-			<param name="format">The wave format.</param>
-			<param name="buffer">The buffer to be filled.</param>
-			<param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-			<param name="length">The length in bytes to be filled.</param>
+			<param name="format">波形格式。</param>
+			<param name="buffer">被填充的缓存。</param>
+			<param name="offset"><paramref name="buffer" /> 中开始填充处的索引（字节）。</param>
+			<param name="length">需要填充的长度（字节）。</param>
 			<remarks>
-			To optimize performance, the caller must ensure <paramref name="buffer" /> is not <see langword="null" /> and <paramref name="length" /> is not greater than the length of <paramref name="buffer" />.
+			出于性能优化，调用者必须确保 <paramref name="buffer" /> 不为 <see langword="null" /> 且 <paramref name="length" /> 不大于 <paramref name="buffer" /> 的长度。
 			</remarks>
 		</member>
 		<member name="T:Cryville.Audio.Source.CachedAudioSource">
 			<summary>
-			An <see cref="T:Cryville.Audio.Source.AudioSource" /> that caches data for reuse.
+			一个缓存数据并对其进行复用的 <see cref="T:Cryville.Audio.Source.AudioSource" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.CachedAudioSource.#ctor(Cryville.Audio.Source.AudioSource,System.Double)">
 			<summary>
-			Creates an instance of the <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> class.
+			创建一个 <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> 类的实例。
 			</summary>
-			<param name="source">The <see cref="T:Cryville.Audio.Source.AudioSource" /> to be cached.</param>
-			<param name="duration">The duration of the cache.</param>
+			<param name="source">被缓存的 <see cref="T:Cryville.Audio.Source.AudioSource" />。</param>
+			<param name="duration">缓存长度（秒）。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.CachedAudioSource.Clone">
 			<summary>
-			Gets a clone of this <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> with the timestamp reset.
+			获取一个时间戳归零的该 <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> 的副本。
 			</summary>
-			<returns>A clone of this <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> with the timestamp reset.</returns>
+			<returns>一个时间戳归零的该 <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> 的副本。</returns>
 			<remarks>
-			Use with object pool is recommended.
+			推荐配合对象池使用。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.CachedAudioSource.Rewind">
 			<summary>
-			Resets the timestamp to reuse the instance.
+			归零时间戳以复用该实例。
 			</summary>
 			<remarks>
-			Use with object pool is recommended.
+			推荐配合对象池使用。
 			</remarks>
 		</member>
 		<member name="P:Cryville.Audio.Source.CachedAudioSource.EndOfData">
@@ -449,12 +449,12 @@
 		</member>
 		<member name="T:Cryville.Audio.Source.FunctionAudioSource">
 			<summary>
-			An <see cref="T:Cryville.Audio.Source.AudioSource" /> that generates sound by a given function.
+			一个以给定函数生成波形数据的 <see cref="T:Cryville.Audio.Source.AudioSource" />。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.FunctionAudioSource.Channels">
 			<summary>
-			The channel count of the output format.
+			输出波形格式的声道数。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.FunctionAudioSource.Dispose(System.Boolean)">
@@ -471,24 +471,24 @@
 		</member>
 		<member name="M:Cryville.Audio.Source.FunctionAudioSource.Func(System.Double,System.Int32)">
 			<summary>
-			The function used to generate wave.
+			用于生成波形的函数。
 			</summary>
-			<param name="time">The time position.</param>
-			<param name="channel">The channel index.</param>
+			<param name="time">时间（秒）。</param>
+			<param name="channel">声道索引。</param>
 		</member>
 		<member name="T:Cryville.Audio.Source.LibavFileAudioSource">
 			<summary>
-			An <see cref="T:Cryville.Audio.Source.AudioSource" /> that uses Libav to demux and decode audio files.
+			一个使用 Libav 解流并解码音频文件的 <see cref="T:Cryville.Audio.Source.AudioSource" />。
 			</summary>
 			<remarks>
-			You must select a stream using <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream" /> or <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream(System.Int32)" /> before playback.
+			播放前必须调用 <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream" /> 或 <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream(System.Int32)" /> 以选择一个音频流。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.LibavFileAudioSource.#ctor(System.String)">
 			<summary>
-			Creates an instance of the <see cref="T:Cryville.Audio.Source.LibavFileAudioSource" /> class and loads the specified <paramref name="file" />.
+			创建一个 <see cref="T:Cryville.Audio.Source.LibavFileAudioSource" /> 类的实例并加载指定的 <paramref name="file" />。
 			</summary>
-			<param name="file">The audio file.</param>
+			<param name="file">音频文件。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.LibavFileAudioSource.Dispose(System.Boolean)">
 			<inheritdoc />
@@ -498,31 +498,31 @@
 		</member>
 		<member name="P:Cryville.Audio.Source.LibavFileAudioSource.BestStreamIndex">
 			<summary>
-			The index to the best audio stream.
+			最佳音频流的索引。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.LibavFileAudioSource.Streams">
 			<summary>
-			The collection of indices to all audio streams.
+			所有音频流的索引集。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream">
 			<summary>
-			Selects the best stream as the source.
+			选择最佳音频流作为音频源。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream(System.Int32)">
 			<summary>
-			Selects a stream as the source.
+			选择一个音频流作为音频源。
 			</summary>
-			<param name="index">The index of the stream.</param>
+			<param name="index">音频流的索引。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.LibavFileAudioSource.GetDuration(System.Int32)">
 			<summary>
-			Gets the duration of a stream or the file.
+			获取一个流或当前文件的长度。
 			</summary>
-			<param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
-			<returns>The duration in seconds.</returns>
+			<param name="streamId">流索引。如果指定 <c>-1</c> 则返回文件的长度。</param>
+			<returns>长度（秒）。</returns>
 		</member>
 		<member name="M:Cryville.Audio.Source.LibavFileAudioSource.OnSetFormat">
 			<inheritdoc />
@@ -535,25 +535,25 @@
 		</member>
 		<member name="T:Cryville.Audio.Source.SimpleSequencerSource">
 			<summary>
-			A simple <see cref="T:Cryville.Audio.Source.AudioSource" /> that mixes sequenced audio sources.
+			一个对序列中的音频源进行混音的简单 <see cref="T:Cryville.Audio.Source.AudioSource" />。
 			</summary>
 			<remarks>
-			<para>To use this class, take the following steps:</para>
+			<para>使用该类可参照以下步骤：</para>
 			<list type="number">
-			<item>Create an instance of <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" />.</item>
-			<item>Attach the <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> to an <see cref="T:Cryville.Audio.AudioClient" /> by setting <see cref="P:Cryville.Audio.AudioClient.Source" />.</item>
-			<item>Create a new <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> by calling <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.NewSession" />.</item>
-			<item>Start playback by calling <see cref="M:Cryville.Audio.AudioClient.Start" /> and setting <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.Playing" /> to <see langword="true" />.</item>
+			<item>创建一个 <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> 类的实例。</item>
+			<item>通过设置 <see cref="P:Cryville.Audio.AudioClient.Source" /> 将 <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> 绑定到一个 <see cref="T:Cryville.Audio.AudioClient" />。</item>
+			<item>调用 <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.NewSession" /> 创建一个新的 <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" />。</item>
+			<item>调用 <see cref="M:Cryville.Audio.AudioClient.Start" /> 并将 <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.Playing" /> 设为 <see langword="true" /> 开始播放。</item>
 			</list>
-			<para>You can sequence <see cref="T:Cryville.Audio.Source.AudioSource" />s to the <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> both before and after playback starts. See <see cref="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.Source.AudioSource)" />.</para>
-			<para>If <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.Playing" /> is set to <see langword="false" />, the output will become silence.</para>
+			<para>播放开始前后都可以将 <see cref="T:Cryville.Audio.Source.AudioSource" /> 序列至 <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" />。参见 <see cref="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.Source.AudioSource)" />。</para>
+			<para>如果 <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.Playing" /> 被设为 <see langword="false" />，输出将变为静音。</para>
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.#ctor(System.Int32)">
 			<summary>
-			Creates an instance of the <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> class.
+			创建一个 <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> 类的实例。
 			</summary>
-			<param name="maxPolyphony">Max polyphony of the source. Must be greater than 0. See <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony"/>.</param>
+			<param name="maxPolyphony">序列器的最大复音数。必须大于 0。参见 <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony"/>。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.Dispose(System.Boolean)">
 			<inheritdoc />
@@ -569,10 +569,10 @@
 		</member>
 		<member name="P:Cryville.Audio.Source.SimpleSequencerSource.Playing">
 			<summary>
-			Whether if the current session is playing.
+			当前会话是否正在播放。
 			</summary>
 			<remarks>
-			There is a tiny delay before the playback state actually toggles, which is approximately <see cref="P:Cryville.Audio.AudioClient.BufferPosition" /> substracted by <see cref="P:Cryville.Audio.AudioClient.Position" />.
+			播放状态切换时有一个小延迟，大约是 <see cref="P:Cryville.Audio.AudioClient.BufferPosition" /> 减去 <see cref="P:Cryville.Audio.AudioClient.Position" />。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
@@ -580,61 +580,61 @@
 		</member>
 		<member name="P:Cryville.Audio.Source.SimpleSequencerSource.Polyphony">
 			<summary>
-			The number of sources currently playing.
+			复音数，当前正在播放的音频源数量。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony">
 			<summary>
-			Max polyphony, the number of sources that can be played at the same time.
+			最大复音数，可以同时播放音频源的最大数量。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.SimpleSequencerSource.Session">
 			<summary>
-			The <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> currently playing.
+			当前正在播放的 <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.NewSession">
 			<summary>
-			Stops the current session and creates a new <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> to replace it.
+			停止当前会话，创建一个新的 <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> 将其替换。
 			</summary>
 			<remarks>
-			An <see cref="T:Cryville.Audio.AudioClient" /> must be attached to this source first.
+			创建前必须先绑定 <see cref="T:Cryville.Audio.AudioClient" />。
 			</remarks>
 		</member>
 		<member name="T:Cryville.Audio.Source.SimpleSequencerSession">
 			<summary>
-			A session for <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" />.
+			<see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> 的会话。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.Source.AudioSource)">
 			<summary>
-			Sequences a <paramref name="source" /> at the specified <paramref name="time" />.
+			将 <paramref name="source" /> 序列至指定的 <paramref name="time" />。
 			</summary>
-			<param name="time">The time.</param>
-			<param name="source">The audio source.</param>
+			<param name="time">时间（秒）。</param>
+			<param name="source">音频源。</param>
 			<remarks>
-			<para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>
-			<para>If the number of audio sources currently playing exceeds <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony" />, the <paramref name="source" /> will be discarded.</para>
+			<para>如果 <paramref name="time" /> 小于当前时间，<paramref name="source" /> 将被立刻播放。</para>
+			<para>如果正在播放的音频源数量超过了 <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony" />，<paramref name="source" /> 将被丢弃。</para>
 			</remarks>
 		</member>
 		<member name="T:Cryville.Audio.Source.SingleToneAudioSource">
 			<summary>
-			An <see cref="T:Cryville.Audio.Source.AudioSource" /> that generates single tone.
+			一个生成单调声调的 <see cref="T:Cryville.Audio.Source.AudioSource" />。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.SingleToneAudioSource.Type">
 			<summary>
-			The tone type.
+			声调类型。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.SingleToneAudioSource.Frequency">
 			<summary>
-			The frequency of the wave.
+			波形频率。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Source.SingleToneAudioSource.Amplitude">
 			<summary>
-			The amplitude of the wave.
+			波形振幅。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Source.SingleToneAudioSource.Func(System.Double,System.Int32)">
@@ -642,27 +642,27 @@
 		</member>
 		<member name="T:Cryville.Audio.Source.ToneType">
 			<summary>
-			Tone type.
+			声调类型。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.Source.ToneType.Sine">
 			<summary>
-			Sine wave.
+			正弦波。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.Source.ToneType.Triangle">
 			<summary>
-			Triangle wave.
+			锯齿波。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.Source.ToneType.Square">
 			<summary>
-			Square wave.
+			方波。
 			</summary>
 		</member>
 		<member name="T:Cryville.Audio.Wasapi.AudioClient">
 			<summary>
-			An <see cref="T:Cryville.Audio.AudioClient" /> that interact with Wasapi.
+			一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.AudioClient" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Wasapi.AudioClient.Finalize">
@@ -703,11 +703,11 @@
 		</member>
 		<member name="M:Cryville.Audio.Wasapi.AudioClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
 			<summary>
-			Initialize the client.
+			初始化客户端。
 			</summary>
-			<param name="format">The wave format.</param>
-			<param name="bufferDuration">The buffer duration of the connection. The value is clamped to <see cref="P:Cryville.Audio.Wasapi.AudioClient.MinimumBufferDuration" /> if too small. If <paramref name="shareMode" /> is set to <see cref="F:Cryville.Audio.AudioShareMode.Shared" />, the buffer duration will be determined automatically despite this parameter.</param>
-			<param name="shareMode">The share mode of the connection.</param>
+			<param name="format">波形格式。</param>
+			<param name="bufferDuration">连接的缓存时长（毫秒）。如果该值太小，则其将被限制到 <see cref="P:Cryville.Audio.Wasapi.AudioClient.MinimumBufferDuration" />。如果 <paramref name="shareMode" /> 为 <see cref="F:Cryville.Audio.AudioShareMode.Shared" />，缓存时长将自动决定，且该参数无效。</param>
+			<param name="shareMode">连接的共享模式。</param>
 		</member>
 		<member name="M:Cryville.Audio.Wasapi.AudioClient.Start">
 			<inheritdoc />
@@ -717,12 +717,12 @@
 		</member>
 		<member name="T:Cryville.Audio.Wasapi.MMDevice">
 			<summary>
-			An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with Wasapi.
+			一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Wasapi.MMDevice.Properties">
 			<summary>
-			The properties of the device.
+			设备的属性。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.Wasapi.MMDevice.Name">
@@ -736,15 +736,15 @@
 		</member>
 		<member name="T:Cryville.Audio.Wasapi.MMDeviceEnumerator">
 			<summary>
-			An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interact with Wasapi.
+			一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
 			</summary>
 			<remarks>
-			<c>Cryville.Audio.WasapiWrapper.dll</c> is required.
+			需要 <c>Cryville.Audio.WasapiWrapper.dll</c>。
 			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.#ctor">
 			<summary>
-			Creates an instance of the <see cref="T:Cryville.Audio.Wasapi.MMDeviceEnumerator" /> class.
+			创建一个 <see cref="T:Cryville.Audio.Wasapi.MMDeviceEnumerator" /> 类的实例。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.GetDevices(Cryville.Audio.DataFlow)">
@@ -755,94 +755,94 @@
 		</member>
 		<member name="T:Cryville.Audio.WaveFormat">
 			<summary>
-			The wave format.
+			波形格式。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.Channels">
 			<summary>
-			The channel count.
+			声道数。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.SampleRate">
 			<summary>
-			The sample rate (samples per second.)
+			采样率（每秒样本数）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.SampleFormat">
 			<summary>
-			The sample format.
+			样本格式。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.BitsPerSample">
 			<summary>
-			Bit count per sample.
+			每样本位数。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.BytesPerSecond">
 			<summary>
-			Bytes per second.
+			每秒字节数。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.WaveFormat.Default">
 			<summary>
-			The default wave format.
+			默认波形格式。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.WaveFormat.Align(System.Double)">
 			<summary>
-			Gets the aligned buffer size.
+			获取对齐的缓存大小。
 			</summary>
-			<param name="size">The prefered buffer size in bytes.</param>
-			<returns>The aligned buffer size in bytes.</returns>
+			<param name="size">需要的缓存大小（字节）。</param>
+			<returns>对齐的缓存大小（字节）。</returns>
 		</member>
 		<member name="M:Cryville.Audio.WaveFormat.ToString">
 			<inheritdoc />
 		</member>
 		<member name="T:Cryville.Audio.SampleFormat">
 			<summary>
-			Sample format.
+			样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Unsigned8">
 			<summary>
-			Unsigned 8-bit integer sample format.
+			无符号 8 位整型样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Signed16">
 			<summary>
-			Signed 16-bit integer sample format.
+			有符号 16 位整型样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Signed24">
 			<summary>
-			Signed 24-bit integer sample format.
+			有符号 24 位整型样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Signed32">
 			<summary>
-			Signed 32-bit integer sample format.
+			有符号 32 位整型样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Binary32">
 			<summary>
-			IEEE 754 single precision floating-point sample format.
+			IEEE 754 单精度浮点数样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Binary64">
 			<summary>
-			IEEE 754 double precision floating-point sample format.
+			IEEE 754 双精度浮点数样本格式。
 			</summary>
 		</member>
 		<member name="T:Cryville.Audio.WinMM.WaveOutClient">
 			<summary>
-			An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with WinMM.
+			一个与 WinMM 交互的 <see cref="T:Cryville.Audio.AudioClient" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveOutClient.Dispose(System.Boolean)">
 			<summary>
-			Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			执行与释放或重置非托管资源关联的应用程序定义的任务。
 			</summary>
-			<param name="disposing">Whether the method is being called by user.</param>
+			<param name="disposing">该方法是否由用户调用。</param>
 		</member>
 		<member name="P:Cryville.Audio.WinMM.WaveOutClient.Device">
 			<inheritdoc />
@@ -885,7 +885,7 @@
 		</member>
 		<member name="T:Cryville.Audio.WinMM.WaveOutDevice">
 			<summary>
-			An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with WinMM.
+			一个与 WinMM 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveOutDevice.Dispose">
@@ -893,15 +893,15 @@
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveOutDevice.Dispose(System.Boolean)">
 			<summary>
-			Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			执行与释放或重置非托管资源关联的应用程序定义的任务。
 			</summary>
-			<param name="disposing">Whether the method is being called by user.</param>
+			<param name="disposing">该方法是否由用户调用。</param>
 		</member>
 		<member name="P:Cryville.Audio.WinMM.WaveOutDevice.Name">
 			<summary>
-			The friendly name of the device.
+			设备的通俗名称。
 			</summary>
-			<remarks>Due to technical reason, this field is truncated if it has more than 31 characters.</remarks>
+			<remarks>由于技术原因，该属性最大字符数限制为 31。</remarks>
 		</member>
 		<member name="P:Cryville.Audio.WinMM.WaveOutDevice.DataFlow">
 			<inheritdoc />
@@ -911,12 +911,12 @@
 		</member>
 		<member name="T:Cryville.Audio.WinMM.WaveDeviceManager">
 			<summary>
-			An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with WinMM.
+			一个与 WinMM 交互的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.#ctor">
 			<summary>
-			Creates an instance of the <see cref="T:Cryville.Audio.WinMM.WaveDeviceManager" /> class.
+			创建一个 <see cref="T:Cryville.Audio.WinMM.WaveDeviceManager" /> 类的实例。
 			</summary>
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.Dispose">
@@ -924,23 +924,15 @@
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.Dispose(System.Boolean)">
 			<summary>
-			Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			执行与释放或重置非托管资源关联的应用程序定义的任务。
 			</summary>
-			<param name="disposing">Whether the method is being called by user.</param>
+			<param name="disposing">该方法是否由用户调用。</param>
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
-			<summary>
-			Gets the default audio device for the specified <paramref name="dataFlow" />.
-			</summary>
-			<param name="dataFlow">The data-flow direction. Only <see cref="F:Cryville.Audio.DataFlow.Out"/> is supported.</param>
-			<remarks>The <see cref="P:Cryville.Audio.IAudioDevice.Name" /> of the returned device will be truncated if too long, also it will not be the real name of the device itself.</remarks>
+			<inheritdoc />
 		</member>
 		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDevices(Cryville.Audio.DataFlow)">
-			<summary>
-			Gets the default audio device for the specified <paramref name="dataFlow" />.
-			</summary>
-			<param name="dataFlow">The data-flow direction. Only <see cref="F:Cryville.Audio.DataFlow.Out"/> is supported.</param>
-			<remarks>The <see cref="P:Cryville.Audio.IAudioDevice.Name" /> of the returned device will be truncated if too long.</remarks>
+			<inheritdoc />
 		</member>
 	</members>
 </doc>
