@@ -58,7 +58,7 @@ namespace Cryville.Audio.WinMM {
 		public override WaveFormat DefaultFormat {
 			get {
 				IsFormatSupported(
-					new WaveFormat { Channels = 2, SampleRate = 192000, BitsPerSample = 64 },
+					new WaveFormat { Channels = 2, SampleRate = 192000, SampleFormat = SampleFormat.Signed32 },
 					out var format
 				);
 				return format ?? throw new NotSupportedException("No format is supported");
@@ -151,14 +151,13 @@ namespace Cryville.Audio.WinMM {
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
-			ushort bits = format.BitsPerSample;
+			SampleFormat bits = format.SampleFormat;
 			byte flagbits;
 			switch (bits) {
-				case  8: flagbits = 0; break;
-				case 16: flagbits = 1; break;
+				case SampleFormat.Unsigned8: flagbits = 0; break;
+				case SampleFormat.Signed16 : flagbits = 1; break;
 				default:
-					if (bits <= 8) format.BitsPerSample =  8;
-					else           format.BitsPerSample = 16;
+					format.SampleFormat = SampleFormat.Signed16;
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
@@ -217,7 +216,7 @@ namespace Cryville.Audio.WinMM {
 				suggestion = new WaveFormat {
 					Channels = (capfilter & 0x55555555) != 0 ? (ushort)1 : (ushort)2,
 					SampleRate = sugsr,
-					BitsPerSample = (capfilter & 0x33333333) != 0 ? (ushort)8 : (ushort)16,
+					SampleFormat = (capfilter & 0x33333333) != 0 ? SampleFormat.Unsigned8 : SampleFormat.Signed16,
 				};
 				return false;
 			}

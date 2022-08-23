@@ -56,7 +56,7 @@ namespace Cryville.Audio.OpenSL {
 		public override WaveFormat DefaultFormat => new WaveFormat {
 			Channels = 2,
 			SampleRate = 48000,
-			BitsPerSample = 16,
+			SampleFormat = SampleFormat.Signed16,
 		};
 
 		WaveFormat m_format;
@@ -181,14 +181,13 @@ namespace Cryville.Audio.OpenSL {
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
-			switch (format.BitsPerSample) {
-				case 8:
-				case 16:
+			switch (format.SampleFormat) {
+				case SampleFormat.Unsigned8:
+				case SampleFormat.Signed16:
 					suggestion = format;
 					return true;
 				default:
-					if (format.BitsPerSample < 8) format.BitsPerSample = 8;
-					else format.BitsPerSample = 16;
+					format.SampleFormat = SampleFormat.Signed16;
 					suggestion = format;
 					return false;
 			}

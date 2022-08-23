@@ -151,8 +151,8 @@ namespace Cryville.Audio.Source {
 					}
 				}
 			eof:
-				for (int i = decoded * bytesPerSamplePerChannel; i < length; i++)
-					buffer[i + offset] = OutFormat.Value.BitsPerSample == 8 ? (byte)0x80 : (byte)0x00;
+				int len = decoded * bytesPerSamplePerChannel;
+				SilentBuffer(OutFormat.Value, buffer, offset + len, length - len);
 			}
 
 			public void Close() {
@@ -193,10 +193,12 @@ namespace Cryville.Audio.Source {
 			}
 
 			static AVSampleFormat ToInternalFormat(WaveFormat value) {
-				switch (value.BitsPerSample) {
-					case 8: return AVSampleFormat.AV_SAMPLE_FMT_U8;
-					case 16: return AVSampleFormat.AV_SAMPLE_FMT_S16;
-					case 32: return AVSampleFormat.AV_SAMPLE_FMT_S32;
+				switch (value.SampleFormat) {
+					case SampleFormat.Unsigned8: return AVSampleFormat.AV_SAMPLE_FMT_U8;
+					case SampleFormat.Signed16: return AVSampleFormat.AV_SAMPLE_FMT_S16;
+					case SampleFormat.Signed32: return AVSampleFormat.AV_SAMPLE_FMT_S32;
+					case SampleFormat.Binary32: return AVSampleFormat.AV_SAMPLE_FMT_FLT;
+					case SampleFormat.Binary64: return AVSampleFormat.AV_SAMPLE_FMT_DBL;
 					default: throw new NotSupportedException();
 				}
 			}
@@ -270,9 +272,11 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format)
-			=> format.BitsPerSample == 8
-			|| format.BitsPerSample == 16
-			|| format.BitsPerSample == 32;
+			=> format.SampleFormat == SampleFormat.Unsigned8
+			|| format.SampleFormat == SampleFormat.Signed16
+			|| format.SampleFormat == SampleFormat.Signed32
+			|| format.SampleFormat == SampleFormat.Binary32
+			|| format.SampleFormat == SampleFormat.Binary64;
 	}
 
 	[Serializable]

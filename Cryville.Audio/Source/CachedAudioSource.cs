@@ -90,8 +90,7 @@ namespace Cryville.Audio.Source {
 				Array.Copy(_cache.Buffer, _pos, buffer, offset, len);
 				_pos += len;
 			}
-			for (int i = len; i < length; i++)
-				buffer[i + offset] = Format.BitsPerSample == 8 ? (byte)0x80 : (byte)0x00;
+			SilentBuffer(buffer, offset + len, length - len);
 		}
 	}
 }

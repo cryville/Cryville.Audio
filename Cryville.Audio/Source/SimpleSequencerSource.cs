@@ -47,9 +47,11 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format) {
-			return format.BitsPerSample == 8
-				|| format.BitsPerSample == 16
-				|| format.BitsPerSample == 32;
+			return format.SampleFormat == SampleFormat.Unsigned8
+				|| format.SampleFormat == SampleFormat.Signed16
+				|| format.SampleFormat == SampleFormat.Signed32
+				|| format.SampleFormat == SampleFormat.Binary32
+				|| format.SampleFormat == SampleFormat.Binary64;
 		}
 
 		bool m_playing;
@@ -76,11 +78,7 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		protected internal override unsafe void FillBuffer(byte[] buffer, int offset, int length) {
 			if (m_playing) {
-				switch (Format.BitsPerSample) {
-					case 8: Array.Clear(_pribuf, 0, length); break;
-					case 16: Array.Clear(_pribuf, 0, length / sizeof(short)); break;
-					case 32: Array.Clear(_pribuf, 0, length / sizeof(int)); break;
-				}
+				Array.Clear(_pribuf, 0, length / (Format.BitsPerSample / 8));
 				lock (_lock) {
 					_rmsources.Clear();
 					foreach (var source in _sources) {
@@ -101,13 +99,13 @@ namespace Cryville.Audio.Source {
 						FillBufferInternal(source, length - len, len);
 					}
 				}
-				switch (Format.BitsPerSample) {
-					case 8:
+				switch (Format.SampleFormat) {
+					case SampleFormat.Unsigned8:
 						for (int i = offset; i < length + offset; i++) {
 							buffer[i] = ClampScale.ToByte(_pribuf[i]);
 						}
 						break;
-					case 16:
+					case SampleFormat.Signed16:
 						fixed (byte* rptr = buffer) {
 							short* ptr = (short*)(rptr + offset);
 							for (int i = 0; i < length / sizeof(short); i++, ptr++) {
@@ -115,7 +113,7 @@ namespace Cryville.Audio.Source {
 							}
 						}
 						break;
-					case 32:
+					case SampleFormat.Signed32:
 						fixed (byte* rptr = buffer) {
 							int* ptr = (int*)(rptr + offset);
 							for (int i = 0; i < length / sizeof(int); i++, ptr++) {
@@ -123,22 +121,35 @@ namespace Cryville.Audio.Source {
 							}
 						}
 						break;
+					case SampleFormat.Binary32:
+						fixed (byte* rptr = buffer) {
+							float* ptr = (float*)(rptr + offset);
+							for (int i = 0; i < length / sizeof(float); i++, ptr++) {
+								*ptr = (float)_pribuf[i];
+							}
+						}
+						break;
+					case SampleFormat.Binary64:
+						fixed (byte* rptr = buffer) {
+							double* ptr = (double*)(rptr + offset);
+							for (int i = 0; i < length / sizeof(double); i++, ptr++) {
+								*ptr = _pribuf[i];
+							}
+						}
+						break;
 				}
 			}
-			else {
-				for (int i = 0; i < length; i++)
-					buffer[i + offset] = Format.BitsPerSample == 8 ? (byte)0x80 : (byte)0x00;
-			}
+			else SilentBuffer(buffer, offset, length);
 		}
 		unsafe void FillBufferInternal(AudioSource source, int offset, int length) {
 			source.FillBuffer(_secbuf, offset, length);
-			switch (Format.BitsPerSample) {
-				case 8:
+			switch (Format.SampleFormat) {
+				case SampleFormat.Unsigned8:
 					for (int i = offset; i < length; i++) {
 						_pribuf[i] += _secbuf[i] / (double)0x80 - 1;
 					}
 					break;
-				case 16:
+				case SampleFormat.Signed16:
 					fixed (byte* rptr = _secbuf) {
 						short* ptr = (short*)rptr;
 						for (int i = offset / sizeof(short); i < length / sizeof(short); i++, ptr++) {
@@ -146,11 +157,27 @@ namespace Cryville.Audio.Source {
 						}
 					}
 					break;
-				case 32:
+				case SampleFormat.Signed32:
 					fixed (byte* rptr = _secbuf) {
 						int* ptr = (int*)rptr;
 						for (int i = offset / sizeof(int); i < length / sizeof(int); i++, ptr++) {
 							_pribuf[i] += *ptr / (double)0x80000000;
+						}
+					}
+					break;
+				case SampleFormat.Binary32:
+					fixed (byte* rptr = _secbuf) {
+						float* ptr = (float*)rptr;
+						for (int i = offset / sizeof(float); i < length / sizeof(float); i++, ptr++) {
+							_pribuf[i] += *ptr;
+						}
+					}
+					break;
+				case SampleFormat.Binary64:
+					fixed (byte* rptr = _secbuf) {
+						double* ptr = (double*)rptr;
+						for (int i = offset / sizeof(double); i < length / sizeof(double); i++, ptr++) {
+							_pribuf[i] += *ptr;
 						}
 					}
 					break;

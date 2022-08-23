@@ -1,4 +1,5 @@
 ﻿using Microsoft.Windows.Mme;
+using System;
 using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
 namespace Cryville.Audio.WinMM {
@@ -19,8 +20,17 @@ namespace Cryville.Audio.WinMM {
 			return new WaveFormat {
 				Channels = value.nChannels,
 				SampleRate = value.nSamplesPerSec,
-				BitsPerSample = value.wBitsPerSample,
+				SampleFormat = FromInternalBitDepth(value.wBitsPerSample),
 			};
+		}
+		public static SampleFormat FromInternalBitDepth(ushort bitsPerSample) {
+			switch (bitsPerSample) {
+				case 8: return SampleFormat.Unsigned8;
+				case 16: return SampleFormat.Signed16;
+				case 24: return SampleFormat.Signed24;
+				case 32: return SampleFormat.Signed32;
+				default: throw new NotSupportedException();
+			}
 		}
 	}
 }
