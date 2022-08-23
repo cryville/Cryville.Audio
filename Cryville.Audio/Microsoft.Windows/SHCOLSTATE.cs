@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Microsoft.Windows.PropSys {
-	public enum SHCOLSTATE : UInt32 {
+	internal enum SHCOLSTATE : UInt32 {
 		DEFAULT            =       0,
 		TYPE_STR           =     0x1,
 		TYPE_INT           =     0x2,

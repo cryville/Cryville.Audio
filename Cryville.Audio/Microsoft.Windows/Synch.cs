@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows {
-	public static class Synch {
+	internal static class Synch {
 		[DllImport("kernel32.dll")]
 		public static extern IntPtr CreateEventW(
 			/* LPSECURITY_ATTRIBUTES */ IntPtr lpEventAttributes,

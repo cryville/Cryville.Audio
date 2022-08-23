@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace Microsoft.Windows.MmSysCom {
-	public static class MmSysComExports {
+	internal static class MmSysComExports {
 		public const int MAXPNAMELEN = 32;
 
 		public static void MMR(uint ret) {
@@ -14,7 +14,7 @@ namespace Microsoft.Windows.MmSysCom {
 	}
 
 	[StructLayout(LayoutKind.Explicit)]
-	public struct MMTIME {
+	internal struct MMTIME {
 		[FieldOffset(0)] public UInt32 wType;
 		[FieldOffset(4)] private UInt32 ms;
 		[FieldOffset(4)] private UInt32 sample;
@@ -38,7 +38,7 @@ namespace Microsoft.Windows.MmSysCom {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct smpte {
+	internal struct smpte {
 		public byte hour;  /* hours */
 		public byte min;   /* minutes */
 		public byte sec;   /* seconds */
@@ -49,7 +49,7 @@ namespace Microsoft.Windows.MmSysCom {
 		byte pad2;
 	}
 
-	public enum CALLBACK_TYPE {
+	internal enum CALLBACK_TYPE {
 		CALLBACK_TYPEMASK = 0x00070000,      /* callback type mask */
 		CALLBACK_NULL     = 0x00000000,      /* no callback */
 		CALLBACK_WINDOW   = 0x00010000,      /* dwCallback is a HWND */
@@ -59,7 +59,7 @@ namespace Microsoft.Windows.MmSysCom {
 		CALLBACK_EVENT    = 0x00050000,      /* dwCallback is an EVENT Handle */
 	}
 
-	public enum MMSYSERR {
+	internal enum MMSYSERR {
 		NOERROR = 0,
 		ERROR,
 		BADDEVICEID,
@@ -85,7 +85,7 @@ namespace Microsoft.Windows.MmSysCom {
 	}
 
 	[Flags]
-	public enum TIME_TYPE {
+	internal enum TIME_TYPE {
 		MS      = 0x0001, /* time in milliseconds */
 		SAMPLES = 0x0002, /* number of wave samples */
 		BYTES   = 0x0004, /* current byte offset */
@@ -94,7 +94,7 @@ namespace Microsoft.Windows.MmSysCom {
 		TICKS   = 0x0020, /* Ticks within MIDI stream */
 	}
 
-		[Serializable]
+	[Serializable]
 	public class MultimediaSystemException : Exception {
 		public MultimediaSystemException() { }
 		public MultimediaSystemException(string message) : base(message) { }

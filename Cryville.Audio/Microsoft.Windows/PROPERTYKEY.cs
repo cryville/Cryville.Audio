@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.PropSys {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct PROPERTYKEY {
+	public struct PROPERTYKEY : IEquatable<PROPERTYKEY> {
 		public Guid   fmtid;
 		public UInt32 pid;
 		public PROPERTYKEY(Guid fmt, UInt32 p) {
@@ -16,6 +16,10 @@ namespace Microsoft.Windows.PropSys {
 		override public bool Equals(object obj) {
 			if (obj == null || !(obj is PROPERTYKEY)) return false;
 			PROPERTYKEY other = (PROPERTYKEY)obj;
+			return Equals(other);
+		}
+
+		public bool Equals(PROPERTYKEY other) {
 			return fmtid.Equals(other.fmtid) && pid.Equals(other.pid);
 		}
 

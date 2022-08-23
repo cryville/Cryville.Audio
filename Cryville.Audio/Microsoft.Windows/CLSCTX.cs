@@ -2,7 +2,7 @@
 
 namespace Microsoft.Windows {
 	[Flags]
-	public enum CLSCTX : UInt32 {
+	internal enum CLSCTX : UInt32 {
 		INPROC_SERVER          =        0x1,
 		INPROC_HANDLER         =        0x2,
 		LOCAL_SERVER           =        0x4,

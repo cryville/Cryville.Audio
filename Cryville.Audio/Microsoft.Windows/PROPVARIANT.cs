@@ -61,7 +61,7 @@ namespace Microsoft.Windows {
 	}
 
 	[StructLayout(LayoutKind.Explicit, Pack = 1)]
-	public struct PROPVARIANT {
+	internal struct PROPVARIANT {
 #pragma warning disable IDE0044 // Add readonly modifier
 		[FieldOffset(0)] private ushort varType;
 		[FieldOffset(2)] private ushort wReserved1;

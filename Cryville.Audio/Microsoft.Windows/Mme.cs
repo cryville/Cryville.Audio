@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.Mme {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct WAVEFORMATEX {
+	internal struct WAVEFORMATEX {
 		public UInt16 wFormatTag;      /* format type */
 		public UInt16 nChannels;       /* number of channels (i.e. mono, stereo...) */
 		public UInt32 nSamplesPerSec;  /* sample rate */
@@ -16,7 +16,7 @@ namespace Microsoft.Windows.Mme {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct WAVEHDR {
+	internal struct WAVEHDR {
 		public IntPtr lpData;          /* pointer to locked data buffer */
 		public UInt32 dwBufferLength;  /* length of data buffer */
 		public UInt32 dwBytesRecorded; /* used for input only */
@@ -28,7 +28,7 @@ namespace Microsoft.Windows.Mme {
 	}
 	
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-	public struct WAVEOUTCAPSW {
+	internal struct WAVEOUTCAPSW {
 		public UInt16 wMid;           /* manufacturer ID */
 		public UInt16 wPid;           /* product ID */
 		public UInt32 vDriverVersion; /* version of the driver */
@@ -41,7 +41,7 @@ namespace Microsoft.Windows.Mme {
 	}
 
 	[Flags]
-	public enum WAVE_FORMAT {
+	internal enum WAVE_FORMAT {
 		INVALIDFORMAT = 0x00000000, /* invalid format */
 		SR1M08  = 0x00000001,       /* 11.025 kHz, Mono,   8-bit  */
 		SR1S08  = 0x00000002,       /* 11.025 kHz, Stereo, 8-bit  */
@@ -71,7 +71,7 @@ namespace Microsoft.Windows.Mme {
 	}
 
 	[Flags]
-	public enum WAVE_OPEN_FLAG {
+	internal enum WAVE_OPEN_FLAG {
 		WAVE_FORMAT_QUERY                        = 0x0001,
 		WAVE_ALLOWSYNC                           = 0x0002,
 		WAVE_MAPPED                              = 0x0004,
@@ -81,7 +81,7 @@ namespace Microsoft.Windows.Mme {
 	}
 
 	[Flags]
-	public enum WHDR {
+	internal enum WHDR {
 		DONE      = 0x00000001, /* done bit */
 		PREPARED  = 0x00000002, /* set if this header has been prepared */
 		BEGINLOOP = 0x00000004, /* loop start block */
@@ -89,7 +89,7 @@ namespace Microsoft.Windows.Mme {
 		INQUEUE   = 0x00000010, /* reserved for driver */
 	}
 
-	public static class MmeExports {
+	internal static class MmeExports {
 		public const UInt32 WAVE_MAPPER = UInt32.MaxValue;
 
 		[DllImport("winmm.dll")]

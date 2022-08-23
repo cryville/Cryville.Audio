@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Microsoft.Windows.PropSys {
 	[Guid("6f79d558-3e96-4549-a1d1-7d75d2288814")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IPropertyDescription {
+	internal interface IPropertyDescription {
 		void GetPropertyKey(out PROPERTYKEY pkey);
 
 		void GetCanonicalName([MarshalAs(UnmanagedType.LPWStr)] out string ppszName);
@@ -71,7 +71,7 @@ namespace Microsoft.Windows.PropSys {
 
 	[Guid("1f9fc1d0-c39b-4b26-817f-011967d3440e")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IPropertyDescriptionList {
+	internal interface IPropertyDescriptionList {
         int GetCount(out UInt32 pcElem);
         
         int GetAt(
@@ -83,7 +83,7 @@ namespace Microsoft.Windows.PropSys {
 
 	[Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IPropertyStore {
+	internal interface IPropertyStore {
 		void GetCount(out UInt32 cProps);
 
 		void GetAt(
@@ -104,7 +104,7 @@ namespace Microsoft.Windows.PropSys {
 		void Commit();
 	}
 
-	public static class NativeMethods {
+	internal static class NativeMethods {
 		[DllImport("propsys.dll", PreserveSig = false)]
 		public static extern int PSEnumeratePropertyDescriptions(
 			PROPDESC_ENUMFILTER filterOn,
@@ -118,7 +118,7 @@ namespace Microsoft.Windows.PropSys {
 			[MarshalAs(UnmanagedType.IUnknown)] out object ppv
 		);
 	}
-	public enum PROPDESC_AGGREGATION_TYPE : UInt32 {
+	internal enum PROPDESC_AGGREGATION_TYPE : UInt32 {
 		DEFAULT   = 0,
 		FIRST     = 1,
 		SUM       = 2,
@@ -128,7 +128,7 @@ namespace Microsoft.Windows.PropSys {
 		MAX       = 6,
 		MIN       = 7,
 	}
-	public enum PROPDESC_CONDITION_TYPE : UInt32 {
+	internal enum PROPDESC_CONDITION_TYPE : UInt32 {
 		NONE     = 0,
 		STRING   = 1,
 		SIZE     = 2,
@@ -136,14 +136,14 @@ namespace Microsoft.Windows.PropSys {
 		BOOLEAN  = 4,
 		NUMBER   = 5,
 	}
-	public enum PROPDESC_DISPLAYTYPE : UInt32 {
+	internal enum PROPDESC_DISPLAYTYPE : UInt32 {
 		STRING     = 0,
 		NUMBER     = 1,
 		BOOLEAN    = 2,
 		DATETIME   = 3,
 		ENUMERATED = 4,
 	}
-	public enum PROPDESC_ENUMFILTER : UInt32 {
+	internal enum PROPDESC_ENUMFILTER : UInt32 {
 		ALL             = 0,
 		SYSTEM          = 1,
 		NONSYSTEM       = 2,
@@ -153,7 +153,7 @@ namespace Microsoft.Windows.PropSys {
 		COLUMN          = 6,
 	}
 	[Flags]
-	public enum PROPDESC_FORMAT_FLAGS : UInt32 {
+	internal enum PROPDESC_FORMAT_FLAGS : UInt32 {
 		DEFAULT            =      0,
 		PREFIXNAME         =    0x1,
 		FILENAME           =    0x2,
@@ -170,7 +170,7 @@ namespace Microsoft.Windows.PropSys {
 		READONLY           = 0x1000,
 		NOAUTOREADINGORDER = 0x2000,
 	}
-	public enum PROPDESC_GROUPING_RANGE : UInt32 {
+	internal enum PROPDESC_GROUPING_RANGE : UInt32 {
 		DISCRETE     = 0,
 		ALPHANUMERIC = 1,
 		SIZE         = 2,
@@ -179,7 +179,7 @@ namespace Microsoft.Windows.PropSys {
 		PERCENT      = 5,
 		ENUMERATED   = 6,
 	}
-	public enum PROPDESC_RELATIVEDESCRIPTION_TYPE : UInt32 {
+	internal enum PROPDESC_RELATIVEDESCRIPTION_TYPE : UInt32 {
 		GENERAL   =  0,
 		DATE      =  1,
 		SIZE      =  2,
@@ -192,7 +192,7 @@ namespace Microsoft.Windows.PropSys {
 		RATING    =  9,
 		PRIORITY  = 10,
 	}
-	public enum PROPDESC_SORTDESCRIPTION : UInt32 {
+	internal enum PROPDESC_SORTDESCRIPTION : UInt32 {
 		GENERAL          = 0,
 		A_Z              = 1,
 		LOWEST_HIGHEST   = 2,
@@ -200,7 +200,7 @@ namespace Microsoft.Windows.PropSys {
 		OLDEST_NEWEST    = 4,
 	}
 	[Flags]
-	public enum PROPDESC_TYPE_FLAGS : UInt32 {
+	internal enum PROPDESC_TYPE_FLAGS : UInt32 {
 		DEFAULT                   =          0,
 		MULTIPLEVALUES            =        0x1,
 		ISINNATE                  =        0x2,
@@ -219,7 +219,7 @@ namespace Microsoft.Windows.PropSys {
 		MASK_ALL                  = 0x80001fff,
 	}
 	[Flags]
-	public enum PROPDESC_VIEW_FLAGS : UInt32 {
+	internal enum PROPDESC_VIEW_FLAGS : UInt32 {
 		DEFAULT             =      0,
 		CENTERALIGN         =    0x1,
 		RIGHTALIGN          =    0x2,

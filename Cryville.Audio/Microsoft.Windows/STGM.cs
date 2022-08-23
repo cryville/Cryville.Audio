@@ -2,7 +2,7 @@
 
 namespace Microsoft.Windows {
 	[Flags]
-	public enum STGM : UInt32 {
+	internal enum STGM : UInt32 {
 		READ      = 0x00000000,
 		WRITE     = 0x00000001,
 		READWRITE = 0x00000002,

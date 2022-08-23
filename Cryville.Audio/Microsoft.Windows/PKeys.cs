@@ -2,7 +2,7 @@ using Microsoft.Windows.PropSys;
 using System.Collections.Generic;
 
 namespace Microsoft.Windows {
-	public static class PKeys {
+	internal static class PKeys {
 		public readonly static Dictionary<PROPERTYKEY, string> Keys = new Dictionary<PROPERTYKEY, string> {
 			{ new PROPERTYKEY("b725f130-47ef-101a-a5f1-02608c9eebac", 10), "System.ItemNameDisplay" },
 			{ new PROPERTYKEY("a45c254e-df1c-4efd-8020-67d146a850e0", 2), "System.Device.DeviceDesc" },

@@ -1,7 +1,7 @@
 using System;
 
 namespace Microsoft.Windows.MmReg {
-	public enum WAVE_FORMAT : UInt16 {
+	internal enum WAVE_FORMAT : UInt16 {
 		UNKNOWN = 0x0000,
 		ADPCM = 0x0002,
 		IEEE_FLOAT = 0x0003,

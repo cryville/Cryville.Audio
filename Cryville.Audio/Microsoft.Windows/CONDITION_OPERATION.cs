@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Microsoft.Windows.PropSys {
-	public enum CONDITION_OPERATION : UInt32 {
+	internal enum CONDITION_OPERATION : UInt32 {
 		IMPLICIT = 0,
 		EQUAL,
 		NOTEQUAL,
