@@ -8,5 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
+    <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
   </ItemGroup>
 </Project>

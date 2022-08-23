@@ -144,6 +144,10 @@
       <Project>{48b40913-aedd-4493-94dd-1435ed5fecba}</Project>
       <Name>Cryville.Audio</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj">
+      <Project>{5d7acd9a-ca0b-4b44-a1ab-c85659010931}</Project>
+      <Name>FFmpeg.AutoGen</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

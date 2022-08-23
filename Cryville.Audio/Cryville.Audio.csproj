@@ -58,6 +58,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Update="Cryville.Audio.WasapiWrapper.dll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
