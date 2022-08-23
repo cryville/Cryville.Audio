@@ -7,7 +7,6 @@
 NonCode
 *TestCaseResources.cs
 /Cryville.Audio.Test.Android/lib
-*.dll
 *.rsuser
 *.suo
 *.user
