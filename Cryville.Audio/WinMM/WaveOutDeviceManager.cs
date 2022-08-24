@@ -28,11 +28,7 @@ namespace Cryville.Audio.WinMM {
 		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected virtual void Dispose(bool disposing) { }
 
-		/// <summary>
-		/// Gets the default audio device for the specified <paramref name="dataFlow" />.
-		/// </summary>
-		/// <param name="dataFlow">The data-flow direction. Only <see cref="DataFlow.Out"/> is supported.</param>
-		/// <remarks>The <see cref="IAudioDevice.Name" /> of the returned device will be truncated if too long, also it will not be the real name of the device itself.</remarks>
+		/// <inheritdoc />
 		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) {
 			switch (dataFlow) {
 				case DataFlow.Out: return new WaveOutDevice(MmeExports.WAVE_MAPPER);
@@ -41,11 +37,7 @@ namespace Cryville.Audio.WinMM {
 			}
 		}
 
-		/// <summary>
-		/// Gets the default audio device for the specified <paramref name="dataFlow" />.
-		/// </summary>
-		/// <param name="dataFlow">The data-flow direction. Only <see cref="DataFlow.Out"/> is supported.</param>
-		/// <remarks>The <see cref="IAudioDevice.Name" /> of the returned device will be truncated if too long.</remarks>
+		/// <inheritdoc />
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
 			switch (dataFlow) {
 				case DataFlow.Out: return new WaveOutDeviceCollection();

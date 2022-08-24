@@ -12,7 +12,7 @@ namespace Cryville.Audio.Source {
 		/// Creates an instance of the <see cref="CachedAudioSource" /> class.
 		/// </summary>
 		/// <param name="source">The <see cref="AudioSource" /> to be cached.</param>
-		/// <param name="duration">The duration of the cache.</param>
+		/// <param name="duration">The duration of the cache in seconds.</param>
 		public CachedAudioSource(AudioSource source, double duration) {
 			_cache = new Cache(source, duration);
 		}

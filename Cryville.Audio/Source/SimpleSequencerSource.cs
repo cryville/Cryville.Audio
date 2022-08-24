@@ -236,7 +236,7 @@ namespace Cryville.Audio.Source {
 		/// <summary>
 		/// Sequences a <paramref name="source" /> at the specified <paramref name="time" />.
 		/// </summary>
-		/// <param name="time">The time.</param>
+		/// <param name="time">The time in seconds.</param>
 		/// <param name="source">The audio source.</param>
 		/// <remarks>
 		/// <para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>

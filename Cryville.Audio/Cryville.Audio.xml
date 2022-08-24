@@ -413,7 +413,7 @@
             Creates an instance of the <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> class.
             </summary>
             <param name="source">The <see cref="T:Cryville.Audio.Source.AudioSource" /> to be cached.</param>
-            <param name="duration">The duration of the cache.</param>
+            <param name="duration">The duration of the cache in seconds.</param>
         </member>
         <member name="M:Cryville.Audio.Source.CachedAudioSource.Clone">
             <summary>
@@ -610,7 +610,7 @@
             <summary>
             Sequences a <paramref name="source" /> at the specified <paramref name="time" />.
             </summary>
-            <param name="time">The time.</param>
+            <param name="time">The time in seconds.</param>
             <param name="source">The audio source.</param>
             <remarks>
             <para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>
@@ -929,18 +929,10 @@
             <param name="disposing">Whether the method is being called by user.</param>
         </member>
         <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
-            <summary>
-            Gets the default audio device for the specified <paramref name="dataFlow" />.
-            </summary>
-            <param name="dataFlow">The data-flow direction. Only <see cref="F:Cryville.Audio.DataFlow.Out"/> is supported.</param>
-            <remarks>The <see cref="P:Cryville.Audio.IAudioDevice.Name" /> of the returned device will be truncated if too long, also it will not be the real name of the device itself.</remarks>
+            <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDevices(Cryville.Audio.DataFlow)">
-            <summary>
-            Gets the default audio device for the specified <paramref name="dataFlow" />.
-            </summary>
-            <param name="dataFlow">The data-flow direction. Only <see cref="F:Cryville.Audio.DataFlow.Out"/> is supported.</param>
-            <remarks>The <see cref="P:Cryville.Audio.IAudioDevice.Name" /> of the returned device will be truncated if too long.</remarks>
+            <inheritdoc />
         </member>
     </members>
 </doc>

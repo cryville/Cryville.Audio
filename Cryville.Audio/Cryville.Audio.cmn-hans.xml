@@ -825,12 +825,12 @@
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Binary32">
 			<summary>
-			IEEE 754 单精度浮点数样本格式。
+			IEEE 754 单精度浮点型样本格式。
 			</summary>
 		</member>
 		<member name="F:Cryville.Audio.SampleFormat.Binary64">
 			<summary>
-			IEEE 754 双精度浮点数样本格式。
+			IEEE 754 双精度浮点型样本格式。
 			</summary>
 		</member>
 		<member name="T:Cryville.Audio.WinMM.WaveOutClient">
