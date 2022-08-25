@@ -1,8 +1,6 @@
 [English](README.md)
 
 # Cryville.Audio
-**本项目目前处于开发状态。请勿用于生产环境。**
-
 项目 #A012 [cau] Cryville.Audio 是一个 .NET 下的实时音频播放库。
 
 本项目于 2022-04-08 创建，于 2022-08-09 开源。
