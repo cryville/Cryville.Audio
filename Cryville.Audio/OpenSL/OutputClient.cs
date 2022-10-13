@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Cryville.Audio.OpenSL {
 	/// <summary>
@@ -20,17 +21,21 @@ namespace Cryville.Audio.OpenSL {
 			m_device = device;
 		}
 
-		bool _disposed;
+		/// <inheritdoc />
+		~OutputClient() {
+			Dispose(false);
+		}
+
+		int _disposeCount;
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
-			if (!_disposed) {
+			if (Interlocked.Increment(ref _disposeCount) == 1) {
 				if (Playing) Pause();
 				if (_objPlayer != null) _objPlayer.Obj.Destroy(_objPlayer);
 				if (_objMix != null) _objMix.Obj.Destroy(_objMix);
 				foreach (var h in _hbuf) h.Free();
 				foreach (var h in _handles) h.Free();
 				_instances.Remove(this);
-				_disposed = true;
 			}
 		}
 

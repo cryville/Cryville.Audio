@@ -236,6 +236,9 @@
 			如果使用了 AOT，参见 <see cref="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction" />。
 			</remarks>
 		</member>
+		<member name="M:Cryville.Audio.OpenSL.OutputClient.Finalize">
+			<inheritdoc />
+		</member>
 		<member name="M:Cryville.Audio.OpenSL.OutputClient.Dispose(System.Boolean)">
 			<inheritdoc />
 		</member>
