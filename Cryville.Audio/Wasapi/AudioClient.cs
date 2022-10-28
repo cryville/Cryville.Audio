@@ -1,5 +1,4 @@
-﻿using Cryville.Common.Platform.Windows;
-using Microsoft.Windows;
+﻿using Microsoft.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.Mme;
