@@ -34,10 +34,15 @@ Executable binaries are not required. The following libraries are required:
 Only `file` protocol, demuxers, parsers, and decoders are required. Besides, `aresample` filter is required for resampling.
 
 ## Supported hardware API
+Current support:
 - WASAPI (Windows Vista+)
 - WinMM (Windows 2000+)
 - OpenSL ES (Android 2.3+)
-- AAudio (Android 8+, WIP)
-- Core Audio (iOS 2.0+, iPadOS 2.0+, MacOS 10.0+, WIP)
+
+Working in progress:
+- AAudio (Android 8+)
+- Core Audio (iOS 2.0+, iPadOS 2.0+, MacOS 10.0+)
+
+Dropped support:
 - ~~TinyALSA (Android 3.2+)~~
 - ~~Oboe (Android 4.4+)~~

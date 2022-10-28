@@ -34,10 +34,15 @@
 本项目只使用 `file` 协议、解流器、解析器和解码器。另外，重采样需要 `aresample` 滤波器。
 
 ## 支持硬件 API
+当前支持：
 - WASAPI（Windows Vista+）
 - WinMM（Windows 2000+）
 - OpenSL ES（Android 2.3+）
-- AAudio（Android 8+，开发中）
-- Core Audio（iOS 2.0+，iPadOS 2.0+，MacOS 10.0+，开发中）
+
+开发中：
+- AAudio（Android 8+）
+- Core Audio（iOS 2.0+；iPadOS 2.0+；MacOS 10.0+）
+
+取消支持：
 - ~~TinyALSA（Android 3.2+）~~
 - ~~Oboe（Android 4.4+）~~
