@@ -49,6 +49,7 @@ extern "C" __declspec(dllexport) HRESULT IAudioClock_GetPosition(IAudioClock* se
 extern "C" __declspec(dllexport) HRESULT IAudioClock_GetCharacteristics(IAudioClock* self, DWORD* pdwCharacteristics) {
 	return self->GetCharacteristics(pdwCharacteristics);
 }
+#pragma endregion
 
 #pragma region IAudioRenderClient
 extern "C" __declspec(dllexport) HRESULT IAudioRenderClient_GetBuffer(IAudioRenderClient* self, UINT32 NumFramesRequested, BYTE** ppData) {
