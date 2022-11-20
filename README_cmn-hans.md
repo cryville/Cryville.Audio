@@ -5,13 +5,6 @@
 
 本项目于 2022-04-08 创建，于 2022-08-09 开源。
 
-## ⚠ 兼容性警告 ⚠
-如果您想在 Unity 中使用该库，并使用 IL2CPP 脚本后端，请确保您的 Unity 版本达到了下列要求之一，否则您**可能**会遇到因为这个 IL2CPP bug 造成的崩溃：Crash in IL2CPP metadata code when loading a field RVA value（UUM-17473）。
-- 2023.1.0 Alpha 19
-- 2022.2.0 Beta 16
-- 2022.1.23
-- 2021.3.14
-
 ## 支持框架
 - .NET Framework 3.5
 - .NET Standard 2.0
