@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.MMDevice {
 	internal static class IMMDevice {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_Activate")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_Activate", PreserveSig = false)]
 		public static extern void Activate(
 			IntPtr self,
 			ref Guid iid,
@@ -12,18 +12,18 @@ namespace Microsoft.Windows.MMDevice {
 			/* ref PROPVARIANT */ IntPtr pActivationParams,
 			out IntPtr ppInterface
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_OpenPropertyStore")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_OpenPropertyStore", PreserveSig = false)]
 		public static extern void OpenPropertyStore(
 			IntPtr self,
 			UInt32 stgmAccess,
 			out IPropertyStore ppProperties
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_GetId")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_GetId", PreserveSig = false)]
 		public static extern void GetId(
 			IntPtr self,
 			[MarshalAs(UnmanagedType.LPWStr)] out string ppstrId
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_GetState")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_GetState", PreserveSig = false)]
 		public static extern void GetState(
 			IntPtr self,
 			out UInt32 pdwState
@@ -31,12 +31,12 @@ namespace Microsoft.Windows.MMDevice {
 	}
 
 	internal static class IMMDeviceCollection {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceCollection_GetCount")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceCollection_GetCount", PreserveSig = false)]
 		public static extern void GetCount(
 			IntPtr self,
 			out UInt32 pcDevices
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceCollection_Item")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceCollection_Item", PreserveSig = false)]
 		public static extern void Item(
 			IntPtr self,
 			UInt32 nDevice,
@@ -46,36 +46,36 @@ namespace Microsoft.Windows.MMDevice {
 
 	internal static class IMMDeviceEnumerator {
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "_ctor_IMMDeviceEnumerator")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "_ctor_IMMDeviceEnumerator", PreserveSig = false)]
 		public static extern void _ctor(
 			out IntPtr @out
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_EnumAudioEndpoints")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_EnumAudioEndpoints", PreserveSig = false)]
 		public static extern void EnumAudioEndpoints(
 			IntPtr self,
 			EDataFlow dataFlow,
 			UInt32 dwStateMask,
 			out IntPtr ppDevices
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_GetDefaultAudioEndpoint")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_GetDefaultAudioEndpoint", PreserveSig = false)]
 		public static extern void GetDefaultAudioEndpoint(
 			IntPtr self,
 			EDataFlow dataFlow,
 			ERole role,
 			out IntPtr ppEndpoint
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_GetDevice")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_GetDevice", PreserveSig = false)]
 		public static extern void GetDevice(
 			IntPtr self,
 			[MarshalAs(UnmanagedType.LPWStr)] string pwstrId,
 			out IntPtr ppDevice
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_RegisterEndpointNotificationCallback")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_RegisterEndpointNotificationCallback", PreserveSig = false)]
 		public static extern void RegisterEndpointNotificationCallback(
 			IntPtr self,
 			IntPtr pClient
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_UnregisterEndpointNotificationCallback")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_UnregisterEndpointNotificationCallback", PreserveSig = false)]
 		public static extern void UnregisterEndpointNotificationCallback(
 			IntPtr self,
 			IntPtr pClient
@@ -83,7 +83,7 @@ namespace Microsoft.Windows.MMDevice {
 	}
 
 	internal static class IMMEndpoint {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMEndpoint_GetDataFlow")]
+		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMEndpoint_GetDataFlow", PreserveSig = false)]
 		public static extern void GetDataFlow(
 			IntPtr self,
 			out EDataFlow pDataFlow
