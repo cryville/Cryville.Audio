@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using FFmpeg.AutoGen;
 
 namespace Cryville.Audio.Source {
 	/// <summary>

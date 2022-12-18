@@ -1,5 +1,4 @@
 ﻿using Cryville.Common.Math;
-using System;
 
 namespace Cryville.Audio.Source {
 	/// <summary>

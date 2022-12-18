@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
@@ -57,7 +54,7 @@ namespace Cryville.Audio.Source {
 				LoadPosition = pos;
 			}
 		}
-		Cache _cache;
+		readonly Cache _cache;
 		int _pos;
 
 		/// <inheritdoc />
