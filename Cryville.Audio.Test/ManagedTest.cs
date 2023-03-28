@@ -92,10 +92,10 @@ namespace Cryville.Audio.Test {
 			LogPosition("Square 440Hz");
 			Thread.Sleep(1000);
 
-			source.Muted = true;
+			client.Muted = true;
 			LogPosition("Mute");
 			Thread.Sleep(1000);
-			source.Muted = false;
+			client.Muted = false;
 			source.Frequency = 880f;
 
 			source.Type = ToneType.Sine;
