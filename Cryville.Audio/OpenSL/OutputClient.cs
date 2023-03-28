@@ -224,7 +224,7 @@ namespace Cryville.Audio.OpenSL {
 			lock (_enqlock) {
 				if (_bufc >= BUFFER_COUNT) return;
 				_bufc++;
-				if (Source.Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
+				if (Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
 				else Source.FillBuffer(_buf[_bufi], 0, BufferSize);
 				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)BufferSize));
 				_bufi %= BUFFER_COUNT;

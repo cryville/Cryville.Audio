@@ -228,7 +228,7 @@ namespace Cryville.Audio.Wasapi {
 				IAudioClient.GetCurrentPadding(_internal, out var padding);
 				var frames = m_bufferFrames - padding;
 				if (frames == 0) continue;
-				if (Source == null || Source.Muted) {
+				if (Source == null || Muted) {
 					_renderClient.SilentBuffer(frames);
 				}
 				else {

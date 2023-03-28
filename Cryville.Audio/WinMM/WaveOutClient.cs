@@ -255,7 +255,7 @@ namespace Cryville.Audio.WinMM {
 				for (int i = 0; i < BUFFER_COUNT; i++) {
 					var b = _buffers[i];
 					if ((b.Header.dwFlags & (uint)WHDR.DONE) != 0 || !b.Filled) {
-						if (Source == null || Source.Muted) {
+						if (Source == null || Muted) {
 							Array.Clear(b.Buffer, 0, b.Buffer.Length);
 						}
 						else {

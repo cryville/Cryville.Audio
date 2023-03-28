@@ -51,6 +51,10 @@ namespace Cryville.Audio {
 		/// </summary>
 		public bool Playing { get; private set; }
 		/// <summary>
+		/// Whether the client is muted.
+		/// </summary>
+		public bool Muted { get; set; }
+		/// <summary>
 		/// The current position of the device stream in seconds.
 		/// </summary>
 		public abstract double Position { get; }
