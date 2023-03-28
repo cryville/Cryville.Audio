@@ -1,4 +1,5 @@
-﻿using OpenSL.Native;
+using Cryville.Common.Interop;
+using OpenSL.Native;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -8,9 +9,6 @@ namespace Cryville.Audio.OpenSL {
 	/// <summary>
 	/// An <see cref="AudioClient" /> that interacts with OpenSL ES.
 	/// </summary>
-	/// <remarks>
-	/// See <see cref="CallbackFunction" /> if AOT is used.
-	/// </remarks>
 	public class OutputClient : AudioClient {
 		readonly static List<OutputClient> _instances = new List<OutputClient>();
 		readonly int _id;
@@ -87,22 +85,6 @@ namespace Cryville.Audio.OpenSL {
 		/// <inheritdoc />
 		public override double BufferPosition => m_bufferPosition;
 
-		private static slBufferQueueCallback _cb = Callback;
-		/// <summary>
-		/// The buffer queue callback function.
-		/// </summary>
-		/// <remarks>
-		/// <para>In the case where AOT is used, override this so it points to a proper function, which calls <see cref="Callback(IntPtr, IntPtr)" />, as the following code snippet:</para>
-		/// <code>
-		/// [MonoPInvokeCallback(typeof(slBufferQueueCallback))]
-		/// static void AOTCallback(IntPtr caller, IntPtr context) {
-		///	    OutputClient.Callback(caller, context);
-		/// }
-		/// </code>
-		/// <para>You should not override this function in other cases.</para>
-		/// </remarks>
-		public static slBufferQueueCallback CallbackFunction { get => _cb; set => _cb = value; }
-
 		const int BUFFER_COUNT = 2;
 		int _bufi;
 		readonly byte[][] _buf = new byte[BUFFER_COUNT][];
@@ -148,7 +130,7 @@ namespace Cryville.Audio.OpenSL {
 				_hbuf[i] = GCHandle.Alloc(_buf[i], GCHandleType.Pinned);
 			}
 
-			Util.SLR(_bq.Obj.RegisterCallback(_bq, OutputClient.CallbackFunction, new IntPtr(_id)));
+			Util.SLR(_bq.Obj.RegisterCallback(_bq, Callback, new IntPtr(_id)));
 		}
 
 		/// <inheritdoc />
@@ -232,10 +214,8 @@ namespace Cryville.Audio.OpenSL {
 			}
 		}
 
-		/// <summary>
-		/// See <see cref="CallbackFunction" />.
-		/// </summary>
-		public static void Callback(IntPtr caller, IntPtr pContext) {
+		[MonoPInvokeCallback]
+		static void Callback(IntPtr caller, IntPtr pContext) {
 			var i = _instances[pContext.ToInt32()];
 			i._bufc--;
 			i.Enqueue();
