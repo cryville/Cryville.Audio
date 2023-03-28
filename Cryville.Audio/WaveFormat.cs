@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Globalization;
 
 namespace Cryville.Audio {
 	/// <summary>
 	/// The wave format.
 	/// </summary>
-	public struct WaveFormat {
+	public struct WaveFormat : IEquatable<WaveFormat> {
 		/// <summary>
 		/// The channel count.
 		/// </summary>
@@ -60,6 +60,36 @@ namespace Cryville.Audio {
 		/// <inheritdoc />
 		public override string ToString() {
 			return string.Format(CultureInfo.InvariantCulture, "{0}ch * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample);
+		}
+
+		/// <inheritdoc />
+		public bool Equals(WaveFormat other) {
+			if (Channels != other.Channels) return false;
+			if (SampleRate != other.SampleRate) return false;
+			if (SampleFormat != other.SampleFormat) return false;
+			return true;
+		}
+
+		/// <inheritdoc />
+		public override bool Equals(object obj) {
+			if (obj is WaveFormat other)
+				return Equals(other);
+			return false;
+		}
+
+		/// <inheritdoc />
+		public override int GetHashCode() {
+			return Channels ^ (int)SampleRate ^ ((int)SampleFormat << 16);
+		}
+
+		/// <inheritdoc />
+		public static bool operator ==(WaveFormat left, WaveFormat right) {
+			return left.Equals(right);
+		}
+
+		/// <inheritdoc />
+		public static bool operator !=(WaveFormat left, WaveFormat right) {
+			return !(left == right);
 		}
 	}
 	/// <summary>
