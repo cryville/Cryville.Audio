@@ -10,4 +10,9 @@
     <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
     <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<Reference Include="UnsafeIL">
+			<HintPath>..\Cryville.Audio\UnsafeIL.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 </Project>

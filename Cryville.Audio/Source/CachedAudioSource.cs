@@ -84,7 +84,9 @@ namespace Cryville.Audio.Source {
 			int rem = _cache.Buffer.Length - _pos;
 			int len = Math.Min(rem, length);
 			if (len > 0) {
-				Array.Copy(_cache.Buffer, _pos, buffer, offset, len);
+				fixed (byte* sptr = _cache.Buffer, dptr = buffer) {
+					Unsafe.CopyBlock(dptr + offset, sptr + _pos, (uint)len);
+				}
 				_pos += len;
 			}
 			SilentBuffer(buffer, offset + len, length - len);
