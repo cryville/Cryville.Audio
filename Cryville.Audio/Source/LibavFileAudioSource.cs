@@ -18,12 +18,12 @@ namespace Cryville.Audio.Source {
 			AVCodecContext* codecCtx;
 			AVPacket* packet;
 			AVFrame* frame;
-			SwrContext* swrContext;
+			readonly SwrContext* swrContext;
 			byte* _buffer;
 
 			public readonly int BestStreamIndex;
 			public readonly ReadOnlyCollection<int> Streams;
-			int selectedStream;
+			public int SelectedStream;
 			WaveFormat? OutFormat;
 			int BufferSize;
 			int bytesPerSamplePerChannel;
@@ -57,7 +57,7 @@ namespace Cryville.Audio.Source {
 					throw new InvalidOperationException("Stream already opened.");
 				if (index >= formatCtx->nb_streams)
 					throw new ArgumentOutOfRangeException(nameof(index));
-				selectedStream = index;
+				SelectedStream = index;
 
 				var param = formatCtx->streams[index]->codecpar;
 				codec = ffmpeg.avcodec_find_decoder(param->codec_id);
@@ -94,8 +94,8 @@ namespace Cryville.Audio.Source {
 				HR(ffmpeg.swr_init(swrContext));
 			}
 
-			public void FillBuffer(byte[] buffer, int offset, int length) {
-				int samples = length / bytesPerSamplePerChannel;
+			public int FillBuffer(byte[] buffer, int offset, int count) {
+				int samples = count / bytesPerSamplePerChannel;
 				int decoded = 0;
 				if (!EOF) {
 					while (decoded < samples) {
@@ -105,15 +105,15 @@ namespace Cryville.Audio.Source {
 						if (out_samples < samples) {
 							// Samples in the buffer are not sufficient. Read and decode a new frame.
 							int ret = ffmpeg.avcodec_receive_frame(codecCtx, frame);
-							if (Math.Abs(ret) == 0xb) {
+							if (ret == -0xb) {
 								while (true) {
 									ret = ffmpeg.av_read_frame(formatCtx, packet);
-									if (Math.Abs(ret) == 0x20464f45) {
+									if (ret == -0x20464f45) {
 										EOF = true;
 										goto eof;
 									}
 									else if (ret < 0) HR(ret);
-									if (packet->stream_index == selectedStream) break;
+									if (packet->stream_index == SelectedStream) break;
 									ffmpeg.av_packet_unref(packet);
 								}
 								HR(ffmpeg.avcodec_send_packet(codecCtx, packet));
@@ -138,12 +138,14 @@ namespace Cryville.Audio.Source {
 				}
 			eof:
 				int len = decoded * bytesPerSamplePerChannel;
-				SilentBuffer(OutFormat.Value, buffer, offset + len, length - len);
+				SilentBuffer(OutFormat.Value, buffer, offset + len, count - len);
+				return len;
 			}
 
 			public void Close() {
 				if (_buffer != null) {
 					Marshal.FreeHGlobal(new IntPtr(_buffer));
+					_buffer = null;
 				}
 				if (swrContext != null) {
 					fixed (SwrContext** swrContextPtr = &swrContext) {
@@ -226,9 +228,7 @@ namespace Cryville.Audio.Source {
 		/// <remarks>
 		/// <para>You can only call this method before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
 		/// </remarks>
-		public void SelectStream() {
-			SelectStream(BestStreamIndex);
-		}
+		public void SelectStream() => SelectStream(BestStreamIndex);
 
 		/// <summary>
 		/// Selects a stream as the source.
@@ -265,7 +265,7 @@ namespace Cryville.Audio.Source {
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			_internal.FillBuffer(buffer, offset, count);
-			return count;
+			return _internal.FillBuffer(buffer, offset, count);
 		}
 
 		/// <inheritdoc />
@@ -291,11 +291,18 @@ namespace Cryville.Audio.Source {
 		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 	}
 
+	/// <summary>
+	/// The exception that is thrown by Libav.
+	/// </summary>
 	[Serializable]
 	public class LibavException : Exception {
+		/// <inheritdoc />
 		public LibavException() { }
+		/// <inheritdoc />
 		public LibavException(string message) : base(message) { }
+		/// <inheritdoc />
 		public LibavException(string message, Exception innerException) : base(message, innerException) { }
+		/// <inheritdoc />
 		protected LibavException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}
 }

@@ -162,7 +162,7 @@ namespace Cryville.Audio.Source {
 			return count;
 		}
 		unsafe void FillBufferInternal(AudioStream source, int offset, int count) {
-			source.Read(_secbuf, offset, count);
+			count = source.Read(_secbuf, offset, count);
 			switch (Format.SampleFormat) {
 				case SampleFormat.U8:
 					for (int i = offset; i < count; i++) {
