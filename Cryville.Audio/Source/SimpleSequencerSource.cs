@@ -218,6 +218,7 @@ namespace Cryville.Audio.Source {
 			lock (_lock) {
 				_rmsources.Clear();
 				foreach (var source in _sources) {
+					if (!source.CanSeek) continue;
 					source.Seek(offset, origin);
 					if (source.EndOfData) _rmsources.Add(source);
 				}
@@ -230,6 +231,7 @@ namespace Cryville.Audio.Source {
 						var item = seq[0];
 						seq.RemoveAt(0);
 						var source = item.Source;
+						if (!source.CanSeek) continue;
 						var len = Format.Align((_time - item.Time) * Format.BytesPerSecond, true);
 						source.Seek(len, origin);
 						if (!source.EndOfData) _sources.Add(source);
