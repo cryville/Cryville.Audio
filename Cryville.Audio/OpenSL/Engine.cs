@@ -1,4 +1,4 @@
-﻿using OpenSL.Native;
+using OpenSL.Native;
 using System;
 using System.Collections.Generic;
 
@@ -35,10 +35,11 @@ namespace Cryville.Audio.OpenSL {
 		/// </summary>
 		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected virtual void Dispose(bool disposing) {
-			if (!_disposed) {
-				if (ObjEngine != null) ObjEngine.Obj.Destroy(ObjEngine);
-				_disposed = true;
+			if (ObjEngine != null) {
+				ObjEngine.Obj.Destroy(ObjEngine);
+				ObjEngine = null;
 			}
+			_disposed = true;
 		}
 
 		/// <inheritdoc />

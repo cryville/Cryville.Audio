@@ -1,9 +1,9 @@
-﻿using Microsoft.Windows.Mme;
+using Microsoft.Windows.Mme;
 using System;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.WinMM {
-	internal class WaveBuffer : IDisposable {
+	internal class WaveBuffer {
 		public WAVEHDR Header;
 		GCHandle _ptrheader;
 
@@ -25,7 +25,7 @@ namespace Cryville.Audio.WinMM {
 			_ptrheader = GCHandle.Alloc(Header, GCHandleType.Pinned);
 		}
 
-		public void Dispose() {
+		public void Release() {
 			_ptrheader.Free();
 			_ptrbuffer.Free();
 		}

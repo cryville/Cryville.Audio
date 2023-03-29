@@ -30,10 +30,18 @@ namespace Cryville.Audio.Source {
 			_rmsources = new List<AudioStream>(maxPolyphony);
 		}
 
+		/// <summary>
+		/// Whether this audio stream has been disposed.
+		/// </summary>
+		public bool Disposed { get; private set; }
+
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
-			Playing = false;
+			if (disposing) {
+				Playing = false;
+			}
+			Disposed = true;
 		}
 
 		/// <inheritdoc />
@@ -82,6 +90,7 @@ namespace Cryville.Audio.Source {
 			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+			if (Disposed) throw new ObjectDisposedException(null);
 			if (m_playing) {
 				Array.Clear(_pribuf, 0, count / (Format.BitsPerSample / 8));
 				lock (_lock) {
@@ -232,6 +241,7 @@ namespace Cryville.Audio.Source {
 		/// </remarks>
 		public SimpleSequencerSession NewSession() {
 			if (BufferSize == 0) throw new InvalidOperationException("Audio source not attached to client");
+			if (Disposed) throw new ObjectDisposedException(null);
 			m_playing = false;
 			lock (_lock) _sources.Clear();
 			_time = 0;
@@ -269,6 +279,7 @@ namespace Cryville.Audio.Source {
 		/// <remarks>
 		/// <para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>
 		/// <para>If the number of audio sources currently playing exceeds <see cref="SimpleSequencerSource.MaxPolyphony" />, the <paramref name="source" /> will be discarded.</para>
+		/// <para>You can sequence audio sources even when the sequencer has been disposed, while it would not have any effect.</para>
 		/// </remarks>
 		public void Sequence(double time, AudioStream source) {
 			if (source == null) throw new ArgumentNullException(nameof(source));

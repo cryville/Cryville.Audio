@@ -14,22 +14,26 @@ namespace Cryville.Audio.WinMM {
 			m_device = device;
 		}
 
+		/// <inheritdoc />
+		~WaveOutClient() {
+			Dispose(false);
+		}
+
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected override void Dispose(bool disposing) {
+			if (disposing && Playing) Pause();
 			if (_waveOutHandle != IntPtr.Zero) {
-				if (Playing) Pause();
 				MmSysComExports.MMR(MmeExports.waveOutReset(_waveOutHandle));
 				for (int i = 0; i < _buffers.Length; i++) {
-					// while ((_buffers[i].Header.dwFlags & (uint)WHDR.DONE) == 0) Thread.Sleep(10);
 					_ = MmeExports.waveOutUnprepareHeader(
 						_waveOutHandle,
 						ref _buffers[i].Header,
 						SIZE_WAVEHDR
 					);
-					_buffers[i].Dispose();
+					_buffers[i].Release();
 				}
 				MmSysComExports.MMR(MmeExports.waveOutClose(_waveOutHandle));
 				_waveOutHandle = IntPtr.Zero;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Common.Platform.Windows {
@@ -18,9 +18,11 @@ namespace Cryville.Common.Platform.Windows {
 		}
 
 		protected virtual void Dispose(bool disposing) {
-			if (ComObject != default(IntPtr)) {
-				Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(ComObject));
-				ComObject = default(IntPtr);
+			if (disposing) {
+				if (ComObject != default) {
+					Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(ComObject));
+					ComObject = default;
+				}
 			}
 		}
 	}
