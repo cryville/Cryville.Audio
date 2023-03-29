@@ -120,7 +120,18 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		public override long Seek(long offset, SeekOrigin origin) {
-			throw new NotImplementedException();
+			if (Disposed) throw new ObjectDisposedException(null);
+			long newPos;
+			switch (origin) {
+				case SeekOrigin.Begin: newPos = offset; break;
+				case SeekOrigin.Current: newPos = Position + offset; break;
+				case SeekOrigin.End: newPos = Length + offset; break;
+				default: throw new ArgumentException("Invalid SeekOrigin.", nameof(origin));
+			}
+			if (newPos < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
+			_pos = newPos;
+			_time = Time;
+			return newPos;
 		}
 
 		/// <inheritdoc />

@@ -78,6 +78,7 @@ namespace Cryville.Audio.Source {
 				m_playing = value;
 			}
 		}
+		int _pos;
 		double _time;
 		readonly object _lock = new object();
 		readonly List<AudioStream> _sources;
@@ -91,6 +92,7 @@ namespace Cryville.Audio.Source {
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
+			count = Format.Align(count, true);
 			if (m_playing) {
 				Array.Clear(_pribuf, 0, count / (Format.BitsPerSample / 8));
 				lock (_lock) {
@@ -109,7 +111,7 @@ namespace Cryville.Audio.Source {
 						if (_sources.Count >= MaxPolyphony) continue;
 						var source = item.Source;
 						_sources.Add(source);
-						int len = Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond));
+						int len = Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
 						FillBufferInternal(source, count - len, len);
 					}
 				}
@@ -154,6 +156,7 @@ namespace Cryville.Audio.Source {
 				}
 			}
 			else SilentBuffer(Format, buffer, offset, count);
+			_pos += count;
 			return count;
 		}
 		unsafe void FillBufferInternal(AudioStream source, int offset, int count) {
@@ -200,20 +203,56 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
+		/// <param name="offset">A byte offset relative to the current position.</param>
+		/// <param name="origin">Must be <see cref="SeekOrigin.Current" />.</param>
+		/// <remarks>
+		/// <para> You can only seek this stream from the current position, and forward only. Thus, <paramref name="offset" /> must be non-negative, and <paramref name="origin" /> must be <see cref="SeekOrigin.Current" />.</para>
+		/// </remarks>
 		public override long Seek(long offset, SeekOrigin origin) {
-			throw new NotImplementedException();
+			if (origin != SeekOrigin.Current) throw new ArgumentException("Must seek from current position.", nameof(origin));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (Disposed) throw new ObjectDisposedException(null);
+			offset = Format.Align(offset, true);
+			lock (_lock) {
+				_rmsources.Clear();
+				foreach (var source in _sources) {
+					source.Seek(offset, origin);
+					if (source.EndOfData) _rmsources.Add(source);
+				}
+				foreach (var source in _rmsources)
+					_sources.Remove(source);
+				_time += (double)offset / Format.BytesPerSecond;
+				lock (Session._lock) {
+					var seq = Session._seq;
+					while (seq.Count > 0 && seq[0].Time < _time) {
+						var item = seq[0];
+						seq.RemoveAt(0);
+						var source = item.Source;
+						var len = Format.Align((_time - item.Time) * Format.BytesPerSecond, true);
+						source.Seek(len, origin);
+						if (!source.EndOfData) _sources.Add(source);
+					}
+				}
+			}
+			return _pos;
 		}
 
 		/// <inheritdoc />
 		public override bool CanRead => true;
 		/// <inheritdoc />
+		/// <remarks>
+		/// <para>You can only seek this stream from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" /> for details.</para>
+		/// </remarks>
 		public override bool CanSeek => true;
 		/// <inheritdoc />
 		public override bool CanWrite => false;
 		/// <inheritdoc />
 		public override long Length => long.MaxValue;
 		/// <inheritdoc />
-		public override long Position { get => throw new NotImplementedException(); set => throw new NotSupportedException(); }
+		/// <remarks>
+		/// <para>Although this stream is seekable, setting this property is not supported and throws <see cref="NotSupportedException" />. You can only seek this stream from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" /> for details.</para>
+		/// </remarks>
+		public override long Position { get => _pos; set => throw new NotSupportedException(); }
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />
