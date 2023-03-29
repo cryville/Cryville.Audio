@@ -43,7 +43,7 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// The default wave format.
 		/// </summary>
-		public readonly static WaveFormat Default = new WaveFormat {
+		public static readonly WaveFormat Default = new WaveFormat {
 			Channels = 2, SampleRate = 48000, SampleFormat = SampleFormat.S16
 		};
 

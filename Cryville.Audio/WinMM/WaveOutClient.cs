@@ -95,7 +95,7 @@ namespace Cryville.Audio.WinMM {
 		public override double BufferPosition => m_bufferPosition;
 
 		const int BUFFER_COUNT = 3;
-		readonly static uint SIZE_WAVEHDR = (uint)Marshal.SizeOf(typeof(WAVEHDR));
+		static readonly uint SIZE_WAVEHDR = (uint)Marshal.SizeOf(typeof(WAVEHDR));
 		/// <inheritdoc />
 		public override void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (shareMode == AudioShareMode.Exclusive)

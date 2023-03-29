@@ -5,7 +5,7 @@ namespace Cryville.Audio.OpenSL {
 	/// An <see cref="IAudioDevice" /> that interacts with OpenSL ES.
 	/// </summary>
 	public class OutputDevice : IAudioDevice {
-		Engine _engine;
+		readonly Engine _engine;
 		internal OutputDevice(Engine engine) {
 			_engine = engine;
 		}

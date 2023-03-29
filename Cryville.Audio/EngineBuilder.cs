@@ -9,7 +9,7 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// The list of available engines.
 		/// </summary>
-		public readonly static Collection<Type> Engines = new Collection<Type> {
+		public static readonly Collection<Type> Engines = new Collection<Type> {
 			typeof(Wasapi.MMDeviceEnumerator),
 			typeof(OpenSL.Engine),
 			typeof(WinMM.WaveDeviceManager),

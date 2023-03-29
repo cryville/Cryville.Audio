@@ -13,7 +13,7 @@ namespace Microsoft.Windows.PropSys {
 		}
 		public PROPERTYKEY(string fmt, UInt32 p) : this(new Guid(fmt), p) { }
 
-		override public bool Equals(object obj) {
+		public override bool Equals(object obj) {
 			if (obj == null || !(obj is PROPERTYKEY)) return false;
 			PROPERTYKEY other = (PROPERTYKEY)obj;
 			return Equals(other);

@@ -10,7 +10,7 @@ namespace Cryville.Audio.OpenSL {
 	/// An <see cref="AudioClient" /> that interacts with OpenSL ES.
 	/// </summary>
 	public class OutputClient : AudioClient {
-		readonly static List<OutputClient> _instances = new List<OutputClient>();
+		static readonly List<OutputClient> _instances = new List<OutputClient>();
 		readonly int _id;
 		internal OutputClient(Engine engine, OutputDevice device) {
 			_id = _instances.Count;
