@@ -158,7 +158,42 @@ namespace Cryville.Audio.Source {
 				if (formatCtx == null) throw new ObjectDisposedException(null);
 				var timeBase = formatCtx->streams[SelectedStream]->time_base;
 				var ts = (long)(time / timeBase.num * timeBase.den);
-				HR(ffmpeg.avformat_seek_file(formatCtx, SelectedStream, ts, ts, ts, ffmpeg.AVSEEK_FLAG_ANY));
+				HR(ffmpeg.avformat_seek_file(formatCtx, SelectedStream, 0, ts, ts, 0));
+				HR(ffmpeg.swr_drop_output(swrContext, HR(ffmpeg.swr_get_out_samples(swrContext, 0))));
+				if (!EOF) {
+					while (true) {
+						int ret = ffmpeg.avcodec_receive_frame(codecCtx, frame);
+						if (ret == -0xb) {
+							while (true) {
+								ret = ffmpeg.av_read_frame(formatCtx, packet);
+								if (ret == -0x20464f45) {
+									EOF = true;
+									return;
+								}
+								else if (ret < 0) HR(ret);
+								if (packet->stream_index == SelectedStream) {
+									_pts = packet->pts;
+									break;
+								}
+								ffmpeg.av_packet_unref(packet);
+							}
+							HR(ffmpeg.avcodec_send_packet(codecCtx, packet));
+							ffmpeg.av_packet_unref(packet);
+							continue;
+						}
+						long epts = _pts + frame->pkt_duration;
+						if (epts >= ts) {
+							fixed (byte** ptr = &_buffer) {
+								for (int rem = (int)(frame->nb_samples * ((double)(ts - _pts) / (epts - _pts)) * OutFormat.Value.SampleRate / codecCtx->sample_rate); rem > 0; rem -= BufferSize) {
+									HR(ffmpeg.swr_convert( swrContext, ptr, Math.Min(rem, BufferSize), frame->extended_data, frame->nb_samples));
+								}
+							}
+							ffmpeg.av_frame_unref(frame);
+							break;
+						}
+						ffmpeg.av_frame_unref(frame);
+					}
+				}
 			}
 
 			public void Close() {
@@ -298,7 +333,7 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		public override long Seek(long offset, SeekOrigin origin) {
-			SeekTime(Format.Align(offset) / Format.BytesPerSecond, origin);
+			SeekTime((double)Format.Align(offset) / Format.BytesPerSecond, origin);
 			return Position;
 		}
 		/// <inheritdoc />
