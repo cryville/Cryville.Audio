@@ -1,6 +1,7 @@
 using Cryville.Audio.Source;
 using NUnit.Framework;
 using System;
+using System.IO;
 using System.Threading;
 
 namespace Cryville.Audio.Test {
@@ -133,6 +134,34 @@ namespace Cryville.Audio.Test {
 			}
 			client.Source = null;
 			client.Pause();
+			source.Dispose();
+		}
+
+		[Test]
+		[TestCase(ManagedTestCaseResources.AudioFile)]
+		[TestCase(ManagedTestCaseResources.VideoFile)]
+		public virtual void PlaySeekedWithLibAV(string file) {
+			Log("API: {0}", manager.GetType().Namespace);
+			var source = new LibavFileAudioSource(file);
+			Log("Duration: {0}s", source.GetStreamDuration());
+			Log("Best stream index: {0}", source.BestStreamIndex);
+			Log("Best stream duration: {0}s", source.GetStreamDuration(source.BestStreamIndex));
+			client.Source = source;
+			source.SeekTime(60, SeekOrigin.Begin);
+			client.Start();
+			for (int i = 0; i < 10; i++) {
+				LogPosition(string.Format("Source: {0}s", source.Time));
+				Thread.Sleep(1000);
+			}
+			client.Pause();
+			source.SeekTime(-30, SeekOrigin.Current);
+			client.Start();
+			for (int i = 0; i < 10; i++) {
+				LogPosition(string.Format("Source: {0}s", source.Time));
+				Thread.Sleep(1000);
+			}
+			client.Pause();
+			client.Source = null;
 			source.Dispose();
 		}
 
