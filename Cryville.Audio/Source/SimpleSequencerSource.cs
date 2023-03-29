@@ -78,7 +78,7 @@ namespace Cryville.Audio.Source {
 				m_playing = value;
 			}
 		}
-		int _pos;
+		long _pos;
 		double _time;
 		readonly object _lock = new object();
 		readonly List<AudioStream> _sources;
@@ -156,10 +156,13 @@ namespace Cryville.Audio.Source {
 						}
 						break;
 				}
+				_pos += count;
+				return count;
 			}
-			else SilentBuffer(Format, buffer, offset, count);
-			_pos += count;
-			return count;
+			else {
+				SilentBuffer(Format, buffer, offset, count);
+				return 0;
+			}
 		}
 		unsafe void FillBufferInternal(AudioStream source, int offset, int count) {
 			count = source.Read(_secbuf, offset, count);
@@ -238,6 +241,7 @@ namespace Cryville.Audio.Source {
 					}
 				}
 			}
+			_pos += offset;
 			return _pos;
 		}
 

@@ -56,8 +56,10 @@ namespace Cryville.Audio {
 		/// <param name="offset">An offset in seconds relative to the <paramref name="origin" /> parameter.</param>
 		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
 		/// <returns>The new time in seconds within the current audio stream.</returns>
-		public virtual double SeekTime(double offset, SeekOrigin origin)
-			=> Seek(Format.Align(offset * Format.BytesPerSecond), origin) / Format.BytesPerSecond;
+		public virtual double SeekTime(double offset, SeekOrigin origin) {
+			Seek(Format.Align(offset * Format.BytesPerSecond), origin);
+			return Time;
+		}
 
 		/// <summary>
 		/// Sets the duration of the current audio stream.
