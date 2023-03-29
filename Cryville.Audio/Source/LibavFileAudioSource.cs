@@ -24,6 +24,7 @@ namespace Cryville.Audio.Source {
 			public readonly int BestStreamIndex;
 			public readonly ReadOnlyCollection<int> Streams;
 			public int SelectedStream;
+			long _pts;
 			WaveFormat? OutFormat;
 			int BufferSize;
 			int bytesPerSamplePerChannel;
@@ -53,6 +54,12 @@ namespace Cryville.Audio.Source {
 				}
 			}
 
+			public double GetPresentationTimestamp() {
+				if (swrContext == null) throw new ObjectDisposedException(null);
+				var timeBase = formatCtx->streams[SelectedStream]->time_base;
+				return (double)_pts * timeBase.num / timeBase.den;
+			}
+
 			public void OpenStream(int index) {
 				if (formatCtx == null) throw new ObjectDisposedException(null);
 				if (codecCtx != null)
@@ -74,7 +81,7 @@ namespace Cryville.Audio.Source {
 			public void SetFormat(WaveFormat format, int bufferSize) {
 				if (formatCtx == null) throw new ObjectDisposedException(null);
 				if (OutFormat != null) throw new InvalidOperationException("Format already set.");
-				if (codecCtx == null) OpenStream(-1);
+				if (codecCtx == null) OpenStream(BestStreamIndex);
 				OutFormat = format;
 				BufferSize = bufferSize;
 				var outFormat = OutFormat.Value;
@@ -98,6 +105,7 @@ namespace Cryville.Audio.Source {
 			}
 
 			public int FillBuffer(byte[] buffer, int offset, int count) {
+				if (swrContext == null) throw new ObjectDisposedException(null);
 				int samples = count / bytesPerSamplePerChannel;
 				int decoded = 0;
 				if (!EOF) {
@@ -111,6 +119,7 @@ namespace Cryville.Audio.Source {
 							if (ret == -0xb) {
 								while (true) {
 									ret = ffmpeg.av_read_frame(formatCtx, packet);
+									_pts = packet->pts;
 									if (ret == -0x20464f45) {
 										EOF = true;
 										goto eof;
@@ -143,6 +152,13 @@ namespace Cryville.Audio.Source {
 				int len = decoded * bytesPerSamplePerChannel;
 				SilentBuffer(OutFormat.Value, buffer, offset + len, count - len);
 				return len;
+			}
+
+			public void Seek(double time) {
+				if (formatCtx == null) throw new ObjectDisposedException(null);
+				var timeBase = formatCtx->streams[SelectedStream]->time_base;
+				var ts = (long)(time / timeBase.num * timeBase.den);
+				HR(ffmpeg.avformat_seek_file(formatCtx, SelectedStream, ts, ts, ts, ffmpeg.AVSEEK_FLAG_ANY));
 			}
 
 			public void Close() {
@@ -265,6 +281,8 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		protected override void OnSetFormat() => _internal.SetFormat(Format, BufferSize);
 
+		int _pos;
+		double _time;
 		/// <inheritdoc />
 		public override int Read(byte[] buffer, int offset, int count) {
 			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -272,24 +290,57 @@ namespace Cryville.Audio.Source {
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
-			return _internal.FillBuffer(buffer, offset, count);
+			var readCount = _internal.FillBuffer(buffer, offset, count);
+			_time = _internal.GetPresentationTimestamp();
+			_pos += readCount;
+			return readCount;
 		}
 
 		/// <inheritdoc />
 		public override long Seek(long offset, SeekOrigin origin) {
-			throw new NotImplementedException();
+			SeekTime(Format.Align(offset) / Format.BytesPerSecond, origin);
+			return Position;
+		}
+		/// <inheritdoc />
+		public override double SeekTime(double offset, SeekOrigin origin) {
+			if (Disposed) throw new ObjectDisposedException(null);
+			double newTime;
+			switch (origin) {
+				case SeekOrigin.Begin: newTime = offset; break;
+				case SeekOrigin.Current: newTime = _time + offset; break;
+				case SeekOrigin.End: newTime = Duration + offset; break;
+				default: throw new ArgumentException("Invalid SeekOrigin.", nameof(origin));
+			}
+			if (newTime < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
+			_internal.Seek(newTime);
+			_time = _internal.GetPresentationTimestamp();
+			_pos = Format.Align(_time * Format.BytesPerSecond);
+			return Time;
 		}
 
 		/// <inheritdoc />
-		public override bool CanRead => true;
+		public override bool CanRead => !Disposed;
 		/// <inheritdoc />
-		public override bool CanSeek => true;
+		public override bool CanSeek => !Disposed;
 		/// <inheritdoc />
 		public override bool CanWrite => false;
 		/// <inheritdoc />
-		public override long Length => throw new NotImplementedException();
+		/// <remarks>
+		/// <para>This property may be inaccurate.</para>
+		/// </remarks>
+		public override long Length => Format.Align(Duration * Format.BytesPerSecond);
 		/// <inheritdoc />
-		public override long Position { get => throw new NotImplementedException(); set => throw new NotSupportedException(); }
+		/// <remarks>
+		/// <para>This property may be inaccurate.</para>
+		/// </remarks>
+		public override double Duration => GetStreamDuration(_internal.SelectedStream);
+		/// <inheritdoc />
+		public override double Time => _time;
+		/// <inheritdoc />
+		/// <remarks>
+		/// <para>This property may become inaccurate after <see cref="Seek(long, SeekOrigin)" /> is called.</para>
+		/// </remarks>
+		public override long Position { get => _pos; set => Seek(value, SeekOrigin.Begin); }
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />
