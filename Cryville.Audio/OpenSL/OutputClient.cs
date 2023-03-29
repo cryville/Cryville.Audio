@@ -29,8 +29,8 @@ namespace Cryville.Audio.OpenSL {
 		protected override void Dispose(bool disposing) {
 			if (Interlocked.Increment(ref _disposeCount) == 1) {
 				if (Playing) Pause();
-				if (_objPlayer != null) _objPlayer.Obj.Destroy(_objPlayer);
-				if (_objMix != null) _objMix.Obj.Destroy(_objMix);
+				_objPlayer?.Obj.Destroy(_objPlayer);
+				_objMix?.Obj.Destroy(_objMix);
 				foreach (var h in _hbuf) h.Free();
 				foreach (var h in _handles) h.Free();
 				_instances.Remove(this);

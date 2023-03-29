@@ -17,10 +17,18 @@ namespace Cryville.Audio.Source {
 		protected int Channels => Format.Channels;
 
 		/// <inheritdoc />
-		protected sealed override void Dispose(bool disposing) { }
+		public override bool EndOfData => false;
+
+		/// <summary>
+		/// Whether this audio stream has been disposed.
+		/// </summary>
+		public bool Disposed { get; private set; }
 
 		/// <inheritdoc />
-		public override bool EndOfData => false;
+		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
+			Disposed = true;
+		}
 
 		/// <inheritdoc />
 		protected internal sealed override bool IsFormatSupported(WaveFormat format) {

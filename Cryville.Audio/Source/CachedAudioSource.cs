@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using UnsafeIL;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
@@ -60,9 +61,15 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		public override bool EndOfData => _pos >= _cache.Buffer.Length;
 
+		/// <summary>
+		/// Whether this audio stream has been disposed.
+		/// </summary>
+		public bool Disposed { get; private set; }
+
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
-			_cache.Buffer = null;
+			base.Dispose(disposing);
+			Disposed = true;
 		}
 
 		/// <inheritdoc />

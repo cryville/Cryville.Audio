@@ -31,6 +31,7 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
 			Playing = false;
 		}
 

@@ -154,10 +154,10 @@ namespace Cryville.Audio.WinMM {
 			SampleFormat bits = format.SampleFormat;
 			byte flagbits;
 			switch (bits) {
-				case SampleFormat.Unsigned8: flagbits = 0; break;
-				case SampleFormat.Signed16 : flagbits = 1; break;
+				case SampleFormat.U8: flagbits = 0; break;
+				case SampleFormat.S16 : flagbits = 1; break;
 				default:
-					format.SampleFormat = SampleFormat.Signed16;
+					format.SampleFormat = SampleFormat.S16;
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
@@ -216,7 +216,7 @@ namespace Cryville.Audio.WinMM {
 				suggestion = new WaveFormat {
 					Channels = (capfilter & 0x55555555) != 0 ? (ushort)1 : (ushort)2,
 					SampleRate = sugsr,
-					SampleFormat = (capfilter & 0x33333333) != 0 ? SampleFormat.Unsigned8 : SampleFormat.Signed16,
+					SampleFormat = (capfilter & 0x33333333) != 0 ? SampleFormat.U8 : SampleFormat.S16,
 				};
 				return false;
 			}
