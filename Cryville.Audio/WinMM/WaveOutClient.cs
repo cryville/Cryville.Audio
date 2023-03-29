@@ -1,4 +1,4 @@
-﻿using Microsoft.Windows;
+using Microsoft.Windows;
 using Microsoft.Windows.Mme;
 using Microsoft.Windows.MmSysCom;
 using System;
@@ -259,7 +259,7 @@ namespace Cryville.Audio.WinMM {
 							Array.Clear(b.Buffer, 0, b.Buffer.Length);
 						}
 						else {
-							Source.FillBuffer(b.Buffer, 0, BufferSize);
+							Source.Read(b.Buffer, 0, BufferSize);
 						}
 						MmSysComExports.MMR(MmeExports.waveOutWrite(_waveOutHandle, ref b.Header, SIZE_WAVEHDR));
 						b.Filled = true;

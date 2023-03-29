@@ -1,10 +1,11 @@
-﻿using Cryville.Common.Math;
+using Cryville.Common.Math;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
-	/// A simple <see cref="AudioSource" /> that mixes sequenced audio sources.
+	/// A simple <see cref="AudioStream" /> that mixes sequenced audio sources.
 	/// </summary>
 	/// <remarks>
 	/// <para>To use this class, take the following steps:</para>
@@ -14,10 +15,10 @@ namespace Cryville.Audio.Source {
 	/// <item>Create a new <see cref="SimpleSequencerSession" /> by calling <see cref="NewSession" />.</item>
 	/// <item>Start playback by calling <see cref="AudioClient.Start" /> and setting <see cref="Playing" /> to <see langword="true" />.</item>
 	/// </list>
-	/// <para>You can sequence <see cref="AudioSource" />s to the <see cref="SimpleSequencerSession" /> both before and after playback starts. See <see cref="SimpleSequencerSession.Sequence" />.</para>
+	/// <para>You can sequence <see cref="AudioStream" />s to the <see cref="SimpleSequencerSession" /> both before and after playback starts. See <see cref="SimpleSequencerSession.Sequence" />.</para>
 	/// <para>If <see cref="Playing" /> is set to <see langword="false" />, the output will become silence.</para>
 	/// </remarks>
-	public class SimpleSequencerSource : AudioSource {
+	public class SimpleSequencerSource : AudioStream {
 		/// <summary>
 		/// Creates an instance of the <see cref="SimpleSequencerSource" /> class.
 		/// </summary>
@@ -25,8 +26,8 @@ namespace Cryville.Audio.Source {
 		public SimpleSequencerSource(int maxPolyphony = 100) {
 			if (maxPolyphony < 1) throw new ArgumentOutOfRangeException(nameof(maxPolyphony));
 			MaxPolyphony = maxPolyphony;
-			_sources = new List<AudioSource>(maxPolyphony);
-			_rmsources = new List<AudioSource>(maxPolyphony);
+			_sources = new List<AudioStream>(maxPolyphony);
+			_rmsources = new List<AudioStream>(maxPolyphony);
 		}
 
 		/// <inheritdoc />
@@ -40,7 +41,6 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
-			base.OnSetFormat();
 			_pribuf = new double[BufferSize / (Format.BitsPerSample / 8)];
 			_secbuf = new byte[BufferSize];
 			if (BufferSize == 0) Playing = false;
@@ -72,44 +72,48 @@ namespace Cryville.Audio.Source {
 		}
 		double _time;
 		readonly object _lock = new object();
-		readonly List<AudioSource> _sources;
-		readonly List<AudioSource> _rmsources;
+		readonly List<AudioStream> _sources;
+		readonly List<AudioStream> _rmsources;
 		double[] _pribuf;
 		byte[] _secbuf;
 		/// <inheritdoc />
-		protected internal override unsafe void FillBuffer(byte[] buffer, int offset, int length) {
+		public override unsafe int Read(byte[] buffer, int offset, int count) {
+			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (m_playing) {
-				Array.Clear(_pribuf, 0, length / (Format.BitsPerSample / 8));
+				Array.Clear(_pribuf, 0, count / (Format.BitsPerSample / 8));
 				lock (_lock) {
 					_rmsources.Clear();
 					foreach (var source in _sources) {
-						FillBufferInternal(source, 0, length);
+						FillBufferInternal(source, 0, count);
 						if (source.EndOfData) _rmsources.Add(source);
 					}
 					foreach (var source in _rmsources)
 						_sources.Remove(source);
 					var seq = Session._seq;
-					_time += (double)length / Format.BytesPerSecond;
+					_time += (double)count / Format.BytesPerSecond;
 					while (seq.Count > 0 && seq[0].Time < _time) {
 						var item = seq[0];
 						seq.RemoveAt(0);
 						if (_sources.Count >= MaxPolyphony) continue;
 						var source = item.Source;
 						_sources.Add(source);
-						int len = Math.Min(length, Format.Align((_time - item.Time) * Format.BytesPerSecond));
-						FillBufferInternal(source, length - len, len);
+						int len = Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond));
+						FillBufferInternal(source, count - len, len);
 					}
 				}
 				switch (Format.SampleFormat) {
 					case SampleFormat.U8:
-						for (int i = offset; i < length + offset; i++) {
+						for (int i = offset; i < count + offset; i++) {
 							buffer[i] = ClampScale.ToByte(_pribuf[i]);
 						}
 						break;
 					case SampleFormat.S16:
 						fixed (byte* rptr = buffer) {
 							short* ptr = (short*)(rptr + offset);
-							for (int i = 0; i < length / sizeof(short); i++, ptr++) {
+							for (int i = 0; i < count / sizeof(short); i++, ptr++) {
 								*ptr = ClampScale.ToInt16(_pribuf[i]);
 							}
 						}
@@ -117,7 +121,7 @@ namespace Cryville.Audio.Source {
 					case SampleFormat.S32:
 						fixed (byte* rptr = buffer) {
 							int* ptr = (int*)(rptr + offset);
-							for (int i = 0; i < length / sizeof(int); i++, ptr++) {
+							for (int i = 0; i < count / sizeof(int); i++, ptr++) {
 								*ptr = ClampScale.ToInt32(_pribuf[i]);
 							}
 						}
@@ -125,7 +129,7 @@ namespace Cryville.Audio.Source {
 					case SampleFormat.F32:
 						fixed (byte* rptr = buffer) {
 							float* ptr = (float*)(rptr + offset);
-							for (int i = 0; i < length / sizeof(float); i++, ptr++) {
+							for (int i = 0; i < count / sizeof(float); i++, ptr++) {
 								*ptr = (float)_pribuf[i];
 							}
 						}
@@ -133,27 +137,28 @@ namespace Cryville.Audio.Source {
 					case SampleFormat.F64:
 						fixed (byte* rptr = buffer) {
 							double* ptr = (double*)(rptr + offset);
-							for (int i = 0; i < length / sizeof(double); i++, ptr++) {
+							for (int i = 0; i < count / sizeof(double); i++, ptr++) {
 								*ptr = _pribuf[i];
 							}
 						}
 						break;
 				}
 			}
-			else SilentBuffer(buffer, offset, length);
+			else SilentBuffer(Format, buffer, offset, count);
+			return count;
 		}
-		unsafe void FillBufferInternal(AudioSource source, int offset, int length) {
-			source.FillBuffer(_secbuf, offset, length);
+		unsafe void FillBufferInternal(AudioStream source, int offset, int count) {
+			source.Read(_secbuf, offset, count);
 			switch (Format.SampleFormat) {
 				case SampleFormat.U8:
-					for (int i = offset; i < length; i++) {
+					for (int i = offset; i < count; i++) {
 						_pribuf[i] += _secbuf[i] / (double)0x80 - 1;
 					}
 					break;
 				case SampleFormat.S16:
 					fixed (byte* rptr = _secbuf) {
 						short* ptr = (short*)rptr;
-						for (int i = offset / sizeof(short); i < length / sizeof(short); i++, ptr++) {
+						for (int i = offset / sizeof(short); i < count / sizeof(short); i++, ptr++) {
 							_pribuf[i] += *ptr / (double)0x8000;
 						}
 					}
@@ -161,7 +166,7 @@ namespace Cryville.Audio.Source {
 				case SampleFormat.S32:
 					fixed (byte* rptr = _secbuf) {
 						int* ptr = (int*)rptr;
-						for (int i = offset / sizeof(int); i < length / sizeof(int); i++, ptr++) {
+						for (int i = offset / sizeof(int); i < count / sizeof(int); i++, ptr++) {
 							_pribuf[i] += *ptr / (double)0x80000000;
 						}
 					}
@@ -169,7 +174,7 @@ namespace Cryville.Audio.Source {
 				case SampleFormat.F32:
 					fixed (byte* rptr = _secbuf) {
 						float* ptr = (float*)rptr;
-						for (int i = offset / sizeof(float); i < length / sizeof(float); i++, ptr++) {
+						for (int i = offset / sizeof(float); i < count / sizeof(float); i++, ptr++) {
 							_pribuf[i] += *ptr;
 						}
 					}
@@ -177,13 +182,35 @@ namespace Cryville.Audio.Source {
 				case SampleFormat.F64:
 					fixed (byte* rptr = _secbuf) {
 						double* ptr = (double*)rptr;
-						for (int i = offset / sizeof(double); i < length / sizeof(double); i++, ptr++) {
+						for (int i = offset / sizeof(double); i < count / sizeof(double); i++, ptr++) {
 							_pribuf[i] += *ptr;
 						}
 					}
 					break;
 			}
 		}
+
+		/// <inheritdoc />
+		public override long Seek(long offset, SeekOrigin origin) {
+			throw new NotImplementedException();
+		}
+
+		/// <inheritdoc />
+		public override bool CanRead => true;
+		/// <inheritdoc />
+		public override bool CanSeek => true;
+		/// <inheritdoc />
+		public override bool CanWrite => false;
+		/// <inheritdoc />
+		public override long Length => long.MaxValue;
+		/// <inheritdoc />
+		public override long Position { get => throw new NotImplementedException(); set => throw new NotSupportedException(); }
+		/// <inheritdoc />
+		public override void Flush() { }
+		/// <inheritdoc />
+		public override void SetLength(long value) => throw new NotSupportedException();
+		/// <inheritdoc />
+		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
 		/// <summary>
 		/// The number of sources currently playing.
@@ -218,8 +245,8 @@ namespace Cryville.Audio.Source {
 	public class SimpleSequencerSession {
 		internal struct Schedule : IComparable<Schedule> {
 			public double Time { get; set; }
-			public AudioSource Source { get; set; }
-			public Schedule(double time, AudioSource source) {
+			public AudioStream Source { get; set; }
+			public Schedule(double time, AudioStream source) {
 				Time = time;
 				Source = source;
 			}
@@ -243,7 +270,7 @@ namespace Cryville.Audio.Source {
 		/// <para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>
 		/// <para>If the number of audio sources currently playing exceeds <see cref="SimpleSequencerSource.MaxPolyphony" />, the <paramref name="source" /> will be discarded.</para>
 		/// </remarks>
-		public void Sequence(double time, AudioSource source) {
+		public void Sequence(double time, AudioStream source) {
 			if (source == null) throw new ArgumentNullException(nameof(source));
 			source.SetFormat(_format, _bufferSize);
 			var sch = new Schedule(time, source);

@@ -5,9 +5,9 @@ using UnsafeIL;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
-	/// An <see cref="AudioSource" /> that generates sound by a given function.
+	/// An <see cref="AudioStream" /> that generates sound by a given function.
 	/// </summary>
-	public abstract class FunctionAudioSource : AudioSource {
+	public abstract class FunctionAudioSource : AudioStream {
 		long _pos;
 		double _time;
 
@@ -55,8 +55,14 @@ namespace Cryville.Audio.Source {
 				default: throw new NotSupportedException();
 			}
 		}
-		protected internal sealed override void FillBuffer(byte[] buffer, int offset, int length) {
-			for (int i = offset; i < length + offset; _time += 1d / Format.SampleRate) {
+
+		/// <inheritdoc />
+		public sealed override unsafe int Read(byte[] buffer, int offset, int count) {
+			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+			if (Disposed) throw new ObjectDisposedException(null);
 			var len = Format.Align(count, true);
 			fixed (byte* fptr = buffer) {
 				byte* ptr = fptr;
@@ -69,6 +75,7 @@ namespace Cryville.Audio.Source {
 				}
 			}
 			_pos += len;
+			return len;
 		}
 
 		static unsafe void WriteU8(ref byte* ptr, double v) {
@@ -109,5 +116,27 @@ namespace Cryville.Audio.Source {
 		/// <param name="time">The time position.</param>
 		/// <param name="channel">The channel index.</param>
 		protected abstract float Func(double time, int channel);
+
+		/// <inheritdoc />
+		public override long Seek(long offset, SeekOrigin origin) {
+			throw new NotImplementedException();
+		}
+
+		/// <inheritdoc />
+		public override bool CanRead => !Disposed;
+		/// <inheritdoc />
+		public override bool CanSeek => !Disposed;
+		/// <inheritdoc />
+		public override bool CanWrite => false;
+		/// <inheritdoc />
+		public override long Length => long.MaxValue;
+		/// <inheritdoc />
+		public override long Position { get => _pos; set => Seek(0, SeekOrigin.Begin); }
+		/// <inheritdoc />
+		public override void Flush() { }
+		/// <inheritdoc />
+		public override void SetLength(long value) => throw new NotSupportedException();
+		/// <inheritdoc />
+		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 	}
 }

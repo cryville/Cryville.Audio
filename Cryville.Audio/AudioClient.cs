@@ -1,4 +1,4 @@
-﻿using Cryville.Audio.Source;
+using Cryville.Audio.Source;
 using System;
 
 namespace Cryville.Audio {
@@ -63,11 +63,11 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract double BufferPosition { get; }
 
-		private AudioSource m_source;
+		private AudioStream m_source;
 		/// <summary>
 		/// The audio source.
 		/// </summary>
-		public AudioSource Source {
+		public AudioStream Source {
 			get => m_source;
 			set {
 				if (Device.DataFlow != DataFlow.Out)

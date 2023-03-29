@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
-	/// An <see cref="AudioSource" /> that generates single tone.
+	/// An <see cref="AudioStream" /> that generates single tone.
 	/// </summary>
 	public sealed class SingleToneAudioSource : FunctionAudioSource {
 		/// <summary>

@@ -1,19 +1,20 @@
-﻿using FFmpeg.AutoGen;
+using FFmpeg.AutoGen;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
-	/// An <see cref="AudioSource" /> that uses Libav to demux and decode audio files.
+	/// An <see cref="AudioStream" /> that uses Libav to demux and decode audio files.
 	/// </summary>
 	/// <remarks>
 	/// You must select a stream using <see cref="SelectStream()" /> or <see cref="SelectStream(int)" /> before playback.
 	/// </remarks>
-	public class LibavFileAudioSource : AudioSource {
+	public class LibavFileAudioSource : AudioStream {
 		internal unsafe class Internal {
 			readonly AVFormatContext* formatCtx;
 			AVCodec* codec;
@@ -215,6 +216,7 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
 			if (disposing) {
 				_internal.Close();
 			}
@@ -253,7 +255,7 @@ namespace Cryville.Audio.Source {
 		/// </summary>
 		/// <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
 		/// <returns>The duration in seconds.</returns>
-		public double GetDuration(int streamId = -1) {
+		public double GetStreamDuration(int streamId = -1) {
 			return _internal.GetDuration(streamId);
 		}
 
@@ -267,16 +269,42 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
-			base.OnSetFormat();
 			_internal.OutFormat = Format;
 			_internal.BufferSize = BufferSize;
 			_internal.TryConnect();
 		}
 
 		/// <inheritdoc />
-		protected internal override void FillBuffer(byte[] buffer, int offset, int length) {
-			_internal.FillBuffer(buffer, offset, length);
+		public override int Read(byte[] buffer, int offset, int count) {
+			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+			_internal.FillBuffer(buffer, offset, count);
+			return count;
 		}
+
+		/// <inheritdoc />
+		public override long Seek(long offset, SeekOrigin origin) {
+			throw new NotImplementedException();
+		}
+
+		/// <inheritdoc />
+		public override bool CanRead => true;
+		/// <inheritdoc />
+		public override bool CanSeek => true;
+		/// <inheritdoc />
+		public override bool CanWrite => false;
+		/// <inheritdoc />
+		public override long Length => throw new NotImplementedException();
+		/// <inheritdoc />
+		public override long Position { get => throw new NotImplementedException(); set => throw new NotSupportedException(); }
+		/// <inheritdoc />
+		public override void Flush() { }
+		/// <inheritdoc />
+		public override void SetLength(long value) => throw new NotSupportedException();
+		/// <inheritdoc />
+		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 	}
 
 	[Serializable]
