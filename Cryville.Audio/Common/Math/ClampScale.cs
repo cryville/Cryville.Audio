@@ -1,4 +1,4 @@
-﻿namespace Cryville.Common.Math {
+namespace Cryville.Common.Math {
 	public static class ClampScale {
 		public static byte ToByte(double v) {
 			v = v * 0x80 + 0x80;
@@ -15,7 +15,7 @@
 		public static int ToInt24(double v) {
 			v *= 0x800000;
 			if (v >= 0x7fffff) return 0x7fffff;
-			if (v < -0x800000) return 0x800000;
+			if (v < -0x800000) return -0x800000;
 			return (int)System.Math.Floor(v);
 		}
 		public static int ToInt32(double v) {
