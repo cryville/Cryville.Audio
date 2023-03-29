@@ -1,4 +1,4 @@
-﻿using Microsoft.Windows;
+using Microsoft.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.Mme;
@@ -39,13 +39,13 @@ namespace Cryville.Audio.Wasapi {
 					_renderClient.Dispose();
 					_renderClient = null;
 				}
-				if (_clock != default(IntPtr)) {
+				if (_clock != default) {
 					Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(_clock));
-					_clock = default(IntPtr);
+					_clock = default;
 				}
-				if (_internal != default(IntPtr)) {
+				if (_internal != default) {
 					Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(_internal));
-					_internal = default(IntPtr);
+					_internal = default;
 				}
 			}
 		}
@@ -233,7 +233,7 @@ namespace Cryville.Audio.Wasapi {
 				}
 				else {
 					var length = frames * m_format.nBlockAlign;
-					Source.FillBuffer(buffer, 0, (int)length);
+					Source.Read(buffer, 0, (int)length);
 					_renderClient.FillBuffer(buffer, frames, length);
 					_renderClient.ReleaseBuffer(frames);
 				}

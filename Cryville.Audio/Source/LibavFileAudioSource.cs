@@ -194,11 +194,11 @@ namespace Cryville.Audio.Source {
 
 			static AVSampleFormat ToInternalFormat(WaveFormat value) {
 				switch (value.SampleFormat) {
-					case SampleFormat.Unsigned8: return AVSampleFormat.AV_SAMPLE_FMT_U8;
-					case SampleFormat.Signed16: return AVSampleFormat.AV_SAMPLE_FMT_S16;
-					case SampleFormat.Signed32: return AVSampleFormat.AV_SAMPLE_FMT_S32;
-					case SampleFormat.Binary32: return AVSampleFormat.AV_SAMPLE_FMT_FLT;
-					case SampleFormat.Binary64: return AVSampleFormat.AV_SAMPLE_FMT_DBL;
+					case SampleFormat.U8: return AVSampleFormat.AV_SAMPLE_FMT_U8;
+					case SampleFormat.S16: return AVSampleFormat.AV_SAMPLE_FMT_S16;
+					case SampleFormat.S32: return AVSampleFormat.AV_SAMPLE_FMT_S32;
+					case SampleFormat.F32: return AVSampleFormat.AV_SAMPLE_FMT_FLT;
+					case SampleFormat.F64: return AVSampleFormat.AV_SAMPLE_FMT_DBL;
 					default: throw new NotSupportedException();
 				}
 			}
@@ -258,6 +258,14 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
+		protected internal override bool IsFormatSupported(WaveFormat format)
+			=> format.SampleFormat == SampleFormat.U8
+			|| format.SampleFormat == SampleFormat.S16
+			|| format.SampleFormat == SampleFormat.S32
+			|| format.SampleFormat == SampleFormat.F32
+			|| format.SampleFormat == SampleFormat.F64;
+
+		/// <inheritdoc />
 		protected override void OnSetFormat() {
 			base.OnSetFormat();
 			_internal.OutFormat = Format;
@@ -269,14 +277,6 @@ namespace Cryville.Audio.Source {
 		protected internal override void FillBuffer(byte[] buffer, int offset, int length) {
 			_internal.FillBuffer(buffer, offset, length);
 		}
-
-		/// <inheritdoc />
-		protected internal override bool IsFormatSupported(WaveFormat format)
-			=> format.SampleFormat == SampleFormat.Unsigned8
-			|| format.SampleFormat == SampleFormat.Signed16
-			|| format.SampleFormat == SampleFormat.Signed32
-			|| format.SampleFormat == SampleFormat.Binary32
-			|| format.SampleFormat == SampleFormat.Binary64;
 	}
 
 	[Serializable]

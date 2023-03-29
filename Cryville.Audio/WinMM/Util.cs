@@ -1,4 +1,4 @@
-﻿using Microsoft.Windows.Mme;
+using Microsoft.Windows.Mme;
 using System;
 using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
@@ -25,10 +25,10 @@ namespace Cryville.Audio.WinMM {
 		}
 		public static SampleFormat FromInternalBitDepth(ushort bitsPerSample) {
 			switch (bitsPerSample) {
-				case 8: return SampleFormat.Unsigned8;
-				case 16: return SampleFormat.Signed16;
-				case 24: return SampleFormat.Signed24;
-				case 32: return SampleFormat.Signed32;
+				case 8: return SampleFormat.U8;
+				case 16: return SampleFormat.S16;
+				case 24: return SampleFormat.S24;
+				case 32: return SampleFormat.S32;
 				default: throw new NotSupportedException();
 			}
 		}

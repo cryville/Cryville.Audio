@@ -24,12 +24,12 @@ namespace Cryville.Audio {
 		public ushort BitsPerSample {
 			get {
 				switch (SampleFormat) {
-					case SampleFormat.Unsigned8: return 8;
-					case SampleFormat.Signed16: return 16;
-					case SampleFormat.Signed24: return 24;
-					case SampleFormat.Signed32:
-					case SampleFormat.Binary32: return 32;
-					case SampleFormat.Binary64: return 64;
+					case SampleFormat.U8: return 8;
+					case SampleFormat.S16: return 16;
+					case SampleFormat.S24: return 24;
+					case SampleFormat.S32:
+					case SampleFormat.F32: return 32;
+					case SampleFormat.F64: return 64;
 					default: throw new InvalidOperationException(); // Unreachable
 				}
 			}
@@ -44,17 +44,20 @@ namespace Cryville.Audio {
 		/// The default wave format.
 		/// </summary>
 		public readonly static WaveFormat Default = new WaveFormat {
-			Channels = 2, SampleRate = 48000, SampleFormat = SampleFormat.Signed16
+			Channels = 2, SampleRate = 48000, SampleFormat = SampleFormat.S16
 		};
 
 		/// <summary>
 		/// Gets the aligned buffer size.
 		/// </summary>
 		/// <param name="size">The prefered buffer size in bytes.</param>
+		/// <param name="floored">Whether the result is floored or ceiled.</param>
 		/// <returns>The aligned buffer size in bytes.</returns>
-		public int Align(double size) {
-			int block = Channels * BitsPerSample / 8;
-			return (int)Math.Ceiling(size / block) * block;
+		public int Align(double size, bool floored = false) {
+			int blockSize = Channels * BitsPerSample / 8;
+			size /= blockSize;
+			int blockNum = (int)(floored ? Math.Floor(size) : Math.Ceiling(size));
+			return blockNum * blockSize;
 		}
 
 		/// <inheritdoc />
@@ -97,28 +100,32 @@ namespace Cryville.Audio {
 	/// </summary>
 	public enum SampleFormat {
 		/// <summary>
+		/// Invalid sample format.
+		/// </summary>
+		Invalid = 0b0,
+		/// <summary>
 		/// Unsigned 8-bit integer sample format.
 		/// </summary>
-		Unsigned8,
+		U8 = 0b10000,
 		/// <summary>
 		/// Signed 16-bit integer sample format.
 		/// </summary>
-		Signed16,
+		S16 = 0b0010,
 		/// <summary>
 		/// Signed 24-bit integer sample format.
 		/// </summary>
-		Signed24,
+		S24 = 0b0011,
 		/// <summary>
 		/// Signed 32-bit integer sample format.
 		/// </summary>
-		Signed32,
+		S32 = 0b0100,
 		/// <summary>
 		/// IEEE 754 single precision floating-point sample format.
 		/// </summary>
-		Binary32,
+		F32 = 0b100100,
 		/// <summary>
 		/// IEEE 754 double precision floating-point sample format.
 		/// </summary>
-		Binary64,
+		F64 = 0b100110,
 	}
 }

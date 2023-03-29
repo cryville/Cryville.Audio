@@ -1,10 +1,14 @@
-﻿using Cryville.Common.Math;
+using Cryville.Common.Math;
+using System;
+using System.IO;
+using UnsafeIL;
 
 namespace Cryville.Audio.Source {
 	/// <summary>
 	/// An <see cref="AudioSource" /> that generates sound by a given function.
 	/// </summary>
 	public abstract class FunctionAudioSource : AudioSource {
+		long _pos;
 		double _time;
 
 		/// <summary>
@@ -20,42 +24,75 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected internal sealed override bool IsFormatSupported(WaveFormat format) {
-			return format.SampleFormat == SampleFormat.Unsigned8
-				|| format.SampleFormat == SampleFormat.Signed16
-				|| format.SampleFormat == SampleFormat.Signed24
-				|| format.SampleFormat == SampleFormat.Signed32;
+			return format.SampleFormat == SampleFormat.U8
+				|| format.SampleFormat == SampleFormat.S16
+				|| format.SampleFormat == SampleFormat.S24
+				|| format.SampleFormat == SampleFormat.S32
+				|| format.SampleFormat == SampleFormat.F32
+				|| format.SampleFormat == SampleFormat.F64;
 		}
 
+		unsafe delegate void SampleHandler(ref byte* ptr, double v);
+		SampleHandler _sampleHandler;
+
 		/// <inheritdoc />
+		protected override unsafe void OnSetFormat() {
+			switch (Format.SampleFormat) {
+				case SampleFormat.U8: _sampleHandler = WriteU8; break;
+				case SampleFormat.S16: _sampleHandler = WriteS16; break;
+				case SampleFormat.S24: _sampleHandler = WriteS24; break;
+				case SampleFormat.S32: _sampleHandler = WriteS32; break;
+				case SampleFormat.F32: _sampleHandler = WriteF32; break;
+				case SampleFormat.F64: _sampleHandler = WriteF64; break;
+				default: throw new NotSupportedException();
+			}
+		}
 		protected internal sealed override void FillBuffer(byte[] buffer, int offset, int length) {
 			for (int i = offset; i < length + offset; _time += 1d / Format.SampleRate) {
-				for (int j = 0; j < Format.Channels; j++) {
-					float v = Func(_time, j);
-					switch (Format.SampleFormat) {
-						case SampleFormat.Unsigned8:
-							buffer[i++] = ClampScale.ToByte(v);
-							break;
-						case SampleFormat.Signed16:
-							short d16 = ClampScale.ToInt16(v);
-							buffer[i++] = (byte)d16;
-							buffer[i++] = (byte)(d16 >> 8);
-							break;
-						case SampleFormat.Signed24:
-							int d24 = ClampScale.ToInt24(v);
-							buffer[i++] = (byte)d24;
-							buffer[i++] = (byte)(d24 >> 8);
-							buffer[i++] = (byte)(d24 >> 16);
-							break;
-						case SampleFormat.Signed32:
-							int d32 = ClampScale.ToInt32(v);
-							buffer[i++] = (byte)d32;
-							buffer[i++] = (byte)(d32 >> 8);
-							buffer[i++] = (byte)(d32 >> 16);
-							buffer[i++] = (byte)(d32 >> 24);
-							break;
+			var len = Format.Align(count, true);
+			fixed (byte* fptr = buffer) {
+				byte* ptr = fptr;
+				for (int i = 0; i < len; i++) {
+					for (int j = 0; j < Format.Channels; j++) {
+						float v = Func(_time, j);
+						_sampleHandler(ref ptr, v);
 					}
+					_time += 1d / Format.SampleRate;
 				}
 			}
+			_pos += len;
+		}
+
+		static unsafe void WriteU8(ref byte* ptr, double v) {
+			Unsafe.Write(ptr, ClampScale.ToByte(v));
+			ptr += sizeof(byte);
+		}
+
+		static unsafe void WriteS16(ref byte* ptr, double v) {
+			Unsafe.Write(ptr, ClampScale.ToInt16(v));
+			ptr += sizeof(short);
+		}
+
+		static unsafe void WriteS24(ref byte* ptr, double v) {
+			int d = ClampScale.ToInt24(v);
+			*ptr++ = (byte)d;
+			*ptr++ = (byte)(d >> 8);
+			*ptr++ = (byte)(d >> 16);
+		}
+
+		static unsafe void WriteS32(ref byte* ptr, double v) {
+			Unsafe.Write(ptr, ClampScale.ToInt32(v));
+			ptr += sizeof(int);
+		}
+
+		static unsafe void WriteF32(ref byte* ptr, double v) {
+			Unsafe.Write(ptr, (float)v);
+			ptr += sizeof(float);
+		}
+
+		static unsafe void WriteF64(ref byte* ptr, double v) {
+			Unsafe.Write(ptr, v);
+			ptr += sizeof(double);
 		}
 
 		/// <summary>

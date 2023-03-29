@@ -58,7 +58,7 @@ namespace Cryville.Audio.WinMM {
 		public override WaveFormat DefaultFormat {
 			get {
 				IsFormatSupported(
-					new WaveFormat { Channels = 2, SampleRate = 192000, SampleFormat = SampleFormat.Signed32 },
+					new WaveFormat { Channels = 2, SampleRate = 192000, SampleFormat = SampleFormat.S32 },
 					out var format
 				);
 				return format ?? throw new NotSupportedException("No format is supported");

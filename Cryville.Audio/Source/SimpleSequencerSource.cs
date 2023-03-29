@@ -47,11 +47,11 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format) {
-			return format.SampleFormat == SampleFormat.Unsigned8
-				|| format.SampleFormat == SampleFormat.Signed16
-				|| format.SampleFormat == SampleFormat.Signed32
-				|| format.SampleFormat == SampleFormat.Binary32
-				|| format.SampleFormat == SampleFormat.Binary64;
+			return format.SampleFormat == SampleFormat.U8
+				|| format.SampleFormat == SampleFormat.S16
+				|| format.SampleFormat == SampleFormat.S32
+				|| format.SampleFormat == SampleFormat.F32
+				|| format.SampleFormat == SampleFormat.F64;
 		}
 
 		bool m_playing;
@@ -100,12 +100,12 @@ namespace Cryville.Audio.Source {
 					}
 				}
 				switch (Format.SampleFormat) {
-					case SampleFormat.Unsigned8:
+					case SampleFormat.U8:
 						for (int i = offset; i < length + offset; i++) {
 							buffer[i] = ClampScale.ToByte(_pribuf[i]);
 						}
 						break;
-					case SampleFormat.Signed16:
+					case SampleFormat.S16:
 						fixed (byte* rptr = buffer) {
 							short* ptr = (short*)(rptr + offset);
 							for (int i = 0; i < length / sizeof(short); i++, ptr++) {
@@ -113,7 +113,7 @@ namespace Cryville.Audio.Source {
 							}
 						}
 						break;
-					case SampleFormat.Signed32:
+					case SampleFormat.S32:
 						fixed (byte* rptr = buffer) {
 							int* ptr = (int*)(rptr + offset);
 							for (int i = 0; i < length / sizeof(int); i++, ptr++) {
@@ -121,7 +121,7 @@ namespace Cryville.Audio.Source {
 							}
 						}
 						break;
-					case SampleFormat.Binary32:
+					case SampleFormat.F32:
 						fixed (byte* rptr = buffer) {
 							float* ptr = (float*)(rptr + offset);
 							for (int i = 0; i < length / sizeof(float); i++, ptr++) {
@@ -129,7 +129,7 @@ namespace Cryville.Audio.Source {
 							}
 						}
 						break;
-					case SampleFormat.Binary64:
+					case SampleFormat.F64:
 						fixed (byte* rptr = buffer) {
 							double* ptr = (double*)(rptr + offset);
 							for (int i = 0; i < length / sizeof(double); i++, ptr++) {
@@ -144,12 +144,12 @@ namespace Cryville.Audio.Source {
 		unsafe void FillBufferInternal(AudioSource source, int offset, int length) {
 			source.FillBuffer(_secbuf, offset, length);
 			switch (Format.SampleFormat) {
-				case SampleFormat.Unsigned8:
+				case SampleFormat.U8:
 					for (int i = offset; i < length; i++) {
 						_pribuf[i] += _secbuf[i] / (double)0x80 - 1;
 					}
 					break;
-				case SampleFormat.Signed16:
+				case SampleFormat.S16:
 					fixed (byte* rptr = _secbuf) {
 						short* ptr = (short*)rptr;
 						for (int i = offset / sizeof(short); i < length / sizeof(short); i++, ptr++) {
@@ -157,7 +157,7 @@ namespace Cryville.Audio.Source {
 						}
 					}
 					break;
-				case SampleFormat.Signed32:
+				case SampleFormat.S32:
 					fixed (byte* rptr = _secbuf) {
 						int* ptr = (int*)rptr;
 						for (int i = offset / sizeof(int); i < length / sizeof(int); i++, ptr++) {
@@ -165,7 +165,7 @@ namespace Cryville.Audio.Source {
 						}
 					}
 					break;
-				case SampleFormat.Binary32:
+				case SampleFormat.F32:
 					fixed (byte* rptr = _secbuf) {
 						float* ptr = (float*)rptr;
 						for (int i = offset / sizeof(float); i < length / sizeof(float); i++, ptr++) {
@@ -173,7 +173,7 @@ namespace Cryville.Audio.Source {
 						}
 					}
 					break;
-				case SampleFormat.Binary64:
+				case SampleFormat.F64:
 					fixed (byte* rptr = _secbuf) {
 						double* ptr = (double*)rptr;
 						for (int i = offset / sizeof(double); i < length / sizeof(double); i++, ptr++) {
