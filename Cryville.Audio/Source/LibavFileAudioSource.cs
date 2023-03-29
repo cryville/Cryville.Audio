@@ -43,6 +43,7 @@ namespace Cryville.Audio.Source {
 			}
 
 			public double GetDuration(int index) {
+				if (formatCtx == null) throw new ObjectDisposedException(null);
 				if (index >= formatCtx->nb_streams || index < -1)
 					throw new ArgumentOutOfRangeException(nameof(index));
 				if (index == -1) return (double)formatCtx->duration / ffmpeg.AV_TIME_BASE;
@@ -53,6 +54,7 @@ namespace Cryville.Audio.Source {
 			}
 
 			public void OpenStream(int index) {
+				if (formatCtx == null) throw new ObjectDisposedException(null);
 				if (codecCtx != null)
 					throw new InvalidOperationException("Stream already opened.");
 				if (index >= formatCtx->nb_streams)
@@ -70,6 +72,7 @@ namespace Cryville.Audio.Source {
 			}
 
 			public void SetFormat(WaveFormat format, int bufferSize) {
+				if (formatCtx == null) throw new ObjectDisposedException(null);
 				if (OutFormat != null) throw new InvalidOperationException("Format already set.");
 				if (codecCtx == null) OpenStream(-1);
 				OutFormat = format;
@@ -201,12 +204,16 @@ namespace Cryville.Audio.Source {
 			_internal = new Internal(file);
 		}
 
+		/// <summary>
+		/// Whether this audio stream has been disposed.
+		/// </summary>
+		public bool Disposed { get; private set; }
+
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
-			if (disposing) {
-				_internal.Close();
-			}
+			_internal.Close();
+			Disposed = true;
 		}
 
 		/// <inheritdoc />
@@ -264,7 +271,7 @@ namespace Cryville.Audio.Source {
 			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
-			_internal.FillBuffer(buffer, offset, count);
+			if (Disposed) throw new ObjectDisposedException(null);
 			return _internal.FillBuffer(buffer, offset, count);
 		}
 
