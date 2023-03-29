@@ -28,7 +28,7 @@ namespace Cryville.Audio {
 		/// <param name="bufferSize">The buffer size in bytes.</param>
 		/// <exception cref="NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
 		public void SetFormat(WaveFormat format, int bufferSize) {
-			if (!IsFormatSupported(Format))
+			if (!IsFormatSupported(format))
 				throw new NotSupportedException("Format not supported.");
 			Format = format;
 			BufferSize = bufferSize;
