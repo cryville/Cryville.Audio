@@ -11,9 +11,6 @@ namespace Cryville.Audio.Source {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that uses Libav to demux and decode audio files.
 	/// </summary>
-	/// <remarks>
-	/// You must select a stream using <see cref="SelectStream()" /> or <see cref="SelectStream(int)" /> before playback.
-	/// </remarks>
 	public class LibavFileAudioSource : AudioStream {
 		internal unsafe class Internal {
 			readonly AVFormatContext* formatCtx;
@@ -27,8 +24,8 @@ namespace Cryville.Audio.Source {
 			public readonly int BestStreamIndex;
 			public readonly ReadOnlyCollection<int> Streams;
 			int selectedStream;
-			public WaveFormat? OutFormat;
-			public int BufferSize;
+			WaveFormat? OutFormat;
+			int BufferSize;
 			int bytesPerSamplePerChannel;
 			public bool EOF;
 			public Internal(string file) {
@@ -72,8 +69,11 @@ namespace Cryville.Audio.Source {
 				packet = ffmpeg.av_packet_alloc();
 			}
 
-			public void TryConnect() {
-				if (codecCtx == null || OutFormat == null) return;
+			public void SetFormat(WaveFormat format, int bufferSize) {
+				if (OutFormat != null) throw new InvalidOperationException("Format already set.");
+				if (codecCtx == null) OpenStream(-1);
+				OutFormat = format;
+				BufferSize = bufferSize;
 				var outFormat = OutFormat.Value;
 				bytesPerSamplePerChannel = OutFormat.Value.BitsPerSample * OutFormat.Value.Channels / 8;
 
@@ -222,6 +222,10 @@ namespace Cryville.Audio.Source {
 		/// <summary>
 		/// Selects the best stream as the source.
 		/// </summary>
+		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
+		/// <remarks>
+		/// <para>You can only call this method before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
+		/// </remarks>
 		public void SelectStream() {
 			SelectStream(BestStreamIndex);
 		}
@@ -230,19 +234,18 @@ namespace Cryville.Audio.Source {
 		/// Selects a stream as the source.
 		/// </summary>
 		/// <param name="index">The index of the stream.</param>
-		public void SelectStream(int index) {
-			_internal.OpenStream(index);
-			_internal.TryConnect();
-		}
+		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
+		/// <remarks>
+		/// <para>You can only call this method before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
+		/// </remarks>
+		public void SelectStream(int index) => _internal.OpenStream(index);
 
 		/// <summary>
 		/// Gets the duration of a stream or the file.
 		/// </summary>
 		/// <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
 		/// <returns>The duration in seconds.</returns>
-		public double GetStreamDuration(int streamId = -1) {
-			return _internal.GetDuration(streamId);
-		}
+		public double GetStreamDuration(int streamId = -1) => _internal.GetDuration(streamId);
 
 		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format)
@@ -253,11 +256,7 @@ namespace Cryville.Audio.Source {
 			|| format.SampleFormat == SampleFormat.F64;
 
 		/// <inheritdoc />
-		protected override void OnSetFormat() {
-			_internal.OutFormat = Format;
-			_internal.BufferSize = BufferSize;
-			_internal.TryConnect();
-		}
+		protected override void OnSetFormat() => _internal.SetFormat(Format, BufferSize);
 
 		/// <inheritdoc />
 		public override int Read(byte[] buffer, int offset, int count) {
