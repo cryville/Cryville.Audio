@@ -111,7 +111,6 @@ namespace Cryville.Audio.Source {
 				if (!EOF) {
 					while (decoded < samples) {
 						int frame_size;
-					retry:
 						int out_samples = HR(ffmpeg.swr_get_out_samples(swrContext, 0));
 						if (out_samples < samples) {
 							// Samples in the buffer are not sufficient. Read and decode a new frame.
@@ -119,18 +118,20 @@ namespace Cryville.Audio.Source {
 							if (ret == -0xb) {
 								while (true) {
 									ret = ffmpeg.av_read_frame(formatCtx, packet);
-									_pts = packet->pts;
 									if (ret == -0x20464f45) {
 										EOF = true;
 										goto eof;
 									}
 									else if (ret < 0) HR(ret);
-									if (packet->stream_index == SelectedStream) break;
+									if (packet->stream_index == SelectedStream) {
+										_pts = packet->pts;
+										break;
+									}
 									ffmpeg.av_packet_unref(packet);
 								}
 								HR(ffmpeg.avcodec_send_packet(codecCtx, packet));
 								ffmpeg.av_packet_unref(packet);
-								goto retry;
+								continue;
 							}
 							fixed (byte** ptr = &_buffer) {
 								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, samples - decoded, frame->extended_data, frame->nb_samples));
