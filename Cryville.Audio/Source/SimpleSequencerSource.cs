@@ -74,7 +74,7 @@ namespace Cryville.Audio.Source {
 			get { return m_playing; }
 			set {
 				if (Session == null && value)
-					throw new InvalidOperationException("No session is attached");
+					throw new InvalidOperationException("No session is active.");
 				m_playing = value;
 			}
 		}
@@ -240,7 +240,7 @@ namespace Cryville.Audio.Source {
 		/// An <see cref="AudioClient" /> must be attached to this source first.
 		/// </remarks>
 		public SimpleSequencerSession NewSession() {
-			if (BufferSize == 0) throw new InvalidOperationException("Audio source not attached to client");
+			if (BufferSize == 0) throw new InvalidOperationException("Sequencer not attached to client.");
 			if (Disposed) throw new ObjectDisposedException(null);
 			m_playing = false;
 			lock (_lock) _sources.Clear();

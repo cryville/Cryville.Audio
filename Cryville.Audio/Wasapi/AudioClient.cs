@@ -80,7 +80,7 @@ namespace Cryville.Audio.Wasapi {
 		public override WaveFormat Format {
 			get {
 				if (_eventHandle == IntPtr.Zero)
-					throw new InvalidOperationException("Connection not initialized");
+					throw new InvalidOperationException("Connection not initialized.");
 				return MmUtil.FromInternalFormat(m_format);
 			}
 		}
@@ -90,7 +90,7 @@ namespace Cryville.Audio.Wasapi {
 		public override int BufferSize {
 			get {
 				if (_eventHandle == IntPtr.Zero)
-					throw new InvalidOperationException("Connection not initialized");
+					throw new InvalidOperationException("Connection not initialized.");
 				return (int)(m_bufferFrames * m_format.nBlockAlign);
 			}
 		}
@@ -108,7 +108,7 @@ namespace Cryville.Audio.Wasapi {
 		public override double Position {
 			get {
 				if (_clockFreq == 0)
-					throw new InvalidOperationException("Connection not initialized");
+					throw new InvalidOperationException("Connection not initialized.");
 				IAudioClock.GetPosition(_clock, out var pos, out _);
 				return (double)pos / _clockFreq;
 			}
@@ -210,7 +210,7 @@ namespace Cryville.Audio.Wasapi {
 			if (Playing) {
 				_threadAbortFlag = true;
 				if (!_thread.Join(1000))
-					throw new InvalidOperationException("Failed to pause audio client");
+					throw new InvalidOperationException("Failed to pause audio client.");
 				_thread = null;
 				IAudioClient.Stop(_internal);
 				base.Pause();
@@ -224,7 +224,7 @@ namespace Cryville.Audio.Wasapi {
 			var buffer = new byte[BufferSize];
 			while (true) {
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
-					throw new InvalidOperationException("Error while pending for event");
+					throw new InvalidOperationException("Error while pending for event.");
 				IAudioClient.GetCurrentPadding(_internal, out var padding);
 				var frames = m_bufferFrames - padding;
 				if (frames == 0) continue;

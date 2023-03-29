@@ -65,7 +65,7 @@ namespace Cryville.Audio.WinMM {
 					new WaveFormat { Channels = 2, SampleRate = 192000, SampleFormat = SampleFormat.S32 },
 					out var format
 				);
-				return format ?? throw new NotSupportedException("No format is supported");
+				return format ?? throw new NotSupportedException("No format is supported.");
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace Cryville.Audio.WinMM {
 		/// <inheritdoc />
 		public override void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (shareMode == AudioShareMode.Exclusive)
-				throw new NotSupportedException("Exclusive mode not supported");
+				throw new NotSupportedException("Exclusive mode not supported.");
 			if (bufferDuration == 0) bufferDuration = DefaultBufferDuration;
 
 			m_format = format;
@@ -244,7 +244,7 @@ namespace Cryville.Audio.WinMM {
 			if (Playing) {
 				_threadAbortFlag = true;
 				if (!_thread.Join(1000))
-					throw new InvalidOperationException("Failed to pause audio client");
+					throw new InvalidOperationException("Failed to pause audio client.");
 				_thread = null;
 				MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
 				base.Pause();
@@ -272,7 +272,7 @@ namespace Cryville.Audio.WinMM {
 				}
 				if (_threadAbortFlag) break;
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
-					throw new InvalidOperationException("Error while pending for event");
+					throw new InvalidOperationException("Error while pending for event.");
 			}
 		}
 	}

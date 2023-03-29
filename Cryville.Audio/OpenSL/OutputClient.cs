@@ -93,7 +93,7 @@ namespace Cryville.Audio.OpenSL {
 		/// <inheritdoc />
 		public override void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (shareMode == AudioShareMode.Exclusive)
-				throw new NotSupportedException("Exclusive mode not supported");
+				throw new NotSupportedException("Exclusive mode not supported.");
 			if (bufferDuration == 0) bufferDuration = DefaultBufferDuration;
 			m_format = format;
 

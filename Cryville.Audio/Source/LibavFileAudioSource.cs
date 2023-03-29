@@ -57,20 +57,19 @@ namespace Cryville.Audio.Source {
 
 			public void OpenStream(int index) {
 				if (codecCtx != null)
-					throw new InvalidOperationException("Stream already opened");
+					throw new InvalidOperationException("Stream already opened.");
 				if (index >= formatCtx->nb_streams)
 					throw new ArgumentOutOfRangeException(nameof(index));
 				selectedStream = index;
 
 				var param = formatCtx->streams[index]->codecpar;
 				codec = ffmpeg.avcodec_find_decoder(param->codec_id);
-				if (codec == null) throw new LibavException("Codec not found");
+				if (codec == null) throw new LibavException("Codec not found.");
 				codecCtx = ffmpeg.avcodec_alloc_context3(codec);
 				ffmpeg.avcodec_parameters_to_context(codecCtx, param);
 				HR(ffmpeg.avcodec_open2(codecCtx, codec, null));
 
 				packet = ffmpeg.av_packet_alloc();
-				// ffmpeg.av_init_packet(packet);
 			}
 
 			public void TryConnect() {
@@ -91,20 +90,6 @@ namespace Cryville.Audio.Source {
 						&codecCtx->ch_layout, codecCtx->sample_fmt, codecCtx->sample_rate,
 						0, null
 					));
-
-				/*long outLayout = ffmpeg.av_get_default_channel_layout(outFormat.Channels);
-				long inLayout = ffmpeg.av_get_default_channel_layout(codecCtx->channels);
-
-				frame = ffmpeg.av_frame_alloc();
-				_buffer = (byte*)Marshal.AllocHGlobal(BufferSize).ToPointer();
-
-				swrContext = ffmpeg.swr_alloc();
-				swrContext = ffmpeg.swr_alloc_set_opts(
-					swrContext,
-					outLayout, ToInternalFormat(outFormat), (int)outFormat.SampleRate,
-					inLayout, codecCtx->sample_fmt, codecCtx->sample_rate,
-					0, null
-				);*/
 
 				HR(ffmpeg.swr_init(swrContext));
 			}

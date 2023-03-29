@@ -29,7 +29,7 @@ namespace Cryville.Audio {
 		/// <exception cref="NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
 		public void SetFormat(WaveFormat format, int bufferSize) {
 			if (!IsFormatSupported(Format))
-				throw new NotSupportedException("Format not supported");
+				throw new NotSupportedException("Format not supported.");
 			Format = format;
 			BufferSize = bufferSize;
 			OnSetFormat();
