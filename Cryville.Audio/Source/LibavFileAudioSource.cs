@@ -249,7 +249,7 @@ namespace Cryville.Audio.Source {
 		/// </summary>
 		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
 		/// <remarks>
-		/// <para>You can only call this method before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
+		/// <para>This method can only be called before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
 		/// </remarks>
 		public void SelectStream() => SelectStream(BestStreamIndex);
 
@@ -259,7 +259,7 @@ namespace Cryville.Audio.Source {
 		/// <param name="index">The index of the stream.</param>
 		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
 		/// <remarks>
-		/// <para>You can only call this method before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
+		/// <para>This method can only be called before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
 		/// </remarks>
 		public void SelectStream(int index) => _internal.OpenStream(index);
 

@@ -62,7 +62,7 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// Sets the duration of the current audio stream.
 		/// </summary>
-		/// <param name="value">The desired duration of the current audio stream in seconds.</param>
+		/// <param name="value">The duration in seconds.</param>
 		public virtual void SetDuration(double value)
 			=> SetLength(Format.Align(value * Format.BytesPerSecond));
 
@@ -72,7 +72,7 @@ namespace Cryville.Audio {
 		public virtual double Duration => (double)Length / Format.BytesPerSecond;
 
 		/// <summary>
-		/// The time within the current audio stream.
+		/// The time in seconds within the current audio stream.
 		/// </summary>
 		public virtual double Time => (double)Position / Format.BytesPerSecond;
 

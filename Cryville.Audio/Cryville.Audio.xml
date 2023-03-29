@@ -58,6 +58,11 @@
             Whether the client is playing.
             </summary>
         </member>
+        <member name="P:Cryville.Audio.AudioClient.Muted">
+            <summary>
+            Whether the client is muted.
+            </summary>
+        </member>
         <member name="P:Cryville.Audio.AudioClient.Position">
             <summary>
             The current position of the device stream in seconds.
@@ -122,6 +127,79 @@
             The device is exclusive to the current connection, providing a low latency.
             </summary>
             <remarks>To initialize an exclusive connection, the device must allow exclusive mode and must not be being used in either modes at the moment.</remarks>
+        </member>
+        <member name="T:Cryville.Audio.AudioStream">
+            <summary>
+            Audio stream.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.AudioStream.Format">
+            <summary>
+            The wave format.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.AudioStream.BufferSize">
+            <summary>
+            The buffer size in bytes.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.AudioStream.EndOfData">
+            <summary>
+            Whether if the stream has reached the end of data.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.SetFormat(Cryville.Audio.WaveFormat,System.Int32)">
+            <summary>
+            Sets the wave format and the buffer size of this audio stream.
+            </summary>
+            <param name="format">The wave format.</param>
+            <param name="bufferSize">The buffer size in bytes.</param>
+            <exception cref="T:System.InvalidOperationException">This method has already been called successfully once on the audio stream.</exception>
+            <exception cref="T:System.NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.OnSetFormat">
+            <summary>
+            Called when the wave format and the buffer size is determined.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.IsFormatSupported(Cryville.Audio.WaveFormat)">
+            <summary>
+            Gets whether <paramref name="format" /> is supported by the audio stream.
+            </summary>
+            <param name="format">The wave format.</param>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.SeekTime(System.Double,System.IO.SeekOrigin)">
+            <summary>
+            Sets the time within the current audio stream.
+            </summary>
+            <param name="offset">An offset in seconds relative to the <paramref name="origin" /> parameter.</param>
+            <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
+            <returns>The new time in seconds within the current audio stream.</returns>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.SetDuration(System.Double)">
+            <summary>
+            Sets the duration of the current audio stream.
+            </summary>
+            <param name="value">The duration in seconds.</param>
+        </member>
+        <member name="P:Cryville.Audio.AudioStream.Duration">
+            <summary>
+            The duration in seconds of the audio stream.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.AudioStream.Time">
+            <summary>
+            The time in seconds within the current audio stream.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.SilentBuffer(Cryville.Audio.WaveFormat,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Fills the buffer with silence.
+            </summary>
+            <param name="format">The wave format.</param>
+            <param name="buffer">The buffer to be filled.</param>
+            <param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
+            <param name="count">The length in bytes to be filled.</param>
         </member>
         <member name="T:Cryville.Audio.DataFlow">
             <summary>
@@ -232,9 +310,6 @@
             <summary>
             An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with OpenSL ES.
             </summary>
-            <remarks>
-            See <see cref="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction" /> if AOT is used.
-            </remarks>
         </member>
         <member name="M:Cryville.Audio.OpenSL.OutputClient.Finalize">
             <inheritdoc />
@@ -269,21 +344,6 @@
         <member name="P:Cryville.Audio.OpenSL.OutputClient.BufferPosition">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction">
-            <summary>
-            The buffer queue callback function.
-            </summary>
-            <remarks>
-            <para>In the case where AOT is used, override this so it points to a proper function, which calls <see cref="M:Cryville.Audio.OpenSL.OutputClient.Callback(System.IntPtr,System.IntPtr)" />, as the following code snippet:</para>
-            <code>
-            [MonoPInvokeCallback(typeof(slBufferQueueCallback))]
-            static void AOTCallback(IntPtr caller, IntPtr context) {
-                OutputClient.Callback(caller, context);
-            }
-            </code>
-            <para>You should not override this function in other cases.</para>
-            </remarks>
-        </member>
         <member name="M:Cryville.Audio.OpenSL.OutputClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
@@ -295,11 +355,6 @@
         </member>
         <member name="M:Cryville.Audio.OpenSL.OutputClient.Start">
             <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.Callback(System.IntPtr,System.IntPtr)">
-            <summary>
-            See <see cref="P:Cryville.Audio.OpenSL.OutputClient.CallbackFunction" />.
-            </summary>
         </member>
         <member name="T:Cryville.Audio.OpenSL.OutputDevice">
             <summary>
@@ -327,95 +382,19 @@
         <member name="M:Cryville.Audio.OpenSL.OutputDevice.Connect">
             <inheritdoc />
         </member>
-        <member name="T:Cryville.Audio.Source.AudioSource">
-            <summary>
-            Audio source that provides wave data.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing">Whether the method is being called by user.</param>
-        </member>
-        <member name="P:Cryville.Audio.Source.AudioSource.Muted">
-            <summary>
-            Whether the audio source is muted.
-            </summary>
-        </member>
-        <member name="P:Cryville.Audio.Source.AudioSource.Format">
-            <summary>
-            The output wave format.
-            </summary>
-        </member>
-        <member name="P:Cryville.Audio.Source.AudioSource.BufferSize">
-            <summary>
-            The buffer size in bytes.
-            </summary>
-        </member>
-        <member name="P:Cryville.Audio.Source.AudioSource.EndOfData">
-            <summary>
-            Whether if the source has reached the end of data.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.OnSetFormat">
-            <summary>
-            Called when the wave format is set and the buffer size is determined.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
-            <summary>
-            Gets whether <paramref name="format" /> is supported by the audio source.
-            </summary>
-            <param name="format">The wave format.</param>
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Fills the buffer with wave data requested by <see cref="T:Cryville.Audio.AudioClient" />.
-            </summary>
-            <param name="buffer">The buffer to be filled.</param>
-            <param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-            <param name="length">The length in bytes to be filled.</param>
-            <remarks>
-            To optimize performance, the caller must ensure <paramref name="buffer" /> is not <see langword="null" /> and <paramref name="length" /> is not greater than the length of <paramref name="buffer" />.
-            </remarks>
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.SilentBuffer(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Fills the buffer with silence.
-            </summary>
-            <param name="buffer">The buffer to be filled.</param>
-            <param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-            <param name="length">The length in bytes to be filled.</param>
-            <remarks>
-            To optimize performance, the caller must ensure <paramref name="buffer" /> is not <see langword="null" /> and <paramref name="length" /> is not greater than the length of <paramref name="buffer" />.
-            </remarks>
-        </member>
-        <member name="M:Cryville.Audio.Source.AudioSource.SilentBuffer(Cryville.Audio.WaveFormat,System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Fills the buffer with silence.
-            </summary>
-            <param name="format">The wave format.</param>
-            <param name="buffer">The buffer to be filled.</param>
-            <param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-            <param name="length">The length in bytes to be filled.</param>
-            <remarks>
-            To optimize performance, the caller must ensure <paramref name="buffer" /> is not <see langword="null" /> and <paramref name="length" /> is not greater than the length of <paramref name="buffer" />.
-            </remarks>
-        </member>
         <member name="T:Cryville.Audio.Source.CachedAudioSource">
             <summary>
-            An <see cref="T:Cryville.Audio.Source.AudioSource" /> that caches data for reuse.
+            An <see cref="T:Cryville.Audio.AudioStream" /> that caches data for reuse.
             </summary>
+            <remarks>
+            <para>This stream is not seekable. Use <see cref="M:Cryville.Audio.Source.CachedAudioSource.Rewind" /> to reset its timestamp to zero.</para>
+            </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.CachedAudioSource.#ctor(Cryville.Audio.Source.AudioSource,System.Double)">
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.#ctor(Cryville.Audio.AudioStream,System.Double)">
             <summary>
             Creates an instance of the <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> class.
             </summary>
-            <param name="source">The <see cref="T:Cryville.Audio.Source.AudioSource" /> to be cached.</param>
+            <param name="source">The <see cref="T:Cryville.Audio.AudioStream" /> to be cached.</param>
             <param name="duration">The duration of the cache in seconds.</param>
         </member>
         <member name="M:Cryville.Audio.Source.CachedAudioSource.Clone">
@@ -438,6 +417,11 @@
         <member name="P:Cryville.Audio.Source.CachedAudioSource.EndOfData">
             <inheritdoc />
         </member>
+        <member name="P:Cryville.Audio.Source.CachedAudioSource.Disposed">
+            <summary>
+            Whether this audio stream has been disposed.
+            </summary>
+        </member>
         <member name="M:Cryville.Audio.Source.CachedAudioSource.Dispose(System.Boolean)">
             <inheritdoc />
         </member>
@@ -447,12 +431,39 @@
         <member name="M:Cryville.Audio.Source.CachedAudioSource.OnSetFormat">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.CachedAudioSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.CachedAudioSource.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.CachedAudioSource.CanSeek">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.CachedAudioSource.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.CachedAudioSource.Length">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.CachedAudioSource.Position">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.Write(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.Source.FunctionAudioSource">
             <summary>
-            An <see cref="T:Cryville.Audio.Source.AudioSource" /> that generates sound by a given function.
+            An <see cref="T:Cryville.Audio.AudioStream" /> that generates sound by a given function.
             </summary>
         </member>
         <member name="P:Cryville.Audio.Source.FunctionAudioSource.Channels">
@@ -460,16 +471,24 @@
             The channel count of the output format.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Dispose(System.Boolean)">
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.EndOfData">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.FunctionAudioSource.EndOfData">
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.Disposed">
+            <summary>
+            Whether this audio stream has been disposed.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Dispose(System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.FunctionAudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.FunctionAudioSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.OnSetFormat">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.FunctionAudioSource.Func(System.Double,System.Int32)">
@@ -479,19 +498,48 @@
             <param name="time">The time position.</param>
             <param name="channel">The channel index.</param>
         </member>
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.CanSeek">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.Length">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.FunctionAudioSource.Position">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="T:Cryville.Audio.Source.LibavFileAudioSource">
             <summary>
-            An <see cref="T:Cryville.Audio.Source.AudioSource" /> that uses Libav to demux and decode audio files.
+            An <see cref="T:Cryville.Audio.AudioStream" /> that uses Libav to demux and decode audio files.
             </summary>
-            <remarks>
-            You must select a stream using <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream" /> or <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream(System.Int32)" /> before playback.
-            </remarks>
         </member>
         <member name="M:Cryville.Audio.Source.LibavFileAudioSource.#ctor(System.String)">
             <summary>
             Creates an instance of the <see cref="T:Cryville.Audio.Source.LibavFileAudioSource" /> class and loads the specified <paramref name="file" />.
             </summary>
             <param name="file">The audio file.</param>
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Disposed">
+            <summary>
+            Whether this audio stream has been disposed.
+            </summary>
         </member>
         <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Dispose(System.Boolean)">
             <inheritdoc />
@@ -513,32 +561,102 @@
             <summary>
             Selects the best stream as the source.
             </summary>
+            <exception cref="T:System.InvalidOperationException">The stream has been selected.</exception>
+            <remarks>
+            <para>This method can only be called before <see cref="M:Cryville.Audio.AudioStream.SetFormat(Cryville.Audio.WaveFormat,System.Int32)" /> is called, which is called while setting <see cref="P:Cryville.Audio.AudioClient.Source" />.</para>
+            </remarks>
         </member>
         <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream(System.Int32)">
             <summary>
             Selects a stream as the source.
             </summary>
             <param name="index">The index of the stream.</param>
+            <exception cref="T:System.InvalidOperationException">The stream has been selected.</exception>
+            <remarks>
+            <para>This method can only be called before <see cref="M:Cryville.Audio.AudioStream.SetFormat(Cryville.Audio.WaveFormat,System.Int32)" /> is called, which is called while setting <see cref="P:Cryville.Audio.AudioClient.Source" />.</para>
+            </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.GetDuration(System.Int32)">
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.GetStreamDuration(System.Int32)">
             <summary>
             Gets the duration of a stream or the file.
             </summary>
             <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
             <returns>The duration in seconds.</returns>
         </member>
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
+            <inheritdoc />
+        </member>
         <member name="M:Cryville.Audio.Source.LibavFileAudioSource.OnSetFormat">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SeekTime(System.Double,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.CanSeek">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Length">
+            <inheritdoc />
+            <remarks>
+            <para>This property may be inaccurate.</para>
+            </remarks>
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Duration">
+            <inheritdoc />
+            <remarks>
+            <para>This property may be inaccurate.</para>
+            </remarks>
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Time">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Position">
+            <inheritdoc />
+            <remarks>
+            <para>This property may become inaccurate after <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)" /> is called.</para>
+            </remarks>
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.Source.LibavException">
+            <summary>
+            The exception that is thrown by Libav.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavException.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavException.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavException.#ctor(System.String,System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.LibavException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.Source.SimpleSequencerSource">
             <summary>
-            A simple <see cref="T:Cryville.Audio.Source.AudioSource" /> that mixes sequenced audio sources.
+            A simple <see cref="T:Cryville.Audio.AudioStream" /> that mixes sequenced audio sources.
             </summary>
             <remarks>
             <para>To use this class, take the following steps:</para>
@@ -548,7 +666,7 @@
             <item>Create a new <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> by calling <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.NewSession" />.</item>
             <item>Start playback by calling <see cref="M:Cryville.Audio.AudioClient.Start" /> and setting <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.Playing" /> to <see langword="true" />.</item>
             </list>
-            <para>You can sequence <see cref="T:Cryville.Audio.Source.AudioSource" />s to the <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> both before and after playback starts. See <see cref="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.Source.AudioSource)" />.</para>
+            <para><see cref="T:Cryville.Audio.AudioStream" />s can be sequenced to the <see cref="T:Cryville.Audio.Source.SimpleSequencerSession" /> both before and after playback starts. See <see cref="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.AudioStream)" />.</para>
             <para>If <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.Playing" /> is set to <see langword="false" />, the output will become silence.</para>
             </remarks>
         </member>
@@ -557,6 +675,11 @@
             Creates an instance of the <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" /> class.
             </summary>
             <param name="maxPolyphony">Max polyphony of the source. Must be greater than 0. See <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony"/>.</param>
+        </member>
+        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.Disposed">
+            <summary>
+            Whether this audio stream has been disposed.
+            </summary>
         </member>
         <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Dispose(System.Boolean)">
             <inheritdoc />
@@ -578,7 +701,45 @@
             There is a tiny delay before the playback state actually toggles, which is approximately <see cref="P:Cryville.Audio.AudioClient.BufferPosition" /> substracted by <see cref="P:Cryville.Audio.AudioClient.Position" />.
             </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.FillBuffer(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+            <param name="offset">A byte offset relative to the current position.</param>
+            <param name="origin">Must be <see cref="F:System.IO.SeekOrigin.Current" />.</param>
+            <remarks>
+            <para>This stream can only be seeked from the current position, and forward only. Thus, <paramref name="offset" /> must be non-negative, and <paramref name="origin" /> must be <see cref="F:System.IO.SeekOrigin.Current" />.</para>
+            </remarks>
+        </member>
+        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.CanSeek">
+            <inheritdoc />
+            <remarks>
+            <para>This stream can only be seeked from the current position, and forward only. See <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)" />.</para>
+            </remarks>
+        </member>
+        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.Length">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.Position">
+            <inheritdoc />
+            <remarks>
+            <para>Although this stream is seekable, setting this property is not supported and throws <see cref="T:System.NotSupportedException" />. This stream can only be seeked from the current position, and forward only. See <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)" />.</para>
+            </remarks>
+        </member>
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Write(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="P:Cryville.Audio.Source.SimpleSequencerSource.Polyphony">
@@ -609,7 +770,7 @@
             A session for <see cref="T:Cryville.Audio.Source.SimpleSequencerSource" />.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.Source.AudioSource)">
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSession.Sequence(System.Double,Cryville.Audio.AudioStream)">
             <summary>
             Sequences a <paramref name="source" /> at the specified <paramref name="time" />.
             </summary>
@@ -618,11 +779,12 @@
             <remarks>
             <para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>
             <para>If the number of audio sources currently playing exceeds <see cref="P:Cryville.Audio.Source.SimpleSequencerSource.MaxPolyphony" />, the <paramref name="source" /> will be discarded.</para>
+            <para>Audio sources can be sequenced even when the sequencer has been disposed, while it would not have any effect.</para>
             </remarks>
         </member>
         <member name="T:Cryville.Audio.Source.SingleToneAudioSource">
             <summary>
-            An <see cref="T:Cryville.Audio.Source.AudioSource" /> that generates single tone.
+            An <see cref="T:Cryville.Audio.AudioStream" /> that generates single tone.
             </summary>
         </member>
         <member name="P:Cryville.Audio.Source.SingleToneAudioSource.Type">
@@ -791,14 +953,30 @@
             The default wave format.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.WaveFormat.Align(System.Double)">
+        <member name="M:Cryville.Audio.WaveFormat.Align(System.Double,System.Boolean)">
             <summary>
             Gets the aligned buffer size.
             </summary>
             <param name="size">The prefered buffer size in bytes.</param>
+            <param name="floored">Whether the result is floored or ceiled.</param>
             <returns>The aligned buffer size in bytes.</returns>
         </member>
         <member name="M:Cryville.Audio.WaveFormat.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveFormat.Equals(Cryville.Audio.WaveFormat)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveFormat.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveFormat.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveFormat.op_Equality(Cryville.Audio.WaveFormat,Cryville.Audio.WaveFormat)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveFormat.op_Inequality(Cryville.Audio.WaveFormat,Cryville.Audio.WaveFormat)">
             <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.SampleFormat">
@@ -806,32 +984,37 @@
             Sample format.
             </summary>
         </member>
-        <member name="F:Cryville.Audio.SampleFormat.Unsigned8">
+        <member name="F:Cryville.Audio.SampleFormat.Invalid">
+            <summary>
+            Invalid sample format.
+            </summary>
+        </member>
+        <member name="F:Cryville.Audio.SampleFormat.U8">
             <summary>
             Unsigned 8-bit integer sample format.
             </summary>
         </member>
-        <member name="F:Cryville.Audio.SampleFormat.Signed16">
+        <member name="F:Cryville.Audio.SampleFormat.S16">
             <summary>
             Signed 16-bit integer sample format.
             </summary>
         </member>
-        <member name="F:Cryville.Audio.SampleFormat.Signed24">
+        <member name="F:Cryville.Audio.SampleFormat.S24">
             <summary>
             Signed 24-bit integer sample format.
             </summary>
         </member>
-        <member name="F:Cryville.Audio.SampleFormat.Signed32">
+        <member name="F:Cryville.Audio.SampleFormat.S32">
             <summary>
             Signed 32-bit integer sample format.
             </summary>
         </member>
-        <member name="F:Cryville.Audio.SampleFormat.Binary32">
+        <member name="F:Cryville.Audio.SampleFormat.F32">
             <summary>
             IEEE 754 single precision floating-point sample format.
             </summary>
         </member>
-        <member name="F:Cryville.Audio.SampleFormat.Binary64">
+        <member name="F:Cryville.Audio.SampleFormat.F64">
             <summary>
             IEEE 754 double precision floating-point sample format.
             </summary>
@@ -840,6 +1023,9 @@
             <summary>
             An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with WinMM.
             </summary>
+        </member>
+        <member name="M:Cryville.Audio.WinMM.WaveOutClient.Finalize">
+            <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.WinMM.WaveOutClient.Dispose(System.Boolean)">
             <summary>

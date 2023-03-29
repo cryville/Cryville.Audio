@@ -15,7 +15,7 @@ namespace Cryville.Audio.Source {
 	/// <item>Create a new <see cref="SimpleSequencerSession" /> by calling <see cref="NewSession" />.</item>
 	/// <item>Start playback by calling <see cref="AudioClient.Start" /> and setting <see cref="Playing" /> to <see langword="true" />.</item>
 	/// </list>
-	/// <para>You can sequence <see cref="AudioStream" />s to the <see cref="SimpleSequencerSession" /> both before and after playback starts. See <see cref="SimpleSequencerSession.Sequence" />.</para>
+	/// <para><see cref="AudioStream" />s can be sequenced to the <see cref="SimpleSequencerSession" /> both before and after playback starts. See <see cref="SimpleSequencerSession.Sequence" />.</para>
 	/// <para>If <see cref="Playing" /> is set to <see langword="false" />, the output will become silence.</para>
 	/// </remarks>
 	public class SimpleSequencerSource : AudioStream {
@@ -208,7 +208,7 @@ namespace Cryville.Audio.Source {
 		/// <param name="offset">A byte offset relative to the current position.</param>
 		/// <param name="origin">Must be <see cref="SeekOrigin.Current" />.</param>
 		/// <remarks>
-		/// <para> You can only seek this stream from the current position, and forward only. Thus, <paramref name="offset" /> must be non-negative, and <paramref name="origin" /> must be <see cref="SeekOrigin.Current" />.</para>
+		/// <para>This stream can only be seeked from the current position, and forward only. Thus, <paramref name="offset" /> must be non-negative, and <paramref name="origin" /> must be <see cref="SeekOrigin.Current" />.</para>
 		/// </remarks>
 		public override long Seek(long offset, SeekOrigin origin) {
 			if (origin != SeekOrigin.Current) throw new ArgumentException("Must seek from current position.", nameof(origin));
@@ -243,7 +243,7 @@ namespace Cryville.Audio.Source {
 		public override bool CanRead => true;
 		/// <inheritdoc />
 		/// <remarks>
-		/// <para>You can only seek this stream from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" /> for details.</para>
+		/// <para>This stream can only be seeked from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" />.</para>
 		/// </remarks>
 		public override bool CanSeek => true;
 		/// <inheritdoc />
@@ -252,7 +252,7 @@ namespace Cryville.Audio.Source {
 		public override long Length => long.MaxValue;
 		/// <inheritdoc />
 		/// <remarks>
-		/// <para>Although this stream is seekable, setting this property is not supported and throws <see cref="NotSupportedException" />. You can only seek this stream from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" /> for details.</para>
+		/// <para>Although this stream is seekable, setting this property is not supported and throws <see cref="NotSupportedException" />. This stream can only be seeked from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" />.</para>
 		/// </remarks>
 		public override long Position { get => _pos; set => throw new NotSupportedException(); }
 		/// <inheritdoc />
@@ -321,7 +321,7 @@ namespace Cryville.Audio.Source {
 		/// <remarks>
 		/// <para>If <paramref name="time" /> is less than the current time, the <paramref name="source" /> will be played immediately.</para>
 		/// <para>If the number of audio sources currently playing exceeds <see cref="SimpleSequencerSource.MaxPolyphony" />, the <paramref name="source" /> will be discarded.</para>
-		/// <para>You can sequence audio sources even when the sequencer has been disposed, while it would not have any effect.</para>
+		/// <para>Audio sources can be sequenced even when the sequencer has been disposed, while it would not have any effect.</para>
 		/// </remarks>
 		public void Sequence(double time, AudioStream source) {
 			if (source == null) throw new ArgumentNullException(nameof(source));
