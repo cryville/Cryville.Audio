@@ -103,16 +103,18 @@ namespace Cryville.Audio.Source {
 					}
 					foreach (var source in _rmsources)
 						_sources.Remove(source);
-					var seq = Session._seq;
-					_time += (double)count / Format.BytesPerSecond;
-					while (seq.Count > 0 && seq[0].Time < _time) {
-						var item = seq[0];
-						seq.RemoveAt(0);
-						if (_sources.Count >= MaxPolyphony) continue;
-						var source = item.Source;
-						_sources.Add(source);
-						int len = Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
-						FillBufferInternal(source, count - len, len);
+					lock (Session._lock) {
+						var seq = Session._seq;
+						_time += (double)count / Format.BytesPerSecond;
+						while (seq.Count > 0 && seq[0].Time < _time) {
+							var item = seq[0];
+							seq.RemoveAt(0);
+							if (_sources.Count >= MaxPolyphony) continue;
+							var source = item.Source;
+							_sources.Add(source);
+							int len = Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
+							FillBufferInternal(source, count - len, len);
+						}
 					}
 				}
 				switch (Format.SampleFormat) {
@@ -303,6 +305,7 @@ namespace Cryville.Audio.Source {
 				return Time.CompareTo(other.Time);
 			}
 		}
+		internal object _lock = new object();
 		internal List<Schedule> _seq = new List<Schedule>();
 		readonly WaveFormat _format;
 		readonly int _bufferSize;
@@ -324,9 +327,11 @@ namespace Cryville.Audio.Source {
 			if (source == null) throw new ArgumentNullException(nameof(source));
 			source.SetFormat(_format, _bufferSize);
 			var sch = new Schedule(time, source);
-			var index = _seq.BinarySearch(sch);
-			if (index < 0) index = ~index;
-			_seq.Insert(index, sch);
+			lock (_lock) {
+				var index = _seq.BinarySearch(sch);
+				if (index < 0) index = ~index;
+				_seq.Insert(index, sch);
+			}
 		}
 	}
 }
