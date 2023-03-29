@@ -26,10 +26,14 @@ namespace Cryville.Audio {
 		/// </summary>
 		/// <param name="format">The wave format.</param>
 		/// <param name="bufferSize">The buffer size in bytes.</param>
+		/// <exception cref="InvalidOperationException">This method has already been called successfully once on the audio stream.</exception>
 		/// <exception cref="NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
 		public void SetFormat(WaveFormat format, int bufferSize) {
 			if (!IsFormatSupported(format))
 				throw new NotSupportedException("Format not supported.");
+			if (format == Format && bufferSize == BufferSize) return;
+			if (Format != default || BufferSize != 0)
+				throw new InvalidOperationException("Format already set.");
 			Format = format;
 			BufferSize = bufferSize;
 			OnSetFormat();
