@@ -184,11 +184,9 @@ namespace Cryville.Audio.Source {
 						}
 						long epts = _pts + frame->pkt_duration;
 						if (epts >= ts) {
-							fixed (byte** ptr = &_buffer) {
-								for (int rem = (int)(frame->nb_samples * ((double)(ts - _pts) / (epts - _pts)) * OutFormat.Value.SampleRate / codecCtx->sample_rate); rem > 0; rem -= BufferSize) {
-									HR(ffmpeg.swr_convert( swrContext, ptr, Math.Min(rem, BufferSize), frame->extended_data, frame->nb_samples));
-								}
-							}
+							HR(ffmpeg.swr_convert(swrContext, null, 0, frame->extended_data, frame->nb_samples));
+							var outSamples = HR(ffmpeg.swr_get_out_samples(swrContext, 0));
+							HR(ffmpeg.swr_drop_output(swrContext, (int)(outSamples * ((double)(ts - _pts) / (epts - _pts)))));
 							ffmpeg.av_frame_unref(frame);
 							break;
 						}
