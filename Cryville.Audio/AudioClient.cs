@@ -71,8 +71,8 @@ namespace Cryville.Audio {
 			set {
 				if (Device.DataFlow != DataFlow.Out)
 					throw new NotSupportedException("Wrong data-flow direction.");
-				m_source = value;
 				m_source?.SetFormat(Format, BufferSize);
+				m_source = value;
 			}
 		}
 
