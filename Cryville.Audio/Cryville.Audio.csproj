@@ -65,6 +65,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Reference Include="Cryville.Common.Interop">
+			<HintPath>..\References\Cryville.Common.Interop.dll</HintPath>
+		</Reference>
 	  <Reference Include="UnsafeIL">
 	    <HintPath>..\Cryville.Audio\UnsafeIL.dll</HintPath>
 	  </Reference>
