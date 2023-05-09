@@ -366,10 +366,10 @@
 		<member name="M:Cryville.Audio.OpenSL.OutputClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
 			<inheritdoc />
 		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Pause">
+		<member name="M:Cryville.Audio.OpenSL.OutputClient.Start">
 			<inheritdoc />
 		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Start">
+		<member name="M:Cryville.Audio.OpenSL.OutputClient.Pause">
 			<inheritdoc />
 		</member>
 		<member name="T:Cryville.Audio.OpenSL.OutputDevice">

@@ -1,7 +1,7 @@
-using Cryville.Common.Interop;
 using OpenSL.Native;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -10,11 +10,7 @@ namespace Cryville.Audio.OpenSL {
 	/// An <see cref="AudioClient" /> that interacts with OpenSL ES.
 	/// </summary>
 	public class OutputClient : AudioClient {
-		static readonly List<OutputClient> _instances = new List<OutputClient>();
-		readonly int _id;
 		internal OutputClient(Engine engine, OutputDevice device) {
-			_id = _instances.Count;
-			_instances.Add(this);
 			_objEngine = engine;
 			m_device = device;
 		}
@@ -33,7 +29,6 @@ namespace Cryville.Audio.OpenSL {
 				_objMix?.Obj.Destroy(_objMix);
 				foreach (var h in _hbuf) h.Free();
 				foreach (var h in _handles) h.Free();
-				_instances.Remove(this);
 			}
 		}
 
@@ -66,6 +61,7 @@ namespace Cryville.Audio.OpenSL {
 		/// <inheritdoc />
 		public override WaveFormat Format => m_format;
 
+		int _bufferDuration;
 		int m_bufferSize;
 		/// <inheritdoc />
 		public override int BufferSize => m_bufferSize;
@@ -95,6 +91,7 @@ namespace Cryville.Audio.OpenSL {
 			if (shareMode == AudioShareMode.Exclusive)
 				throw new NotSupportedException("Exclusive mode not supported.");
 			if (bufferDuration == 0) bufferDuration = DefaultBufferDuration;
+			_bufferDuration = (int)bufferDuration;
 			m_format = format;
 
 			Guid[] ids = new Guid[4];
@@ -129,8 +126,6 @@ namespace Cryville.Audio.OpenSL {
 				_buf[i] = new byte[m_bufferSize];
 				_hbuf[i] = GCHandle.Alloc(_buf[i], GCHandleType.Pinned);
 			}
-
-			Util.SLR(_bq.Obj.RegisterCallback(_bq, Callback, new IntPtr(_id)));
 		}
 
 		/// <inheritdoc />
@@ -181,44 +176,69 @@ namespace Cryville.Audio.OpenSL {
 		}
 
 		/// <inheritdoc />
+		public override void Start() {
+			if (!Playing) {
+				Util.SLR(_bq.Obj.GetState(_bq, out var state));
+				for (int i = (int)state.count; i < BUFFER_COUNT; i++) Enqueue();
+				_thread = new Thread(new ThreadStart(ThreadLogic)) {
+					Priority = ThreadPriority.Highest,
+					IsBackground = true,
+				};
+				_thread.Start();
+				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PLAYING));
+				base.Start();
+			}
+		}
+
+		/// <inheritdoc />
 		public override void Pause() {
 			if (Playing) {
 				lock (_enqlock) {
+					_threadAbortFlag = true;
+					if (!_thread.Join(1000))
+						throw new InvalidOperationException("Failed to pause output client.");
+					_thread = null;
 					Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
 					base.Pause();
 				}
 			}
 		}
 
-		/// <inheritdoc />
-		public override void Start() {
-			if (!Playing) {
-				Util.SLR(_bq.Obj.GetState(_bq, out var state));
-				for (int i = 0; i < BUFFER_COUNT - state.count; i++) Enqueue();
-				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PLAYING));
-				base.Start();
+		Thread _thread;
+		bool _threadAbortFlag;
+		readonly object _enqlock = new object();
+		void ThreadLogic() {
+			_threadAbortFlag = false;
+			Stopwatch timer = new Stopwatch();
+			while (true) {
+				int pendingBufferCount;
+				while (true) {
+					Util.SLR(_bq.Obj.GetState(_bq, out var state));
+					if (state.count < BUFFER_COUNT) {
+						pendingBufferCount = (int)state.count;
+						break;
+					}
+					Thread.Sleep(1);
+					if (_threadAbortFlag) return;
+				}
+				int timeout = _bufferDuration;
+				timer.Reset();
+				timer.Start();
+				for (int i = pendingBufferCount; i < BUFFER_COUNT; i++) Enqueue();
+				timeout -= (int)timer.ElapsedMilliseconds + 1;
+				if (timeout < 0) timeout = 0;
+				Thread.Sleep(timeout);
+				if (_threadAbortFlag) return;
 			}
 		}
-
-		readonly object _enqlock = new object();
-		int _bufc;
 		void Enqueue() {
 			lock (_enqlock) {
-				if (_bufc >= BUFFER_COUNT) return;
-				_bufc++;
-				if (Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
+				if (Source == null || Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
 				else Source.Read(_buf[_bufi], 0, BufferSize);
 				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)BufferSize));
 				_bufi %= BUFFER_COUNT;
 				m_bufferPosition += (double)BufferSize / Format.BytesPerSecond;
 			}
-		}
-
-		[MonoPInvokeCallback]
-		static void Callback(IntPtr caller, IntPtr pContext) {
-			var i = _instances[pContext.ToInt32()];
-			i._bufc--;
-			i.Enqueue();
 		}
 	}
 }
