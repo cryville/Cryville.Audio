@@ -11,6 +11,20 @@
 
 如果需要在更早的框架使用本项目，请提交 issue。
 
+## 使用
+```cs
+AudioManager = EngineBuilder.Create();
+if (AudioManager == null) {
+	// 初始化失败。在此处处理错误。
+}
+else {
+	AudioClient = AudioManager.GetDefaultDevice(DataFlow.Out).Connect();
+	AudioClient.Init(AudioClient.DefaultFormat);
+	AudioClient.Source = new AudioSource(); // 在此处设置音频源，所有可用的音频源参见 Cryville.Audio.Source 命名空间。
+	AudioClient.Start();
+}
+```
+
 ## 支持音频源
 - 以给定的函数生成波形数据
   - 生成纯调

@@ -11,6 +11,20 @@ This project was created on 2022-04-08. It has been open-sourced since 2022-08-0
 
 Submit an issue if you want to use this library in an older framework.
 
+## Usage
+```cs
+AudioManager = EngineBuilder.Create();
+if (AudioManager == null) {
+	// Initialization failed. Handle the error here.
+}
+else {
+	AudioClient = AudioManager.GetDefaultDevice(DataFlow.Out).Connect();
+	AudioClient.Init(AudioClient.DefaultFormat);
+	AudioClient.Source = new AudioSource(); // Set an audio source here, see the Cryville.Audio.Source namespace for all available audio sources.
+	AudioClient.Start();
+}
+```
+
 ## Supported audio sources
 - Generate wave data from a given function
   - Generate a pure tone
