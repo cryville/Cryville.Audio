@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
-	public enum SL_DATAFORMAT : UInt32 {
+	internal enum SL_DATAFORMAT : UInt32 {
 		MIME = 0x00000001,
 		PCM = 0x00000002,
 	}
-	public enum SL_BYTEORDER : UInt32 {
+	internal enum SL_BYTEORDER : UInt32 {
 		BIGENDIAN = 0x00000001,
 		LITTLEENDIAN = 0x00000002,
 	}
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLDataFormat_PCM {
+	internal struct SLDataFormat_PCM {
 		public UInt32 formatType;
 		public UInt32 numChannels;
 		public UInt32 samplesPerSec;

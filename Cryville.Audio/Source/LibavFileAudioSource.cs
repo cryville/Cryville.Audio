@@ -12,7 +12,7 @@ namespace Cryville.Audio.Source {
 	/// An <see cref="AudioStream" /> that uses Libav to demux and decode audio files.
 	/// </summary>
 	public class LibavFileAudioSource : AudioStream {
-		internal unsafe class Internal {
+		internal sealed unsafe class Internal {
 			readonly AVFormatContext* formatCtx;
 			AVCodec* codec;
 			AVCodecContext* codecCtx;

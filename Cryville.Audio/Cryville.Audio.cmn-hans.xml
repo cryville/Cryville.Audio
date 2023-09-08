@@ -943,6 +943,9 @@
 				一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
 			</summary>
 		</member>
+		<member name="M:Cryville.Audio.Wasapi.MMDevice.Dispose(System.Boolean)">
+			<inheritdoc />
+		</member>
 		<member name="P:Cryville.Audio.Wasapi.MMDevice.Properties">
 			<summary>
 				设备的属性。

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
@@ -16,12 +17,12 @@ namespace Microsoft.Windows.MmSysCom {
 	[StructLayout(LayoutKind.Explicit)]
 	internal struct MMTIME {
 		[FieldOffset(0)] public UInt32 wType;
-		[FieldOffset(4)] private UInt32 ms;
-		[FieldOffset(4)] private UInt32 sample;
-		[FieldOffset(4)] private UInt32 cb;
-		[FieldOffset(4)] private UInt32 ticks;
-		[FieldOffset(4)] private smpte  smpte;
-		[FieldOffset(4)] private UInt32 songptrpos;
+		[FieldOffset(4)] readonly UInt32 ms;
+		[FieldOffset(4)] readonly UInt32 sample;
+		[FieldOffset(4)] readonly UInt32 cb;
+		[FieldOffset(4)] readonly UInt32 ticks;
+		[FieldOffset(4)] readonly smpte  smpte;
+		[FieldOffset(4)] readonly UInt32 songptrpos;
 		public object Value {
 			get {
 				switch ((TIME_TYPE)wType) {
@@ -38,15 +39,16 @@ namespace Microsoft.Windows.MmSysCom {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
+	[SuppressMessage("Style", "IDE1006")]
 	internal struct smpte {
 		public byte hour;  /* hours */
 		public byte min;   /* minutes */
 		public byte sec;   /* seconds */
 		public byte frame; /* frames  */
 		public byte fps;   /* frames per second */
-		byte dummy; /* pad */
-		byte pad1;
-		byte pad2;
+		readonly byte dummy; /* pad */
+		readonly byte pad1;
+		readonly byte pad2;
 	}
 
 	internal enum CALLBACK_TYPE {

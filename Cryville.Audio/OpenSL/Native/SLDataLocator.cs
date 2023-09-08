@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
-	public enum SL_DATALOCATOR : UInt32 {
+	internal enum SL_DATALOCATOR : UInt32 {
 		NULL            = 0x00000000,
 		URI             = 0x00000001,
 		ADDRESS         = 0x00000002,
@@ -14,9 +14,8 @@ namespace OpenSL.Native {
 		MEDIAOBJECT     = 0x00000008,
 		CONTENTPIPE     = 0x00000009,
 	}
-#pragma warning disable CA1711
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLDataLocator_BufferQueue {
+	internal struct SLDataLocator_BufferQueue {
 		public UInt32 locatorType;
 		public UInt32 numBuffers;
 		public SLDataLocator_BufferQueue(UInt32 num) {
@@ -24,9 +23,8 @@ namespace OpenSL.Native {
 			numBuffers = num;
 		}
 	}
-#pragma warning restore CA1711
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLDataLocator_OutputMix {
+	internal struct SLDataLocator_OutputMix {
 		public UInt32 locatorType;
 		public IntPtr outputMix;
 		public SLDataLocator_OutputMix(IntPtr obj) {

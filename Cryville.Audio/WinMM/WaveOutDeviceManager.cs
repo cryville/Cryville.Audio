@@ -1,4 +1,4 @@
-﻿using Microsoft.Windows.Mme;
+using Microsoft.Windows.Mme;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -46,7 +46,7 @@ namespace Cryville.Audio.WinMM {
 			}
 		}
 
-		internal class WaveOutDeviceCollection : IEnumerable<IAudioDevice> {
+		internal sealed class WaveOutDeviceCollection : IEnumerable<IAudioDevice> {
 			public WaveOutDeviceCollection() {
 				m_count = MmeExports.waveOutGetNumDevs();
 			}
@@ -61,16 +61,19 @@ namespace Cryville.Audio.WinMM {
 				}
 			}
 
-			public IEnumerator<IAudioDevice> GetEnumerator() => new Enumerator(this);
+			public Enumerator GetEnumerator() => new Enumerator(this);
+
+			IEnumerator<IAudioDevice> IEnumerable<IAudioDevice>.GetEnumerator() => GetEnumerator();
 
 			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-			private class Enumerator : IEnumerator<IAudioDevice> {
-				int _index = -1;
+			public struct Enumerator : IEnumerator<IAudioDevice> {
 				readonly WaveOutDeviceCollection _obj;
+				int _index;
 
 				public Enumerator(WaveOutDeviceCollection obj) {
 					_obj = obj;
+					_index = -1;
 				}
 
 				public IAudioDevice Current => _obj[_index];

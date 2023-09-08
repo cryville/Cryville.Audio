@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLEngineOption {
+	internal struct SLEngineOption {
 		public UInt32 feature;
 		public UInt32 data;
 	}
-	public enum SL_ENGINEOPTION : UInt32 {
+	internal enum SL_ENGINEOPTION : UInt32 {
 		THREADSAFE    = 0x00000001,
 		LOSSOFCONTROL = 0x00000002,
 		MAJORVERSION  = 0x00000003,

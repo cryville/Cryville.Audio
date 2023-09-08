@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.PropSys {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct PROPERTYKEY : IEquatable<PROPERTYKEY> {
+	internal struct PROPERTYKEY : IEquatable<PROPERTYKEY> {
 		public Guid   fmtid;
 		public UInt32 pid;
 		public PROPERTYKEY(Guid fmt, UInt32 p) {

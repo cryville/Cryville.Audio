@@ -1,15 +1,15 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
-	public enum SL_PLAYSTATE : UInt32 {
+	internal enum SL_PLAYSTATE : UInt32 {
 		STOPPED = 0x00000001,
 		PAUSED  = 0x00000002,
 		PLAYING = 0x00000003,
 	}
 	[Guid("ef0bd9c0-ddd7-11db-49bf-0002a5d5c51b")]
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLPlayItf {
+	internal struct SLPlayItf {
 		[MarshalAs(UnmanagedType.FunctionPtr)] public SLPlayItf_SetPlayState SetPlayState;
 		[MarshalAs(UnmanagedType.FunctionPtr)] public SLPlayItf_GetPlayState GetPlayState;
 		[MarshalAs(UnmanagedType.FunctionPtr)] public SLPlayItf_GetDuration GetDuration;

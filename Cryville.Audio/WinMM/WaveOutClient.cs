@@ -165,7 +165,7 @@ namespace Cryville.Audio.WinMM {
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
-			var iwf = 1 << (flagch + (flagbits << 1) + (flagsr << 2));
+			var iwf = 1 << (flagch | (flagbits << 1) | (flagsr << 2));
 			uint capfilter = m_device.Caps.dwFormats;
 			if ((capfilter & iwf) != 0) {
 				suggestion = format;

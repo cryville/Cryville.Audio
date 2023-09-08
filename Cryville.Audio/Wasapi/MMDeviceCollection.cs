@@ -1,11 +1,11 @@
-﻿using Cryville.Common.Platform.Windows;
+using Cryville.Common.Platform.Windows;
 using Microsoft.Windows.MMDevice;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Cryville.Audio.Wasapi {
-	internal class MMDeviceCollection : ComInterfaceWrapper, IEnumerable<IAudioDevice> {
+	internal sealed class MMDeviceCollection : ComInterfaceWrapper, IEnumerable<IAudioDevice> {
 		internal MMDeviceCollection(IntPtr obj) : base(obj) {
 			IMMDeviceCollection.GetCount(ComObject, out m_count);
 		}
@@ -21,16 +21,19 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		public IEnumerator<IAudioDevice> GetEnumerator() => new Enumerator(this);
+		public Enumerator GetEnumerator() => new Enumerator(this);
+
+		IEnumerator<IAudioDevice> IEnumerable<IAudioDevice>.GetEnumerator() => GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		private class Enumerator : IEnumerator<IAudioDevice> {
-			int _index = -1;
+		public struct Enumerator : IEnumerator<IAudioDevice> {
 			readonly MMDeviceCollection _obj;
+			int _index;
 
 			public Enumerator(MMDeviceCollection obj) {
 				_obj = obj;
+				_index = -1;
 			}
 
 			public IAudioDevice Current => _obj[_index];

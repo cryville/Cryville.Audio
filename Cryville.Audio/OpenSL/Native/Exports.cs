@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
-	public enum SLresult : UInt32 {
+	internal enum SLresult : UInt32 {
 		SUCCESS                  = 0x00000000,
 		PRECONDITIONS_VIOLATED   = 0x00000001,
 		PARAMETER_INVALID        = 0x00000002,
@@ -25,7 +25,7 @@ namespace OpenSL.Native {
 		SOURCE_SINK_INCOMPATIBLE = 0x00000013,
 	}
 
-	public static class Exports {
+	internal static class Exports {
 		[DllImport("OpenSLES")]
 		public static extern SLresult slCreateEngine(
 			out IntPtr pEngine,

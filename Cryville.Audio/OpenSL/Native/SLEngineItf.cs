@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
 	[Guid("8d97c260-ddd4-11db-8f95-0002a5d5c51b")]
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLEngineItf {
+	internal struct SLEngineItf {
 		[MarshalAs(UnmanagedType.FunctionPtr)] public SLEngineItf_CreateLEDDevice CreateLEDDevice;
 		[MarshalAs(UnmanagedType.FunctionPtr)] public SLEngineItf_CreateVibraDevice CreateVibraDevice;
 		[MarshalAs(UnmanagedType.FunctionPtr)] public SLEngineItf_CreateAudioPlayer CreateAudioPlayer;

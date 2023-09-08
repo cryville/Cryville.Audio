@@ -3,7 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.WinMM {
-	internal class WaveBuffer {
+	internal sealed class WaveBuffer {
 		public WAVEHDR Header;
 		GCHandle _ptrheader;
 

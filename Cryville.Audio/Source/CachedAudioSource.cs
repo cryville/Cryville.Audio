@@ -40,7 +40,7 @@ namespace Cryville.Audio.Source {
 		/// </remarks>
 		public void Rewind() => _pos = 0;
 
-		class Cache {
+		sealed class Cache {
 			public int LoadPosition;
 			public readonly AudioStream Source;
 			public readonly double Duration;

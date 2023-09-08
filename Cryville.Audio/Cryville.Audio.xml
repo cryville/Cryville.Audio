@@ -885,6 +885,9 @@
             An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with Wasapi.
             </summary>
         </member>
+        <member name="M:Cryville.Audio.Wasapi.MMDevice.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
         <member name="P:Cryville.Audio.Wasapi.MMDevice.Properties">
             <summary>
             The properties of the device.

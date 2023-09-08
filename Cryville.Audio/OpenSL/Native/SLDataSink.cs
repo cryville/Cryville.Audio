@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OpenSL.Native {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SLDataSink {
+	internal struct SLDataSink {
 		public IntPtr pLocator;
 		public IntPtr pFormat;
 		public SLDataSink(IntPtr locator, IntPtr format) {

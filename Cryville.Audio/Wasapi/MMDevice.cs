@@ -1,4 +1,4 @@
-﻿using Cryville.Common.Platform.Windows;
+using Cryville.Common.Platform.Windows;
 using Microsoft.Windows;
 using Microsoft.Windows.MMDevice;
 using Microsoft.Windows.PropSys;
@@ -12,11 +12,17 @@ namespace Cryville.Audio.Wasapi {
 	public class MMDevice : ComInterfaceWrapper, IAudioDevice {
 		internal MMDevice(IntPtr obj) : base(obj) { }
 
+		/// <inheritdoc />
+		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
+			if (disposing) m_properties.Dispose();
+		}
+
 		PropertyStore m_properties;
 		/// <summary>
 		/// The properties of the device.
 		/// </summary>
-		public PropertyStore Properties {
+		internal PropertyStore Properties {
 			get {
 				EnsureOpenPropertyStore();
 				return m_properties;
