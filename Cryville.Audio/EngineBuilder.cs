@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Cryville.Audio {
@@ -9,16 +10,15 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// The list of available engines.
 		/// </summary>
-		public static readonly Collection<Type> Engines = new Collection<Type> {
-			typeof(Wasapi.MMDeviceEnumerator),
-			typeof(OpenSL.Engine),
-			typeof(WinMM.WaveDeviceManager),
-		};
+		public static readonly IList<Type> Engines = new Collection<Type> { };
 
 		/// <summary>
-		/// Creates a recommended <see cref="IAudioDeviceManager" />.
+		/// Creates a <see cref="IAudioDeviceManager" /> in the <see cref="Engines" /> list.
 		/// </summary>
-		/// <returns>A recommended <see cref="IAudioDeviceManager" />. <see langword="null" /> if no engine is supported.</returns>
+		/// <returns>The first <see cref="IAudioDeviceManager" /> that can be successfully created. <see langword="null" /> if no engine is supported.</returns>
+		/// <remarks>
+		/// <para>Add engines to <see cref="Engines" /> before calling this method.</para>
+		/// </remarks>
 		public static IAudioDeviceManager Create() {
 			foreach (var type in Engines) {
 				if (!typeof(IAudioDeviceManager).IsAssignableFrom(type)) continue;
