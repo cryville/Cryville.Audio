@@ -34,33 +34,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="AAudio\**" />
-	  <Compile Remove="Common\Platform\Windows\NonCode\**" />
-	  <Compile Remove="CoreAudio\**" />
-	  <Compile Remove="Oboe\**" />
-	  <Compile Remove="OpenSL\NonCode\**" />
-	  <Compile Remove="TinyAlsa\**" />
-	  <EmbeddedResource Remove="AAudio\**" />
-	  <EmbeddedResource Remove="Common\Platform\Windows\NonCode\**" />
-	  <EmbeddedResource Remove="CoreAudio\**" />
-	  <EmbeddedResource Remove="Oboe\**" />
-	  <EmbeddedResource Remove="OpenSL\NonCode\**" />
-	  <EmbeddedResource Remove="TinyAlsa\**" />
-	  <None Remove="AAudio\**" />
-	  <None Remove="Common\Platform\Windows\NonCode\**" />
-	  <None Remove="CoreAudio\**" />
-	  <None Remove="Oboe\**" />
-	  <None Remove="OpenSL\NonCode\**" />
-	  <None Remove="TinyAlsa\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Remove="OpenSL\Native\SLAudioInputDescriptor.cs" />
-	  <Compile Remove="OpenSL\Native\SLAudioIODeviceCapabilitiesItf.cs" />
-	  <Compile Remove="OpenSL\Native\SLAudioOutputDescriptor.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
 	</ItemGroup>
 
@@ -68,16 +41,13 @@
 		<Reference Include="Cryville.Common.Interop">
 			<HintPath>..\References\Cryville.Common.Interop.dll</HintPath>
 		</Reference>
-	  <Reference Include="UnsafeIL">
+		<Reference Include="UnsafeIL">
 		  <HintPath>..\References\UnsafeIL.dll</HintPath>
-	  </Reference>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <None Update="Cryville.Audio.cmn-hans.xml">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Cryville.Audio.WasapiWrapper.dll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="Cryville.Audio.xml">

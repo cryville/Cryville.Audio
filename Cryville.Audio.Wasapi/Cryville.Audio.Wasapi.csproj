@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1C6BB641-5FA5-4FD5-81E5-8300BEAD7631}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Cryville.Audio.Wasapi</RootNamespace>
+    <AssemblyName>Cryville.Audio.Wasapi</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Cryville.Audio.Wasapi.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Cryville.Audio.Wasapi.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AudioClientWrapper.cs" />
+    <Compile Include="AudioRenderClientWrapper.cs" />
+    <Compile Include="Common\Platform\Windows\ComInterfaceWrapper.cs" />
+    <Compile Include="Common\Platform\Windows\PropertyStore.cs" />
+    <Compile Include="Microsoft.Windows\AudioClient.cs" />
+    <Compile Include="Microsoft.Windows\AudioSessionTypes.cs" />
+    <Compile Include="Microsoft.Windows\CLSCTX.cs" />
+    <Compile Include="Microsoft.Windows\CONDITION_OPERATION.cs" />
+    <Compile Include="Microsoft.Windows\Handle.cs" />
+    <Compile Include="Microsoft.Windows\MMDevice.cs" />
+    <Compile Include="Microsoft.Windows\Mme.cs" />
+    <Compile Include="Microsoft.Windows\MmReg.cs" />
+    <Compile Include="Microsoft.Windows\PKeys.cs" />
+    <Compile Include="Microsoft.Windows\PROPERTYKEY.cs" />
+    <Compile Include="Microsoft.Windows\PropSys.cs" />
+    <Compile Include="Microsoft.Windows\PROPVARIANT.cs" />
+    <Compile Include="Microsoft.Windows\SHCOLSTATE.cs" />
+    <Compile Include="Microsoft.Windows\STGM.cs" />
+    <Compile Include="Microsoft.Windows\Synch.cs" />
+    <Compile Include="MMDeviceWrapper.cs" />
+    <Compile Include="MMDeviceCollectionWrapper.cs" />
+    <Compile Include="MMDeviceEnumeratorWrapper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj">
+      <Project>{48b40913-aedd-4493-94dd-1435ed5fecba}</Project>
+      <Name>Cryville.Audio</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Cryville.Audio.Wasapi.xml" />
+    <Content Include="Cryville.Audio.WasapiWrapper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

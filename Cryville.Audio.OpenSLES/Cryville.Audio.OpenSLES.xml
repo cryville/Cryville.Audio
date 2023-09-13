@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cryville.Audio.OpenSLES</name>
+    </assembly>
+    <members>
+        <member name="T:Cryville.Audio.OpenSLES.Engine">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with OpenSL ES.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.Engine.#ctor">
+            <summary>
+            Creates an instance of the <see cref="T:Cryville.Audio.OpenSLES.Engine" /> class.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.Engine.Finalize">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.Engine.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.Engine.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing">Whether the method is being called by user.</param>
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.Engine.GetDefaultDevice(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.Engine.GetDevices(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.OpenSLES.OutputClient">
+            <summary>
+            An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with OpenSL ES.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputClient.Finalize">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputClient.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputClient.Device">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputClient.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputClient.BufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputClient.MaximumLatency">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputClient.Position">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputClient.BufferPosition">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputClient.Start">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputClient.Pause">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.OpenSLES.OutputDevice">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with OpenSL ES.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.Finalize">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing">Whether the method is being called by user.</param>
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DataFlow">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DefaultBufferDuration">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.MinimumBufferDuration">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DefaultFormat">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

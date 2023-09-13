@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cryville.Audio.WaveformAudio</name>
+    </assembly>
+    <members>
+        <member name="T:Cryville.Audio.WaveformAudio.WaveOutClient">
+            <summary>
+            An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with WinMM.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutClient.Finalize">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutClient.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing">Whether the method is being called by user.</param>
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutClient.Device">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutClient.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutClient.BufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutClient.MaximumLatency">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutClient.Position">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutClient.BufferPosition">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutClient.Start">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutClient.Pause">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.WaveformAudio.WaveOutDevice">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with WinMM.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing">Whether the method is being called by user.</param>
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.Name">
+            <summary>
+            The friendly name of the device.
+            </summary>
+            <remarks>Due to technical reason, this field is truncated if it has more than 31 characters.</remarks>
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DataFlow">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DefaultBufferDuration">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.MinimumBufferDuration">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DefaultFormat">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.WaveformAudio.WaveDeviceManager">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with WinMM.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveDeviceManager.#ctor">
+            <summary>
+            Creates an instance of the <see cref="T:Cryville.Audio.WaveformAudio.WaveDeviceManager" /> class.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveDeviceManager.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveDeviceManager.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing">Whether the method is being called by user.</param>
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveDeviceManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.WaveformAudio.WaveDeviceManager.GetDevices(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
