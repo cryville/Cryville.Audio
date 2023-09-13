@@ -1,9 +1,11 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using Cryville.Interop.Java;
+using Cryville.Interop.Java.Xamarin;
 using System;
 using Xamarin.Essentials;
 using Exception = System.Exception;
@@ -17,6 +19,10 @@ namespace Cryville.Audio.Test.Android {
 			Platform.Init(this, savedInstanceState);
 			// Set our view from the "main" layout resource
 			SetContentView(Resource.Layout.activity_main);
+
+			JavaVMManager.Register(JniInvoke.Instance);
+			EngineBuilder.Engines.Add(typeof(AAudio.AAudioManager));
+			EngineBuilder.Engines.Add(typeof(OpenSLES.Engine));
 
 			FindViewById<Button>(Resource.Id.button1).Click += OnClick;
 			log = FindViewById<TextView>(Resource.Id.textView1);

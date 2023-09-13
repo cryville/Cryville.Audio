@@ -1,4 +1,6 @@
 using Cryville.Audio.Source;
+using Cryville.Audio.Wasapi;
+using Cryville.Audio.WaveformAudio;
 using NUnit.Framework;
 using System;
 using System.IO;
@@ -20,12 +22,14 @@ namespace Cryville.Audio.Test {
 
 	public class DefaultManagedTest : ManagedTest {
 		protected override IAudioDeviceManager CreateEngine() {
+			EngineBuilder.Engines.Add(typeof(MMDeviceEnumeratorWrapper));
+			EngineBuilder.Engines.Add(typeof(WaveDeviceManager));
 			return EngineBuilder.Create();
 		}
 	}
 
-	[TestFixture(typeof(Wasapi.MMDeviceEnumerator))]
-	[TestFixture(typeof(WinMM.WaveDeviceManager))]
+	[TestFixture(typeof(MMDeviceEnumeratorWrapper))]
+	[TestFixture(typeof(WaveDeviceManager))]
 	public class SpecificManagedTest<T> : ManagedTest where T : IAudioDeviceManager, new() {
 		protected override IAudioDeviceManager CreateEngine() {
 			return new T();
@@ -44,11 +48,10 @@ namespace Cryville.Audio.Test {
 			FFmpeg.AutoGen.ffmpeg.RootPath = "";
 			manager = CreateEngine();
 			device = manager.GetDefaultDevice(DataFlow.Out);
-			client = device.Connect();
 			WaveFormat? format = WaveFormat.Default;
 			Log("Client Default Format: {0}", format);
-			client.IsFormatSupported(format.Value, out format);
-			if (format != null) client.Init(format.Value);
+			device.IsFormatSupported(format.Value, out format);
+			if (format != null) client = device.Connect(format.Value);
 			else throw new NotSupportedException("No supported format is found.");
 		}
 
@@ -67,9 +70,9 @@ namespace Cryville.Audio.Test {
 		public virtual void GetDeviceInformation() {
 			Log("Name: {0}", device.Name);
 			Log("Data Flow: {0}", device.DataFlow);
-			Log("Default Buffer Duration: {0}", client.DefaultBufferDuration);
-			Log("Minimum Buffer Duration: {0}", client.MinimumBufferDuration);
-			Log("Device Default Format: {0}", client.DefaultFormat);
+			Log("Default Buffer Duration: {0}", device.DefaultBufferDuration);
+			Log("Minimum Buffer Duration: {0}", device.MinimumBufferDuration);
+			Log("Device Default Format: {0}", device.DefaultFormat);
 			Log("Connection Format: {0}", client.Format);
 			Log("Buffer Size: {0}B", client.BufferSize);
 			Log("Maximum Latency: {0}ms", client.MaximumLatency);

@@ -75,6 +75,12 @@
     <Reference Include="Cryville.Common.Interop">
       <HintPath>..\References\Cryville.Common.Interop.dll</HintPath>
     </Reference>
+    <Reference Include="Cryville.Interop.Java">
+      <HintPath>..\References\Cryville.Interop.Java.dll</HintPath>
+    </Reference>
+    <Reference Include="Cryville.Interop.Java.Xamarin">
+      <HintPath>..\References\Cryville.Interop.Java.Xamarin.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -142,6 +148,14 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cryville.Audio.AAudio\Cryville.Audio.AAudio.csproj">
+      <Project>{503656b1-3c6f-475f-9c10-c9dfc21ecfe5}</Project>
+      <Name>Cryville.Audio.AAudio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cryville.Audio.OpenSLES\Cryville.Audio.OpenSLES.csproj">
+      <Project>{59b41727-0b40-460f-a145-b7b92ea62a9d}</Project>
+      <Name>Cryville.Audio.OpenSLES</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cryville.Audio.Test\Cryville.Audio.Test.csproj">
       <Project>{2e9b7ae9-d822-4b46-8046-469c87e545f6}</Project>
       <Name>Cryville.Audio.Test</Name>
