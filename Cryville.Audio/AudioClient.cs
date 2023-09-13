@@ -22,18 +22,6 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract IAudioDevice Device { get; }
 		/// <summary>
-		/// The default buffer duration of the client in milliseconds.
-		/// </summary>
-		public abstract float DefaultBufferDuration { get; }
-		/// <summary>
-		/// The minimum buffer duration of the client in milliseconds.
-		/// </summary>
-		public abstract float MinimumBufferDuration { get; }
-		/// <summary>
-		/// The default wave format of the device.
-		/// </summary>
-		public abstract WaveFormat DefaultFormat { get; }
-		/// <summary>
 		/// The current wave format of the connection.
 		/// </summary>
 		public abstract WaveFormat Format { get; }
@@ -76,22 +64,6 @@ namespace Cryville.Audio {
 			}
 		}
 
-		/// <summary>
-		/// Gets whether <paramref name="format" /> is supported by the device.
-		/// </summary>
-		/// <param name="format">The specified wave format.</param>
-		/// <param name="suggestion">A wave format suggested by the device. <paramref name="format" /> if it is supported. <see langword="null" /> if no format is supported.</param>
-		/// <param name="shareMode">The share mode.</param>
-		/// <returns>Whether <paramref name="format" /> is supported.</returns>
-		public abstract bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared);
-		/// <summary>
-		/// Initialize the client.
-		/// </summary>
-		/// <param name="format">The wave format.</param>
-		/// <param name="bufferDuration">The buffer duration of the connection in milliseconds.</param>
-		/// <param name="shareMode">The share mode of the connection.</param>
-		/// <remarks>Different operations may occur with different API being used. Please also see the documentations of the implementing classes.</remarks>
-		public abstract void Init(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared);
 		/// <summary>
 		/// Starts the wave data transmission.
 		/// </summary>
