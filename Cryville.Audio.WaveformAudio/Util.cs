@@ -5,7 +5,7 @@ using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 namespace Cryville.Audio.WaveformAudio {
 	internal static class Util {
 		public static WAVEFORMATEX ToInternalFormat(WaveFormat value) {
-			ushort blockAlign = (ushort)(value.Channels * value.BitsPerSample / 8);
+			ushort blockAlign = (ushort)value.FrameSize;
 			return new WAVEFORMATEX {
 				wFormatTag = (ushort)WAVE_FORMAT.PCM,
 				nChannels = value.Channels,

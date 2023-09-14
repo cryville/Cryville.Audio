@@ -735,7 +735,7 @@
         </member>
         <member name="P:Cryville.Audio.WaveFormat.SampleRate">
             <summary>
-            The sample rate (samples per second.)
+            The sample rate (samples per channel per second, i.e. frames per second.)
             </summary>
         </member>
         <member name="P:Cryville.Audio.WaveFormat.SampleFormat">
@@ -746,6 +746,11 @@
         <member name="P:Cryville.Audio.WaveFormat.BitsPerSample">
             <summary>
             Bit count per sample.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.WaveFormat.FrameSize">
+            <summary>
+            Bytes per frame.
             </summary>
         </member>
         <member name="P:Cryville.Audio.WaveFormat.BytesPerSecond">

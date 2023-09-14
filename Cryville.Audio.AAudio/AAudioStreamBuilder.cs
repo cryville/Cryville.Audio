@@ -114,7 +114,7 @@ namespace Cryville.Audio.AAudio {
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
 			if (bufferDuration > 0) {
-				UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, format.Align(bufferDuration / 1000 * format.BytesPerSecond) * 8 / format.Channels / format.BitsPerSample);
+				UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, format.Align(bufferDuration / 1000 * format.BytesPerSecond) / format.FrameSize);
 			}
 			return new AAudioStream(this, stream);
 		}

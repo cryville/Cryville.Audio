@@ -11,7 +11,7 @@ namespace Cryville.Audio {
 		/// </summary>
 		public ushort Channels { get; set; }
 		/// <summary>
-		/// The sample rate (samples per second.)
+		/// The sample rate (samples per channel per second, i.e. frames per second.)
 		/// </summary>
 		public uint SampleRate { get; set; }
 		/// <summary>
@@ -36,9 +36,14 @@ namespace Cryville.Audio {
 		}
 
 		/// <summary>
+		/// Bytes per frame.
+		/// </summary>
+		public int FrameSize => Channels * BitsPerSample / 8;
+
+		/// <summary>
 		/// Bytes per second.
 		/// </summary>
-		public uint BytesPerSecond => Channels * SampleRate * BitsPerSample / 8;
+		public uint BytesPerSecond => SampleRate * (uint)FrameSize;
 
 		/// <summary>
 		/// The default wave format.
@@ -54,10 +59,9 @@ namespace Cryville.Audio {
 		/// <param name="floored">Whether the result is floored or ceiled.</param>
 		/// <returns>The aligned buffer size in bytes.</returns>
 		public int Align(double size, bool floored = false) {
-			int blockSize = Channels * BitsPerSample / 8;
-			size /= blockSize;
+			size /= FrameSize;
 			int blockNum = (int)(floored ? Math.Floor(size) : Math.Ceiling(size));
-			return blockNum * blockSize;
+			return blockNum * FrameSize;
 		}
 
 		/// <inheritdoc />

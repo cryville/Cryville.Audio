@@ -22,7 +22,7 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 		public static WAVEFORMATEX ToInternalFormat(WaveFormat value) {
-			ushort blockAlign = (ushort)(value.Channels * value.BitsPerSample / 8);
+			ushort blockAlign = (ushort)value.FrameSize;
 			return new WAVEFORMATEX {
 				wFormatTag = (ushort)WAVE_FORMAT.PCM,
 				nChannels = value.Channels,

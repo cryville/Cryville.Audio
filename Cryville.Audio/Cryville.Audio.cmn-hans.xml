@@ -793,7 +793,7 @@
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.SampleRate">
 			<summary>
-				采样率（每秒样本数）。
+				采样率（每秒每频道样本数，即每秒帧数）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.SampleFormat">
@@ -804,6 +804,11 @@
 		<member name="P:Cryville.Audio.WaveFormat.BitsPerSample">
 			<summary>
 				每样本位数。
+			</summary>
+		</member>
+		<member name="P:Cryville.Audio.WaveFormat.FrameSize">
+			<summary>
+				每帧字节数。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.WaveFormat.BytesPerSecond">

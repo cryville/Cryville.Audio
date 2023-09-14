@@ -27,7 +27,7 @@ namespace Cryville.Audio.Source {
 			long _pts;
 			WaveFormat? OutFormat;
 			int BufferSize;
-			int bytesPerSamplePerChannel;
+			int frameSize;
 			public bool EOF;
 			public Internal(string file) {
 				formatCtx = ffmpeg.avformat_alloc_context();
@@ -85,7 +85,7 @@ namespace Cryville.Audio.Source {
 				OutFormat = format;
 				BufferSize = bufferSize;
 				var outFormat = OutFormat.Value;
-				bytesPerSamplePerChannel = OutFormat.Value.BitsPerSample * OutFormat.Value.Channels / 8;
+				frameSize = OutFormat.Value.FrameSize;
 
 				AVChannelLayout outLayout;
 				ffmpeg.av_channel_layout_default(&outLayout, outFormat.Channels);
@@ -106,7 +106,7 @@ namespace Cryville.Audio.Source {
 
 			public int FillBuffer(byte[] buffer, int offset, int count) {
 				if (swrContext == null) throw new ObjectDisposedException(null);
-				int samples = count / bytesPerSamplePerChannel;
+				int samples = count / frameSize;
 				int decoded = 0;
 				if (!EOF) {
 					while (decoded < samples) {
@@ -145,12 +145,12 @@ namespace Cryville.Audio.Source {
 							}
 							if (frame_size == 0) goto eof; // Don't know why this happens but dumb fix anyway
 						}
-						Marshal.Copy(new IntPtr(_buffer), buffer, decoded * bytesPerSamplePerChannel + offset, frame_size * bytesPerSamplePerChannel);
+						Marshal.Copy(new IntPtr(_buffer), buffer, decoded * frameSize + offset, frame_size * frameSize);
 						decoded += frame_size;
 					}
 				}
 			eof:
-				int len = decoded * bytesPerSamplePerChannel;
+				int len = decoded * frameSize;
 				SilentBuffer(OutFormat.Value, buffer, offset + len, count - len);
 				return len;
 			}

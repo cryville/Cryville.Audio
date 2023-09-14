@@ -35,7 +35,7 @@ namespace Cryville.Audio.AAudio {
 		public override WaveFormat Format => m_format;
 
 		/// <inheritdoc />
-		public override int BufferSize => UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(_stream) * Format.Channels * Format.BitsPerSample / 8;
+		public override int BufferSize => UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(_stream) * Format.FrameSize;
 
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;
@@ -44,7 +44,7 @@ namespace Cryville.Audio.AAudio {
 		public override double Position {
 			get {
 				UnsafeNativeMethods.AAudioStream_getTimestamp(_stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _);
-				return frames * Format.Channels * Format.BitsPerSample / 8 / (double)Format.BytesPerSecond;
+				return frames / (double)Format.SampleRate;
 			}
 		}
 
@@ -71,7 +71,7 @@ namespace Cryville.Audio.AAudio {
 
 		readonly byte[] _buffer;
 		unsafe void FillBuffer(IntPtr ptr, int frames) {
-			var len = frames * Format.Channels * Format.BitsPerSample / 8;
+			var len = frames * Format.FrameSize;
 			if (Source == null || Muted) Array.Clear(_buffer, 0, len);
 			else Source.Read(_buffer, 0, len);
 			Marshal.Copy(_buffer, 0, ptr, len);
