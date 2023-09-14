@@ -10,7 +10,7 @@ namespace Cryville.Audio.AAudio {
 		static IntPtr m_sink;
 		static IntPtr m_source;
 		static IntPtr m_toString;
-		static void GetMethods(IJniEnv env) {
+		static void GetMethodIds(IJniEnv env) {
 			if (m_name != IntPtr.Zero) return;
 			using (var frame = new JniLocalFrame(env, 2)) {
 				var c_deviceInfo = env.FindClass("android/media/AudioDeviceInfo");
@@ -24,7 +24,7 @@ namespace Cryville.Audio.AAudio {
 		}
 		static readonly JniValue[] _args0 = new JniValue[0];
 		internal unsafe AAudioStreamBuilder(IJniEnv env, IntPtr deviceInfo) {
-			GetMethods(env);
+			GetMethodIds(env);
 			using (var frame = new JniLocalFrame(env, 2)) {
 				_id = env.CallIntMethod(deviceInfo, m_id, _args0);
 				var cs = env.CallObjectMethod(deviceInfo, m_name, _args0);
@@ -65,39 +65,74 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public DataFlow DataFlow { get; private set; }
 
+		void GetDefaultParameters() {
+			if (m_defaultBufferDuration != 0) return;
+			var builder = CreateStreamBuilder();
+			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
+			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
+			m_defaultFormat = Util.FromInternalWaveFormat(stream);
+			m_defaultBufferDuration = (float)((double)UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream) / m_defaultFormat.SampleRate * 1000);
+			UnsafeNativeMethods.AAudioStream_close(stream);
+		}
+
+		float m_defaultBufferDuration;
 		/// <inheritdoc />
-		public float DefaultBufferDuration => 0;
+		public float DefaultBufferDuration {
+			get {
+				GetDefaultParameters();
+				return m_defaultBufferDuration;
+			}
+		}
 
 		/// <inheritdoc />
 		public float MinimumBufferDuration => 0;
 
+		WaveFormat m_defaultFormat;
 		/// <inheritdoc />
-		public WaveFormat DefaultFormat => WaveFormat.Default;
-
-		static aaudio_direction_t ToInternalDataFlow(DataFlow dataFlow) {
-			switch (dataFlow) {
-				case DataFlow.Out: return aaudio_direction_t.AAUDIO_DIRECTION_OUTPUT;
-				case DataFlow.In: return aaudio_direction_t.AAUDIO_DIRECTION_INPUT;
-				default: throw new ArgumentOutOfRangeException(nameof(dataFlow));
+		public WaveFormat DefaultFormat {
+			get {
+				GetDefaultParameters();
+				return m_defaultFormat;
 			}
 		}
 
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
-			suggestion = format;
-			return true;
+			var builder = CreateStreamBuilder();
+			Util.SetWaveFormatAndShareMode(builder, format, shareMode);
+			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
+			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
+			suggestion = Util.FromInternalWaveFormat(stream);
+			UnsafeNativeMethods.AAudioStream_close(stream);
+			return format == suggestion;
 		}
 
 		/// <inheritdoc />
 		public AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
-			UnsafeNativeMethods.AAudio_createStreamBuilder(out var builder);
-			UnsafeNativeMethods.AAudioStreamBuilder_setDeviceId(builder, _id);
-			UnsafeNativeMethods.AAudioStreamBuilder_setDirection(builder, ToInternalDataFlow(DataFlow));
-			UnsafeNativeMethods.AAudioStreamBuilder_setPerformanceMode(builder, aaudio_performance_mode_t.AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
-			UnsafeNativeMethods.AAudioStreamBuilder_setUsage(builder, aaudio_usage_t.AAUDIO_USAGE_GAME);
+			var builder = CreateStreamBuilder();
+			Util.SetWaveFormatAndShareMode(builder, format, shareMode);
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
+			if (bufferDuration > 0) {
+				UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, format.Align(bufferDuration / 1000 * format.BytesPerSecond) * 8 / format.Channels / format.BitsPerSample);
+			}
 			return new AAudioStream(this, stream);
+		}
+
+		IntPtr CreateStreamBuilder() {
+			if (DataFlow != DataFlow.Out) throw new NotSupportedException();
+			UnsafeNativeMethods.AAudio_createStreamBuilder(out var builder);
+			UnsafeNativeMethods.AAudioStreamBuilder_setDataCallback(builder, AAudioStream.DataCallback, IntPtr.Zero);
+			UnsafeNativeMethods.AAudioStreamBuilder_setDeviceId(builder, _id);
+			UnsafeNativeMethods.AAudioStreamBuilder_setDirection(builder, Util.ToInternalDataFlow(DataFlow));
+			UnsafeNativeMethods.AAudioStreamBuilder_setPerformanceMode(builder, aaudio_performance_mode_t.AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
+			if (AndroidHelper.DeviceApiLevel >= 28)
+				UnsafeNativeMethods.AAudioStreamBuilder_setUsage(builder, aaudio_usage_t.AAUDIO_USAGE_GAME);
+			if (AndroidHelper.DeviceApiLevel >= 32) {
+				UnsafeNativeMethods.AAudioStreamBuilder_setIsContentSpatialized(builder, true);
+				UnsafeNativeMethods.AAudioStreamBuilder_setSpatializationBehavior(builder, aaudio_spatialization_behavior_t.AAUDIO_SPATIALIZATION_BEHAVIOR_NEVER);
+			}
+			return builder;
 		}
 	}
 }
