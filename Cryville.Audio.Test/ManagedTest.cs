@@ -48,11 +48,7 @@ namespace Cryville.Audio.Test {
 			FFmpeg.AutoGen.ffmpeg.RootPath = "";
 			manager = CreateEngine();
 			device = manager.GetDefaultDevice(DataFlow.Out);
-			WaveFormat? format = WaveFormat.Default;
-			Log("Client Default Format: {0}", format);
-			device.IsFormatSupported(format.Value, out format);
-			if (format != null) client = device.Connect(format.Value);
-			else throw new NotSupportedException("No supported format is found.");
+			client = device.Connect(device.DefaultFormat);
 		}
 
 		[Test]
