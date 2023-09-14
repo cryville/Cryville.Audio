@@ -23,21 +23,6 @@
             The device of the client.
             </summary>
         </member>
-        <member name="P:Cryville.Audio.AudioClient.DefaultBufferDuration">
-            <summary>
-            The default buffer duration of the client in milliseconds.
-            </summary>
-        </member>
-        <member name="P:Cryville.Audio.AudioClient.MinimumBufferDuration">
-            <summary>
-            The minimum buffer duration of the client in milliseconds.
-            </summary>
-        </member>
-        <member name="P:Cryville.Audio.AudioClient.DefaultFormat">
-            <summary>
-            The default wave format of the device.
-            </summary>
-        </member>
         <member name="P:Cryville.Audio.AudioClient.Format">
             <summary>
             The current wave format of the connection.
@@ -77,24 +62,6 @@
             <summary>
             The audio source.
             </summary>
-        </member>
-        <member name="M:Cryville.Audio.AudioClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-            <summary>
-            Gets whether <paramref name="format" /> is supported by the device.
-            </summary>
-            <param name="format">The specified wave format.</param>
-            <param name="suggestion">A wave format suggested by the device. <paramref name="format" /> if it is supported. <see langword="null" /> if no format is supported.</param>
-            <param name="shareMode">The share mode.</param>
-            <returns>Whether <paramref name="format" /> is supported.</returns>
-        </member>
-        <member name="M:Cryville.Audio.AudioClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-            <summary>
-            Initialize the client.
-            </summary>
-            <param name="format">The wave format.</param>
-            <param name="bufferDuration">The buffer duration of the connection in milliseconds.</param>
-            <param name="shareMode">The share mode of the connection.</param>
-            <remarks>Different operations may occur with different API being used. Please also see the documentations of the implementing classes.</remarks>
         </member>
         <member name="M:Cryville.Audio.AudioClient.Start">
             <summary>
@@ -206,6 +173,11 @@
             The data-flow direction of an audio connection.
             </summary>
         </member>
+        <member name="F:Cryville.Audio.DataFlow.None">
+            <summary>
+            None.
+            </summary>
+        </member>
         <member name="F:Cryville.Audio.DataFlow.Out">
             <summary>
             Data flows from software to hardware.
@@ -233,9 +205,12 @@
         </member>
         <member name="M:Cryville.Audio.EngineBuilder.Create">
             <summary>
-            Creates a recommended <see cref="T:Cryville.Audio.IAudioDeviceManager" />.
+            Creates a <see cref="T:Cryville.Audio.IAudioDeviceManager" /> in the <see cref="F:Cryville.Audio.EngineBuilder.Engines" /> list.
             </summary>
-            <returns>A recommended <see cref="T:Cryville.Audio.IAudioDeviceManager" />. <see langword="null" /> if no engine is supported.</returns>
+            <returns>The first <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that can be successfully created. <see langword="null" /> if no engine is supported.</returns>
+            <remarks>
+            <para>Add engines to <see cref="F:Cryville.Audio.EngineBuilder.Engines" /> before calling this method.</para>
+            </remarks>
         </member>
         <member name="T:Cryville.Audio.IAudioDevice">
             <summary>
@@ -252,10 +227,37 @@
             The data-flow direction of the device.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.IAudioDevice.Connect">
+        <member name="P:Cryville.Audio.IAudioDevice.DefaultBufferDuration">
+            <summary>
+            The default buffer duration of the device in milliseconds.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.IAudioDevice.MinimumBufferDuration">
+            <summary>
+            The minimum buffer duration of the device in milliseconds.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.IAudioDevice.DefaultFormat">
+            <summary>
+            The default wave format of the device.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.IAudioDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
+            <summary>
+            Gets whether <paramref name="format" /> is supported by the device.
+            </summary>
+            <param name="format">The specified wave format.</param>
+            <param name="suggestion">A wave format suggested by the device. <paramref name="format" /> if it is supported. <see langword="null" /> if no format is supported.</param>
+            <param name="shareMode">The share mode.</param>
+            <returns>Whether <paramref name="format" /> is supported.</returns>
+        </member>
+        <member name="M:Cryville.Audio.IAudioDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
             <summary>
             Connects to the device.
             </summary>
+            <param name="format">The wave format.</param>
+            <param name="bufferDuration">The buffer duration of the connection in milliseconds.</param>
+            <param name="shareMode">The share mode of the connection.</param>
             <returns>An <see cref="T:Cryville.Audio.AudioClient" /> for interaction with the device.</returns>
         </member>
         <member name="T:Cryville.Audio.IAudioDeviceManager">
@@ -277,110 +279,6 @@
             Gets the default audio device for the specified <paramref name="dataFlow" />.
             </summary>
             <param name="dataFlow">The data-flow direction.</param>
-        </member>
-        <member name="T:Cryville.Audio.OpenSL.Engine">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with OpenSL ES.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.Engine.#ctor">
-            <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.OpenSL.Engine" /> class.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.Engine.Finalize">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.Engine.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.Engine.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing">Whether the method is being called by user.</param>
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.Engine.GetDefaultDevice(Cryville.Audio.DataFlow)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.Engine.GetDevices(Cryville.Audio.DataFlow)">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.OpenSL.OutputClient">
-            <summary>
-            An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with OpenSL ES.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.Finalize">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.Dispose(System.Boolean)">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.Device">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.DefaultBufferDuration">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.MinimumBufferDuration">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.DefaultFormat">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.Format">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.BufferSize">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.MaximumLatency">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.Position">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputClient.BufferPosition">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.Start">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputClient.Pause">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.OpenSL.OutputDevice">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with OpenSL ES.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputDevice.Finalize">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputDevice.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputDevice.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing">Whether the method is being called by user.</param>
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputDevice.Name">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.OpenSL.OutputDevice.DataFlow">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.OpenSL.OutputDevice.Connect">
-            <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.Source.CachedAudioSource">
             <summary>
@@ -825,102 +723,6 @@
             Square wave.
             </summary>
         </member>
-        <member name="T:Cryville.Audio.Wasapi.AudioClient">
-            <summary>
-            An <see cref="T:Cryville.Audio.AudioClient" /> that interact with Wasapi.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.AudioClient.Finalize">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.AudioClient.Dispose(System.Boolean)">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.Device">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.DefaultBufferDuration">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.MinimumBufferDuration">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.DefaultFormat">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.Format">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.BufferSize">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.MaximumLatency">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.Position">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.AudioClient.BufferPosition">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.AudioClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.AudioClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-            <summary>
-            Initialize the client.
-            </summary>
-            <param name="format">The wave format.</param>
-            <param name="bufferDuration">The buffer duration of the connection. The value is clamped to <see cref="P:Cryville.Audio.Wasapi.AudioClient.MinimumBufferDuration" /> if too small. If <paramref name="shareMode" /> is set to <see cref="F:Cryville.Audio.AudioShareMode.Shared" />, the buffer duration will be determined automatically despite this parameter.</param>
-            <param name="shareMode">The share mode of the connection.</param>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.AudioClient.Start">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.AudioClient.Pause">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.Wasapi.MMDevice">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with Wasapi.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDevice.Dispose(System.Boolean)">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.MMDevice.Properties">
-            <summary>
-            The properties of the device.
-            </summary>
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.MMDevice.Name">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Wasapi.MMDevice.DataFlow">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDevice.Connect">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.Wasapi.MMDeviceEnumerator">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interact with Wasapi.
-            </summary>
-            <remarks>
-            <c>Cryville.Audio.WasapiWrapper.dll</c> is required.
-            </remarks>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.#ctor">
-            <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.Wasapi.MMDeviceEnumerator" /> class.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.GetDevices(Cryville.Audio.DataFlow)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.GetDefaultDevice(Cryville.Audio.DataFlow)">
-            <inheritdoc />
-        </member>
         <member name="T:Cryville.Audio.WaveFormat">
             <summary>
             The wave format.
@@ -1021,110 +823,6 @@
             <summary>
             IEEE 754 double precision floating-point sample format.
             </summary>
-        </member>
-        <member name="T:Cryville.Audio.WinMM.WaveOutClient">
-            <summary>
-            An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with WinMM.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutClient.Finalize">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutClient.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing">Whether the method is being called by user.</param>
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.Device">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.DefaultBufferDuration">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.MinimumBufferDuration">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.DefaultFormat">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.Format">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.BufferSize">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.MaximumLatency">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.Position">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutClient.BufferPosition">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutClient.Start">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutClient.Pause">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.WinMM.WaveOutDevice">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with WinMM.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutDevice.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutDevice.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing">Whether the method is being called by user.</param>
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutDevice.Name">
-            <summary>
-            The friendly name of the device.
-            </summary>
-            <remarks>Due to technical reason, this field is truncated if it has more than 31 characters.</remarks>
-        </member>
-        <member name="P:Cryville.Audio.WinMM.WaveOutDevice.DataFlow">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveOutDevice.Connect">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.WinMM.WaveDeviceManager">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with WinMM.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.#ctor">
-            <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.WinMM.WaveDeviceManager" /> class.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing">Whether the method is being called by user.</param>
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDevices(Cryville.Audio.DataFlow)">
-            <inheritdoc />
         </member>
     </members>
 </doc>

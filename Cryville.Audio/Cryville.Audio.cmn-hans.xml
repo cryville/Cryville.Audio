@@ -23,21 +23,6 @@
 				客户端的设备。
 			</summary>
 		</member>
-		<member name="P:Cryville.Audio.AudioClient.DefaultBufferDuration">
-			<summary>
-				客户端的默认缓存时长（毫秒）。
-			</summary>
-		</member>
-		<member name="P:Cryville.Audio.AudioClient.MinimumBufferDuration">
-			<summary>
-				客户端的最小缓存时长（毫秒）。
-			</summary>
-		</member>
-		<member name="P:Cryville.Audio.AudioClient.DefaultFormat">
-			<summary>
-				设备的默认波形格式。
-			</summary>
-		</member>
 		<member name="P:Cryville.Audio.AudioClient.Format">
 			<summary>
 				当前连接使用的波形格式。
@@ -77,28 +62,6 @@
 			<summary>
 				音频源。
 			</summary>
-		</member>
-		<member name="M:Cryville.Audio.AudioClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-			<summary>
-				获取设备是否支持 <paramref name="format" />。
-			</summary>
-			<param name="format">指定的波形格式。</param>
-			<param name="suggestion">
-				设备建议的波形格式。如果设备支持 <paramref name="format" /> 则直接返回该参数。如果设备不支持任何格式则返回 <see langword="null" />。
-			</param>
-			<param name="shareMode">共享模式。</param>
-			<returns>
-				设备是否支持 <paramref name="format" />。
-			</returns>
-		</member>
-		<member name="M:Cryville.Audio.AudioClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-			<summary>
-				初始化客户端。
-			</summary>
-			<param name="format">波形格式。</param>
-			<param name="bufferDuration">连接的缓存时长（毫秒）。</param>
-			<param name="shareMode">连接的共享模式。</param>
-			<remarks>不同 API 可能会执行不同的操作。参见实现类的文档。</remarks>
 		</member>
 		<member name="M:Cryville.Audio.AudioClient.Start">
 			<summary>
@@ -218,6 +181,11 @@
 				音频连接的数据流向。
 			</summary>
 		</member>
+		<member name="F:Cryville.Audio.DataFlow.None">
+			<summary>
+				无。
+			</summary>
+		</member>
 		<member name="F:Cryville.Audio.DataFlow.Out">
 			<summary>
 				数据从软件流向硬件。
@@ -245,11 +213,16 @@
 		</member>
 		<member name="M:Cryville.Audio.EngineBuilder.Create">
 			<summary>
-				创建一个推荐的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
+				创建 <see cref="F:Cryville.Audio.EngineBuilder.Engines" /> 列表中的一个 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
 			</summary>
 			<returns>
-				一个推荐的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。如果没有支持的引擎则返回 <see langword="null" />。
+				第一个能够被成功创建的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。如果没有支持的引擎则返回 <see langword="null" />。
 			</returns>
+			<remarks>
+				<para>
+					调用该方法前，先在 <see cref="F:Cryville.Audio.EngineBuilder.Engines" /> 中添加引擎。
+				</para>
+			</remarks>
 		</member>
 		<member name="T:Cryville.Audio.IAudioDevice">
 			<summary>
@@ -266,10 +239,41 @@
 				设备的数据流向。
 			</summary>
 		</member>
-		<member name="M:Cryville.Audio.IAudioDevice.Connect">
+		<member name="P:Cryville.Audio.IAudioDevice.DefaultBufferDuration">
+			<summary>
+				设备的默认缓存时长（毫秒）。
+			</summary>
+		</member>
+		<member name="P:Cryville.Audio.IAudioDevice.MinimumBufferDuration">
+			<summary>
+				设备的最小缓存时长（毫秒）。
+			</summary>
+		</member>
+		<member name="P:Cryville.Audio.IAudioDevice.DefaultFormat">
+			<summary>
+				设备的默认波形格式。
+			</summary>
+		</member>
+		<member name="M:Cryville.Audio.IAudioDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
+			<summary>
+				获取设备是否支持 <paramref name="format" />。
+			</summary>
+			<param name="format">指定的波形格式。</param>
+			<param name="suggestion">
+				设备建议的波形格式。如果设备支持 <paramref name="format" /> 则直接返回该参数。如果设备不支持任何格式则返回 <see langword="null" />。
+			</param>
+			<param name="shareMode">共享模式。</param>
+			<returns>
+				设备是否支持 <paramref name="format" />。
+			</returns>
+		</member>
+		<member name="M:Cryville.Audio.IAudioDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
 			<summary>
 				连接到设备。
 			</summary>
+			<param name="format">波形格式。</param>
+			<param name="bufferDuration">连接的缓存时长（毫秒）。</param>
+			<param name="shareMode">连接的共享模式。</param>
 			<returns>
 				一个用于与设备交互的 <see cref="T:Cryville.Audio.AudioClient" />。
 			</returns>
@@ -293,110 +297,6 @@
 				获取指定 <paramref name="dataFlow" /> 的默认音频设备。
 			</summary>
 			<param name="dataFlow">数据流向。</param>
-		</member>
-		<member name="T:Cryville.Audio.OpenSL.Engine">
-			<summary>
-				一个与 OpenSL ES 交互的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.Engine.#ctor">
-			<summary>
-				创建一个 <see cref="T:Cryville.Audio.OpenSL.Engine" /> 类的实例。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.Engine.Finalize">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.Engine.Dispose">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.Engine.Dispose(System.Boolean)">
-			<summary>
-				执行与释放或重置非托管资源关联的应用程序定义的任务。
-			</summary>
-			<param name="disposing">该方法是否由用户调用。</param>
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.Engine.GetDefaultDevice(Cryville.Audio.DataFlow)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.Engine.GetDevices(Cryville.Audio.DataFlow)">
-			<inheritdoc />
-		</member>
-		<member name="T:Cryville.Audio.OpenSL.OutputClient">
-			<summary>
-				一个与 OpenSL ES 交互的 <see cref="T:Cryville.Audio.AudioClient" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Finalize">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Dispose(System.Boolean)">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.Device">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.DefaultBufferDuration">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.MinimumBufferDuration">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.DefaultFormat">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.Format">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.BufferSize">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.MaximumLatency">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.Position">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputClient.BufferPosition">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Start">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputClient.Pause">
-			<inheritdoc />
-		</member>
-		<member name="T:Cryville.Audio.OpenSL.OutputDevice">
-			<summary>
-				一个与 OpenSL ES 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputDevice.Finalize">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputDevice.Dispose">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputDevice.Dispose(System.Boolean)">
-			<summary>
-				执行与释放或重置非托管资源关联的应用程序定义的任务。
-			</summary>
-			<param name="disposing">该方法是否由用户调用。</param>
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputDevice.Name">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.OpenSL.OutputDevice.DataFlow">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.OpenSL.OutputDevice.Connect">
-			<inheritdoc />
 		</member>
 		<member name="T:Cryville.Audio.Source.CachedAudioSource">
 			<summary>
@@ -881,104 +781,6 @@
 				方波。
 			</summary>
 		</member>
-		<member name="T:Cryville.Audio.Wasapi.AudioClient">
-			<summary>
-				一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.AudioClient" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.AudioClient.Finalize">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.AudioClient.Dispose(System.Boolean)">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.Device">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.DefaultBufferDuration">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.MinimumBufferDuration">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.DefaultFormat">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.Format">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.BufferSize">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.MaximumLatency">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.Position">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.AudioClient.BufferPosition">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.AudioClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.AudioClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-			<summary>
-				初始化客户端。
-			</summary>
-			<param name="format">波形格式。</param>
-			<param name="bufferDuration">
-				连接的缓存时长（毫秒）。如果该值太小，则其将被限制到 <see cref="P:Cryville.Audio.Wasapi.AudioClient.MinimumBufferDuration" />。如果 <paramref name="shareMode" /> 为 <see cref="F:Cryville.Audio.AudioShareMode.Shared" />，缓存时长将自动决定，且该参数无效。
-			</param>
-			<param name="shareMode">连接的共享模式。</param>
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.AudioClient.Start">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.AudioClient.Pause">
-			<inheritdoc />
-		</member>
-		<member name="T:Cryville.Audio.Wasapi.MMDevice">
-			<summary>
-				一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.MMDevice.Dispose(System.Boolean)">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.MMDevice.Properties">
-			<summary>
-				设备的属性。
-			</summary>
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.MMDevice.Name">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Wasapi.MMDevice.DataFlow">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.MMDevice.Connect">
-			<inheritdoc />
-		</member>
-		<member name="T:Cryville.Audio.Wasapi.MMDeviceEnumerator">
-			<summary>
-				一个与 Wasapi 交互的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
-			</summary>
-			<remarks>
-				需要 <c>Cryville.Audio.WasapiWrapper.dll</c>。
-			</remarks>
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.#ctor">
-			<summary>
-				创建一个 <see cref="T:Cryville.Audio.Wasapi.MMDeviceEnumerator" /> 类的实例。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.GetDevices(Cryville.Audio.DataFlow)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.Wasapi.MMDeviceEnumerator.GetDefaultDevice(Cryville.Audio.DataFlow)">
-			<inheritdoc />
-		</member>
 		<member name="T:Cryville.Audio.WaveFormat">
 			<summary>
 				波形格式。
@@ -1079,110 +881,6 @@
 			<summary>
 				IEEE 754 双精度浮点型样本格式。
 			</summary>
-		</member>
-		<member name="T:Cryville.Audio.WinMM.WaveOutClient">
-			<summary>
-				一个与 WinMM 交互的 <see cref="T:Cryville.Audio.AudioClient" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutClient.Finalize">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutClient.Dispose(System.Boolean)">
-			<summary>
-				执行与释放或重置非托管资源关联的应用程序定义的任务。
-			</summary>
-			<param name="disposing">该方法是否由用户调用。</param>
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.Device">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.DefaultBufferDuration">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.MinimumBufferDuration">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.DefaultFormat">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.Format">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.BufferSize">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.MaximumLatency">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.Position">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutClient.BufferPosition">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutClient.Init(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutClient.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutClient.Start">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutClient.Pause">
-			<inheritdoc />
-		</member>
-		<member name="T:Cryville.Audio.WinMM.WaveOutDevice">
-			<summary>
-				一个与 WinMM 交互的 <see cref="T:Cryville.Audio.IAudioDevice" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutDevice.Dispose">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutDevice.Dispose(System.Boolean)">
-			<summary>
-				执行与释放或重置非托管资源关联的应用程序定义的任务。
-			</summary>
-			<param name="disposing">该方法是否由用户调用。</param>
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutDevice.Name">
-			<summary>
-				设备的通俗名称。
-			</summary>
-			<remarks>由于技术原因，该属性最大字符数限制为 31。</remarks>
-		</member>
-		<member name="P:Cryville.Audio.WinMM.WaveOutDevice.DataFlow">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveOutDevice.Connect">
-			<inheritdoc />
-		</member>
-		<member name="T:Cryville.Audio.WinMM.WaveDeviceManager">
-			<summary>
-				一个与 WinMM 交互的 <see cref="T:Cryville.Audio.IAudioDeviceManager" />。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.#ctor">
-			<summary>
-				创建一个 <see cref="T:Cryville.Audio.WinMM.WaveDeviceManager" /> 类的实例。
-			</summary>
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.Dispose">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.Dispose(System.Boolean)">
-			<summary>
-				执行与释放或重置非托管资源关联的应用程序定义的任务。
-			</summary>
-			<param name="disposing">该方法是否由用户调用。</param>
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
-			<inheritdoc />
-		</member>
-		<member name="M:Cryville.Audio.WinMM.WaveDeviceManager.GetDevices(Cryville.Audio.DataFlow)">
-			<inheritdoc />
 		</member>
 	</members>
 </doc>
