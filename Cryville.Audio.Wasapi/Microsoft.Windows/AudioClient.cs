@@ -1,13 +1,14 @@
-﻿using Microsoft.Windows.AudioSessionTypes;
+using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.Mme;
 using System;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.AudioClient {
-	internal static class IAudioClient {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_Initialize", PreserveSig = false)]
-		public static extern void Initialize(
-			IntPtr self,
+	[ComImport]
+	[Guid("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IAudioClient {
+		void Initialize(
 			AUDCLNT_SHAREMODE ShareMode,
 			UInt32 StreamFlags,
 			Int64 hnsBufferDuration,
@@ -16,104 +17,75 @@ namespace Microsoft.Windows.AudioClient {
 			/* ref Guid */ IntPtr AudioSessionGuid
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_GetBufferSize", PreserveSig = false)]
-		public static extern void GetBufferSize(
-			IntPtr self,
+		void GetBufferSize(
 			out UInt32 pNumBufferFrames
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_GetStreamLatency", PreserveSig = false)]
-		public static extern void GetStreamLatency(
-			IntPtr self,
+		void GetStreamLatency(
 			out Int64 phnsLatency
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_GetCurrentPadding", PreserveSig = false)]
-		public static extern void GetCurrentPadding(
-			IntPtr self,
+		void GetCurrentPadding(
 			out UInt32 pNumPaddingFrames
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_IsFormatSupported", PreserveSig = true)]
-		public static extern int IsFormatSupported(
-			IntPtr self,
+		int IsFormatSupported(
 			AUDCLNT_SHAREMODE ShareMode,
 			ref WAVEFORMATEX pFormat,
 			/* out *WAVEFORMATEX */ out IntPtr ppClosestMatch
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_GetMixFormat", PreserveSig = false)]
-		public static extern void GetMixFormat(
-			IntPtr self,/* out *WAVEFORMATEX */ out IntPtr ppDeviceFormat);
+		void GetMixFormat(/* out *WAVEFORMATEX */ out IntPtr ppDeviceFormat);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_GetDevicePeriod", PreserveSig = false)]
-		public static extern void GetDevicePeriod(
-			IntPtr self,
+		void GetDevicePeriod(
 			out Int64 phnsDefaultDevicePeriod,
 			out Int64 phnsMinimumDevicePeriod
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_Start", PreserveSig = false)]
-		public static extern void Start(
-			IntPtr self
-		);
+		void Start();
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_Stop", PreserveSig = false)]
-		public static extern void Stop(
-			IntPtr self
-		);
+		void Stop();
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_Reset", PreserveSig = false)]
-		public static extern void Reset(
-			IntPtr self
-		);
+		void Reset();
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_SetEventHandle", PreserveSig = false)]
-		public static extern void SetEventHandle(
-			IntPtr self,
+		void SetEventHandle(
 			IntPtr eventHandle
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClient_GetService", PreserveSig = false)]
-		public static extern void GetService(
-			IntPtr self,
+		void GetService(
 			ref Guid riid,
-			out IntPtr ppv
+			[MarshalAs(UnmanagedType.IUnknown)] out object ppv
 		);
 	}
 
-	internal static class IAudioClock {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClock_GetFrequency", PreserveSig = false)]
-		public static extern void GetFrequency(
-			IntPtr self,
+	[ComImport]
+	[Guid("CD63314F-3FBA-4a1b-812C-EF96358728E7")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IAudioClock {
+		void GetFrequency(
 			out UInt64 pu64Frequency
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClock_GetPosition", PreserveSig = false)]
-		public static extern void GetPosition(
-			IntPtr self,
+		void GetPosition(
 			out UInt64 pu64Position,
 			out UInt64 pu64QPCPosition
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioClock_GetCharacteristics", PreserveSig = false)]
-		public static extern void GetCharacteristics(
-			IntPtr self,
+		void GetCharacteristics(
 			out UInt32 pdwCharacteristics
 		);
 	}
 
-	internal static class IAudioRenderClient {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioRenderClient_GetBuffer", PreserveSig = false)]
-		public static extern void GetBuffer(
-			IntPtr self,
+	[ComImport]
+	[Guid("F294ACFC-3146-4483-A7BF-ADDCA7C260E2")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IAudioRenderClient {
+		void GetBuffer(
 			UInt32 NumFramesRequested,
 			out IntPtr ppData
 		);
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IAudioRenderClient_ReleaseBuffer", PreserveSig = false)]
-		public static extern void ReleaseBuffer(
-			IntPtr self,
+		void ReleaseBuffer(
 			UInt32 NumFramesWritten,
 			UInt32 dwFlags
 		);

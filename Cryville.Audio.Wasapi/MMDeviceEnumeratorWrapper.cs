@@ -1,7 +1,6 @@
 using Cryville.Common.Platform.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.MMDevice;
-using System;
 using System.Collections.Generic;
 
 namespace Cryville.Audio.Wasapi {
@@ -12,20 +11,18 @@ namespace Cryville.Audio.Wasapi {
 	/// <c>Cryville.Audio.WasapiWrapper.dll</c> is required.
 	/// </remarks>
 	public class MMDeviceEnumeratorWrapper : ComInterfaceWrapper, IAudioDeviceManager {
+		readonly IMMDeviceEnumerator _internal;
+
 		/// <summary>
 		/// Creates an instance of the <see cref="MMDeviceEnumeratorWrapper" /> class.
 		/// </summary>
-		public MMDeviceEnumeratorWrapper() : base(CoCreate()) { }
-
-		static IntPtr CoCreate() {
-			IMMDeviceEnumerator._ctor(out var result);
-			return result;
+		public MMDeviceEnumeratorWrapper() : base(new IMMDeviceEnumerator()) {
+			_internal = (IMMDeviceEnumerator)ComObject;
 		}
-		
+
 		/// <inheritdoc />
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
-			IMMDeviceEnumerator.EnumAudioEndpoints(
-				ComObject,
+			_internal.EnumAudioEndpoints(
 				Util.ToInternalDataFlowEnum(dataFlow),
 				(uint)DEVICE_STATE_XXX.DEVICE_STATEMASK_ALL,
 				out var result
@@ -35,8 +32,7 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) {
-			IMMDeviceEnumerator.GetDefaultAudioEndpoint(
-				ComObject,
+			_internal.GetDefaultAudioEndpoint(
 				Util.ToInternalDataFlowEnum(dataFlow),
 				ERole.eConsole,
 				out var result

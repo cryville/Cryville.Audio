@@ -14,13 +14,16 @@ namespace Cryville.Audio.Wasapi {
 	/// </summary>
 	public class MMDeviceWrapper : ComInterfaceWrapper, IAudioDevice {
 		bool _connected;
-		readonly IntPtr _client;
+		readonly IMMDevice _internal;
+		readonly IAudioClient _client;
 
-		internal MMDeviceWrapper(IntPtr obj) : base(obj) {
-			IMMDevice.GetState(ComObject, out var state);
+		internal MMDeviceWrapper(IMMDevice obj) : base(obj) {
+			_internal = obj;
+			_internal.GetState(out var state);
 			if (state == (uint)DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE) {
-				IMMDevice.Activate(ComObject, ref GUID_AUDIOCLIENT, (uint)CLSCTX.ALL, IntPtr.Zero, out _client);
-				IAudioClient.GetDevicePeriod(_client, out m_defaultBufferDuration, out m_minimumBufferDuration);
+				_internal.Activate(ref GUID_AUDIOCLIENT, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
+				_client = client as IAudioClient;
+				_client.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
 			}
 		}
 
@@ -29,7 +32,7 @@ namespace Cryville.Audio.Wasapi {
 			base.Dispose(disposing);
 			if (disposing) {
 				m_properties.Dispose();
-				if (_client != IntPtr.Zero && !_connected) Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(_client));
+				if (_client != null && !_connected) Marshal.ReleaseComObject(_client);
 			}
 		}
 
@@ -61,13 +64,14 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (m_dataFlow == null) {
 					Marshal.QueryInterface(
-						ComObject,
+						Marshal.GetIUnknownForObject(ComObject),
 						ref GUID_MM_ENDPOINT,
-						out var endpoint
+						out var pendpoint
 					);
-					IMMEndpoint.GetDataFlow(endpoint, out var presult);
+					var endpoint = Marshal.GetObjectForIUnknown(pendpoint) as IMMEndpoint;
+					endpoint.GetDataFlow(out var presult);
 					m_dataFlow = Util.FromInternalDataFlowEnum(presult);
-					Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(endpoint));
+					Marshal.ReleaseComObject(endpoint);
 				}
 				return m_dataFlow.Value;
 			}
@@ -84,8 +88,8 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		public WaveFormat DefaultFormat {
 			get {
-				if (_client == IntPtr.Zero) throw new InvalidOperationException("The device is not available.");
-				IAudioClient.GetMixFormat(_client, out var presult);
+				if (_client == null) throw new InvalidOperationException("The device is not available.");
+				_client.GetMixFormat(out var presult);
 				var result = (WAVEFORMATEX)Marshal.PtrToStructure(presult, typeof(WAVEFORMATEX));
 				return Util.FromInternalFormat(result);
 			}
@@ -93,15 +97,15 @@ namespace Cryville.Audio.Wasapi {
 
 		private void EnsureOpenPropertyStore() {
 			if (m_properties != null) return;
-			IMMDevice.OpenPropertyStore(ComObject, (uint)STGM.READ, out var result);
+			_internal.OpenPropertyStore((uint)STGM.READ, out var result);
 			m_properties = new PropertyStore(result);
 		}
 
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
-			if (_client == IntPtr.Zero) throw new InvalidOperationException("The device is not available.");
+			if (_client == null) throw new InvalidOperationException("The device is not available.");
 			var iformat = Util.ToInternalFormat(format);
-			int hr = IAudioClient.IsFormatSupported(_client, ToInternalShareModeEnum(shareMode), ref iformat, out var presult);
+			int hr = _client.IsFormatSupported(ToInternalShareModeEnum(shareMode), ref iformat, out var presult);
 			if (hr == 0) { // S_OK
 				suggestion = format;
 				if (presult != IntPtr.Zero) Marshal.FreeCoTaskMem(presult);
@@ -124,7 +128,7 @@ namespace Cryville.Audio.Wasapi {
 		static Guid GUID_AUDIOCLIENT = new Guid("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2");
 		/// <inheritdoc />
 		public AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
-			if (_client == IntPtr.Zero) throw new InvalidOperationException("The device is not available.");
+			if (_client == null) throw new InvalidOperationException("The device is not available.");
 			_connected = true;
 			return new AudioClientWrapper(_client, this, format, bufferDuration, shareMode);
 		}

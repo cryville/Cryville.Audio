@@ -3,89 +3,77 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.MMDevice {
-	internal static class IMMDevice {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_Activate", PreserveSig = false)]
-		public static extern void Activate(
-			IntPtr self,
+	[ComImport]
+	[Guid("D666063F-1587-4E43-81F1-B948E807363F")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IMMDevice {
+		void Activate(
 			ref Guid iid,
 			UInt32 dwClsCtx,
 			/* ref PROPVARIANT */ IntPtr pActivationParams,
-			out IntPtr ppInterface
+			[MarshalAs(UnmanagedType.IUnknown)] out object ppInterface
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_OpenPropertyStore", PreserveSig = false)]
-		public static extern void OpenPropertyStore(
-			IntPtr self,
+		void OpenPropertyStore(
 			UInt32 stgmAccess,
 			out IPropertyStore ppProperties
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_GetId", PreserveSig = false)]
-		public static extern void GetId(
-			IntPtr self,
+		void GetId(
 			[MarshalAs(UnmanagedType.LPWStr)] out string ppstrId
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDevice_GetState", PreserveSig = false)]
-		public static extern void GetState(
-			IntPtr self,
+		void GetState(
 			out UInt32 pdwState
 		);
 	}
 
-	internal static class IMMDeviceCollection {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceCollection_GetCount", PreserveSig = false)]
-		public static extern void GetCount(
-			IntPtr self,
+	[ComImport]
+	[Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IMMDeviceCollection {
+		void GetCount(
 			out UInt32 pcDevices
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceCollection_Item", PreserveSig = false)]
-		public static extern void Item(
-			IntPtr self,
+		void Item(
 			UInt32 nDevice,
-			out IntPtr ppDevice
+			out IMMDevice ppDevice
 		);
 	}
 
-	internal static class IMMDeviceEnumerator {
+	[ComImport]
+	[Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
+	internal class MMDeviceEnumerator { }
 
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "_ctor_IMMDeviceEnumerator", PreserveSig = false)]
-		public static extern void _ctor(
-			out IntPtr @out
-		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_EnumAudioEndpoints", PreserveSig = false)]
-		public static extern void EnumAudioEndpoints(
-			IntPtr self,
+	[ComImport]
+	[CoClass(typeof(MMDeviceEnumerator))]
+	[Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IMMDeviceEnumerator {
+		void EnumAudioEndpoints(
 			EDataFlow dataFlow,
 			UInt32 dwStateMask,
-			out IntPtr ppDevices
+			out IMMDeviceCollection ppDevices
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_GetDefaultAudioEndpoint", PreserveSig = false)]
-		public static extern void GetDefaultAudioEndpoint(
-			IntPtr self,
+		void GetDefaultAudioEndpoint(
 			EDataFlow dataFlow,
 			ERole role,
-			out IntPtr ppEndpoint
+			out IMMDevice ppEndpoint
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_GetDevice", PreserveSig = false)]
-		public static extern void GetDevice(
-			IntPtr self,
+		void GetDevice(
 			[MarshalAs(UnmanagedType.LPWStr)] string pwstrId,
-			out IntPtr ppDevice
+			out IMMDevice ppDevice
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_RegisterEndpointNotificationCallback", PreserveSig = false)]
-		public static extern void RegisterEndpointNotificationCallback(
-			IntPtr self,
+		void RegisterEndpointNotificationCallback(
 			IntPtr pClient
 		);
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMDeviceEnumerator_UnregisterEndpointNotificationCallback", PreserveSig = false)]
-		public static extern void UnregisterEndpointNotificationCallback(
-			IntPtr self,
+		void UnregisterEndpointNotificationCallback(
 			IntPtr pClient
 		);
 	}
 
-	internal static class IMMEndpoint {
-		[DllImport("Cryville.Audio.WasapiWrapper.dll", EntryPoint = "IMMEndpoint_GetDataFlow", PreserveSig = false)]
-		public static extern void GetDataFlow(
-			IntPtr self,
+	[ComImport]
+	[Guid("1BE09788-6894-4089-8586-9A2A6C265AC5")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IMMEndpoint {
+		void GetDataFlow(
 			out EDataFlow pDataFlow
 		);
 	}

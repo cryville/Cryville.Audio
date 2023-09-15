@@ -3,8 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace Cryville.Common.Platform.Windows {
 	public abstract class ComInterfaceWrapper : IDisposable {
-		protected IntPtr ComObject { get; private set; }
-		protected ComInterfaceWrapper(IntPtr comObject) {
+		protected object ComObject { get; private set; }
+		protected ComInterfaceWrapper(object comObject) {
 			ComObject = comObject;
 		}
 
@@ -19,9 +19,9 @@ namespace Cryville.Common.Platform.Windows {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (ComObject != default) {
-					Marshal.ReleaseComObject(Marshal.GetObjectForIUnknown(ComObject));
-					ComObject = default;
+				if (ComObject != null) {
+					Marshal.ReleaseComObject(ComObject);
+					ComObject = null;
 				}
 			}
 		}
