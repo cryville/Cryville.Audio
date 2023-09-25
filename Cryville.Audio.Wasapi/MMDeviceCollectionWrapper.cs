@@ -3,13 +3,13 @@ using Microsoft.Windows.MMDevice;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.Wasapi {
 	internal sealed class MMDeviceCollectionWrapper : ComInterfaceWrapper, IEnumerable<IAudioDevice> {
 		readonly IMMDeviceCollection _internal;
 
-		internal MMDeviceCollectionWrapper(IMMDeviceCollection obj) : base(Marshal.GetIUnknownForObject(obj)) {
+		internal MMDeviceCollectionWrapper(IMMDeviceCollection obj) : base(obj) {
+			_internal = obj;
 			_internal.GetCount(out m_count);
 		}
 
