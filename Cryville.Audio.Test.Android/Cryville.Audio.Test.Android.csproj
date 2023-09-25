@@ -88,7 +88,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors" />
     <Reference Include="UnsafeIL">
-      <HintPath>..\Cryville.Audio\UnsafeIL.dll</HintPath>
+      <HintPath>..\References\UnsafeIL.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

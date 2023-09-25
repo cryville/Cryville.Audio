@@ -78,9 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Cryville.Audio.Wasapi.xml" />
-    <Content Include="Cryville.Audio.WasapiWrapper.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
