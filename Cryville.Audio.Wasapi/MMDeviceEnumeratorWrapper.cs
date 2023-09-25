@@ -7,9 +7,6 @@ namespace Cryville.Audio.Wasapi {
 	/// <summary>
 	/// An <see cref="IAudioDeviceManager" /> that interact with Wasapi.
 	/// </summary>
-	/// <remarks>
-	/// <c>Cryville.Audio.WasapiWrapper.dll</c> is required.
-	/// </remarks>
 	public class MMDeviceEnumeratorWrapper : ComInterfaceWrapper, IAudioDeviceManager {
 		readonly IMMDeviceEnumerator _internal;
 

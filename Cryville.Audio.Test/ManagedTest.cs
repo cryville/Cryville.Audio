@@ -2,7 +2,6 @@ using Cryville.Audio.Source;
 using Cryville.Audio.Wasapi;
 using Cryville.Audio.WaveformAudio;
 using NUnit.Framework;
-using System;
 using System.IO;
 using System.Threading;
 

@@ -77,9 +77,6 @@
             <summary>
             An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interact with Wasapi.
             </summary>
-            <remarks>
-            <c>Cryville.Audio.WasapiWrapper.dll</c> is required.
-            </remarks>
         </member>
         <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.#ctor">
             <summary>
