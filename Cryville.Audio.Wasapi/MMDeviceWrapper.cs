@@ -31,7 +31,7 @@ namespace Cryville.Audio.Wasapi {
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
 			if (disposing) {
-				m_properties.Dispose();
+				m_properties?.Dispose();
 				if (_client != null && !_connected) Marshal.ReleaseComObject(_client);
 			}
 		}
