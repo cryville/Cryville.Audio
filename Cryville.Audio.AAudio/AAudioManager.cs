@@ -4,9 +4,17 @@ using System;
 using System.Collections.Generic;
 
 namespace Cryville.Audio.AAudio {
+	/// <summary>
+	/// An <see cref="IAudioDeviceManager" /> that interacts with AAudio.
+	/// </summary>
 	public class AAudioManager : IAudioDeviceManager {
 		readonly IntPtr _manager;
 
+		/// <summary>
+		/// Creates an instance of the <see cref="AAudioManager" /> class.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">No Java VM is registered.</exception>
+		/// <exception cref="PlatformNotSupportedException">AAudio is not supported on the current platform.</exception>
 		public AAudioManager() {
 			if (JavaVMManager.CurrentVM == null) throw new InvalidOperationException("Java VM not registered.");
 			var env = JavaVMManager.CurrentEnv;
@@ -16,15 +24,25 @@ namespace Cryville.Audio.AAudio {
 
 		bool _disposed;
 
+		/// <summary>
+		/// Releases all the unmanaged resources used by this instance.
+		/// </summary>
 		~AAudioManager() {
 			Dispose(false);
 		}
 
+		/// <summary>
+		/// Releases all the resources used by this instance.
+		/// </summary>
 		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Releases all the resources used by this instance.
+		/// </summary>
+		/// <param name="disposing">Whether to release managed resources.</param>
 		protected virtual void Dispose(bool disposing) {
 			if (!_disposed) return;
 			JavaVMManager.CurrentEnv.DeleteGlobalRef(_manager);

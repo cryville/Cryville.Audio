@@ -4,6 +4,36 @@
         <name>Cryville.Audio.WaveformAudio</name>
     </assembly>
     <members>
+        <member name="T:Microsoft.Windows.MmSysCom.MultimediaSystemException">
+            <summary>
+            Exception occurring in Multimedia System.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Windows.MmSysCom.MultimediaSystemException.#ctor">
+            <summary>
+            Creates an instance of the <see cref="T:Microsoft.Windows.MmSysCom.MultimediaSystemException" /> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Windows.MmSysCom.MultimediaSystemException.#ctor(System.String)">
+            <summary>
+            Creates an instance of the <see cref="T:Microsoft.Windows.MmSysCom.MultimediaSystemException" /> class.
+            <param name="message">The error message that explains the reason for the exception.</param>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Windows.MmSysCom.MultimediaSystemException.#ctor(System.String,System.Exception)">
+            <summary>
+            Creates an instance of the <see cref="T:Microsoft.Windows.MmSysCom.MultimediaSystemException" /> class.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception.</param>
+        </member>
+        <member name="M:Microsoft.Windows.MmSysCom.MultimediaSystemException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Creates an instance of the <see cref="T:Microsoft.Windows.MmSysCom.MultimediaSystemException" /> class with serialized data.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+        </member>
         <member name="T:Cryville.Audio.WaveformAudio.WaveOutClient">
             <summary>
             An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with WinMM.

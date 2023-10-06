@@ -4,6 +4,9 @@ using Cryville.Interop.Java.Helper;
 using System;
 
 namespace Cryville.Audio.AAudio {
+	/// <summary>
+	/// An <see cref="IAudioDevice" /> that interacts with AAudio.
+	/// </summary>
 	public class AAudioStreamBuilder : IAudioDevice {
 		static IntPtr m_id;
 		static IntPtr m_name;
@@ -43,13 +46,23 @@ namespace Cryville.Audio.AAudio {
 		}
 
 		private bool _disposed;
+		/// <summary>
+		/// Releases all the unmanaged resources used by this instance.
+		/// </summary>
 		~AAudioStreamBuilder() {
 			Dispose(disposing: false);
 		}
+		/// <summary>
+		/// Releases all the resources used by this instance.
+		/// </summary>
 		public void Dispose() {
 			Dispose(disposing: true);
 			GC.SuppressFinalize(this);
 		}
+		/// <summary>
+		/// Releases all the resources used by this instance.
+		/// </summary>
+		/// <param name="disposing">Whether to release managed resources.</param>
 		protected virtual void Dispose(bool disposing) {
 			if (_disposed) return;
 			if (disposing) {

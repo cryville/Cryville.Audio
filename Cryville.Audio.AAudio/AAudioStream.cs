@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.AAudio {
+	/// <summary>
+	/// An <see cref="AudioClient" /> that interacts with AAudio.
+	/// </summary>
 	public class AAudioStream : AudioClient {
 		static readonly Dictionary<IntPtr, AAudioStream> _instances = new Dictionary<IntPtr, AAudioStream>();
 

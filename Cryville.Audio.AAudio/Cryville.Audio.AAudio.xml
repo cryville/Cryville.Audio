@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cryville.Audio.AAudio</name>
+    </assembly>
+    <members>
+        <member name="T:Cryville.Audio.AAudio.AAudioManager">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interacts with AAudio.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioManager.#ctor">
+            <summary>
+            Creates an instance of the <see cref="T:Cryville.Audio.AAudio.AAudioManager" /> class.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">No Java VM is registered.</exception>
+            <exception cref="T:System.PlatformNotSupportedException">AAudio is not supported on the current platform.</exception>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioManager.Finalize">
+            <summary>
+            Releases all the unmanaged resources used by this instance.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioManager.Dispose">
+            <summary>
+            Releases all the resources used by this instance.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioManager.Dispose(System.Boolean)">
+            <summary>
+            Releases all the resources used by this instance.
+            </summary>
+            <param name="disposing">Whether to release managed resources.</param>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioManager.GetDefaultDevice(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioManager.GetDevices(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.AAudio.AAudioStream">
+            <summary>
+            An <see cref="T:Cryville.Audio.AudioClient" /> that interacts with AAudio.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStream.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStream.Device">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStream.Format">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStream.BufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStream.MaximumLatency">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStream.Position">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStream.BufferPosition">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStream.Start">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStream.Pause">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.AAudio.AAudioStreamBuilder">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with AAudio.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.Finalize">
+            <summary>
+            Releases all the unmanaged resources used by this instance.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.Dispose">
+            <summary>
+            Releases all the resources used by this instance.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.Dispose(System.Boolean)">
+            <summary>
+            Releases all the resources used by this instance.
+            </summary>
+            <param name="disposing">Whether to release managed resources.</param>
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DataFlow">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DefaultBufferDuration">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.MinimumBufferDuration">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DefaultFormat">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+            <inheritdoc />
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setAllowedCapturePolicy(System.IntPtr,Android.AAudio.Native.aaudio_allowed_capture_policy_t)">
+            <remarks>Available since API level 29.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setAttributionTag(System.IntPtr,System.String)">
+            <remarks>Available since API level 31.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setChannelMask(System.IntPtr,Android.AAudio.Native.aaudio_channel_mask_t)">
+            <remarks>Available since API level 32.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setContentType(System.IntPtr,Android.AAudio.Native.aaudio_content_type_t)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setInputPreset(System.IntPtr,Android.AAudio.Native.aaudio_input_preset_t)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setIsContentSpatialized(System.IntPtr,System.Boolean)">
+            <remarks>Available since API level 32.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setPackageName(System.IntPtr,System.String)">
+            <remarks>Available since API level 31.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setPrivacySensitive(System.IntPtr,System.Boolean)">
+            <remarks>Available since API level 30.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setSessionId(System.IntPtr,Android.AAudio.Native.aaudio_session_id_t)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setSpatializationBehavior(System.IntPtr,Android.AAudio.Native.aaudio_spatialization_behavior_t)">
+            <remarks>Available since API level 32.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setUsage(System.IntPtr,Android.AAudio.Native.aaudio_usage_t)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getAllowedCapturePolicy(System.IntPtr)">
+            <remarks>Available since API level 29.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getChannelMask(System.IntPtr)">
+            <remarks>Available since API level 32.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getContentType(System.IntPtr)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getInputPreset(System.IntPtr)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getSessionId(System.IntPtr)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getSpatializationBehavior(System.IntPtr)">
+            <remarks>Available since API level 32.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_getUsage(System.IntPtr)">
+            <remarks>Available since API level 28.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_isContentSpatialized(System.IntPtr)">
+            <remarks>Available since API level 32.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_isPrivacySensitive(System.IntPtr)">
+            <remarks>Available since API level 30.</remarks>
+        </member>
+        <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStream_release(System.IntPtr)">
+            <remarks>Available since API level 30.</remarks>
+        </member>
+    </members>
+</doc>
