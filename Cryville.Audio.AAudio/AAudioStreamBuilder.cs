@@ -85,6 +85,7 @@ namespace Cryville.Audio.AAudio {
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
 			m_defaultFormat = Util.FromInternalWaveFormat(stream);
 			m_defaultBufferDuration = (float)((double)UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream) / m_defaultFormat.SampleRate * 1000);
+			m_minimumBufferDuration = (float)((double)UnsafeNativeMethods.AAudioStream_getFramesPerBurst(stream) / m_defaultFormat.SampleRate * 1000);
 			UnsafeNativeMethods.AAudioStream_close(stream);
 		}
 
@@ -97,8 +98,14 @@ namespace Cryville.Audio.AAudio {
 			}
 		}
 
+		float m_minimumBufferDuration;
 		/// <inheritdoc />
-		public float MinimumBufferDuration => 0;
+		public float MinimumBufferDuration {
+			get {
+				GetDefaultParameters();
+				return m_minimumBufferDuration;
+			}
+		}
 
 		WaveFormat m_defaultFormat;
 		/// <inheritdoc />
