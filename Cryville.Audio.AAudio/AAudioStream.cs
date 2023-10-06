@@ -1,4 +1,5 @@
 using Android.AAudio.Native;
+using Cryville.Common.Interop;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -79,6 +80,7 @@ namespace Cryville.Audio.AAudio {
 			m_bufferPosition += (double)frames / Format.SampleRate;
 		}
 
+		[MonoPInvokeCallback]
 		internal unsafe static aaudio_data_callback_result_t DataCallback(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames) {
 			if (!_instances.TryGetValue(stream, out var instance))
 				return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_STOP;

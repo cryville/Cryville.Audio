@@ -37,6 +37,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cryville.Common.Interop">
+      <HintPath>..\References\Cryville.Common.Interop.dll</HintPath>
+    </Reference>
     <Reference Include="Cryville.Interop.Java">
       <HintPath>..\References\Cryville.Interop.Java.dll</HintPath>
     </Reference>
