@@ -1,3 +1,5 @@
+using Cryville.Interop.Java;
+using Cryville.Interop.Java.Helper;
 using System;
 
 namespace Cryville.Audio.OpenSLES {
@@ -44,12 +46,35 @@ namespace Cryville.Audio.OpenSLES {
 		/// <inheritdoc />
 		public float MinimumBufferDuration => 0;
 
+		uint _defaultSampleRate;
 		/// <inheritdoc />
-		public WaveFormat DefaultFormat => new WaveFormat {
-			Channels = 2,
-			SampleRate = 48000,
-			SampleFormat = SampleFormat.S16,
-		};
+		public unsafe WaveFormat DefaultFormat {
+			get {
+				if (JavaVMManager.CurrentVM == null) return WaveFormat.Default;
+				if (_defaultSampleRate == 0) {
+					var env = JavaVMManager.CurrentEnv;
+					using (var frame = new JniLocalFrame(env, 4)) {
+						var manager = AndroidHelper.GetSystemService(env, AndroidHelper.GetCurrentApplication(env), "AUDIO_SERVICE");
+						var c = env.GetObjectClass(manager);
+						if (c == IntPtr.Zero) throw new InvalidOperationException("Could not get the AudioManager class.");
+						var f = env.GetStaticFieldID(c, "PROPERTY_OUTPUT_SAMPLE_RATE", "Ljava/lang/String;");
+						if (f == IntPtr.Zero) throw new InvalidOperationException("Could not find the static field PROPERTY_OUTPUT_SAMPLE_RATE.");
+						var p = env.GetStaticObjectField(c, f);
+						var m = env.GetMethodID(c, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+						if (m == IntPtr.Zero) throw new InvalidOperationException("Could not find the method getProperty(String).");
+						var v = env.CallObjectMethod(manager, m, new JniValue[] { new JniValue(p) });
+						if (v == IntPtr.Zero) _defaultSampleRate = WaveFormat.Default.SampleRate;
+						else {
+							var pstr = env.GetStringChars(v, out _);
+							_defaultSampleRate = uint.Parse(new string(pstr, 0, env.GetStringLength(v)));
+						}
+					}
+				}
+				var ret = WaveFormat.Default;
+				ret.SampleRate = _defaultSampleRate;
+				return ret;
+			}
+		}
 
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {

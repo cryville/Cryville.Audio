@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>Cryville.Audio.OpenSLES.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -33,10 +34,14 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>Cryville.Audio.OpenSLES.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Cryville.Common.Interop">
       <HintPath>..\References\Cryville.Common.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Cryville.Interop.Java">
+      <HintPath>..\References\Cryville.Interop.Java.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
