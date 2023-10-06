@@ -47,7 +47,7 @@ namespace Cryville.Audio.Test {
 			FFmpeg.AutoGen.ffmpeg.RootPath = "";
 			manager = CreateEngine();
 			device = manager.GetDefaultDevice(DataFlow.Out);
-			client = device.Connect(device.DefaultFormat);
+			client = device.Connect(device.DefaultFormat, 2 * device.MinimumBufferDuration);
 		}
 
 		[Test]
