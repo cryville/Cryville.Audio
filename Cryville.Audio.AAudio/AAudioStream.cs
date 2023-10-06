@@ -14,6 +14,7 @@ namespace Cryville.Audio.AAudio {
 			_builder = builder;
 			_stream = stream;
 			m_format = Util.FromInternalWaveFormat(stream);
+			UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, 2 * UnsafeNativeMethods.AAudioStream_getFramesPerBurst(stream));
 			_buffer = new byte[BufferSize];
 			_instances.Add(_stream, this);
 		}
