@@ -1,4 +1,4 @@
-using Cryville.Audio.AAudio.Native;
+using Android.AAudio.Native;
 using System;
 
 namespace Cryville.Audio.AAudio {

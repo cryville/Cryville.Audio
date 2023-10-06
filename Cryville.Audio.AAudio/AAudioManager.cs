@@ -8,8 +8,9 @@ namespace Cryville.Audio.AAudio {
 		readonly IntPtr _manager;
 
 		public AAudioManager() {
+			if (JavaVMManager.CurrentVM == null) throw new InvalidOperationException("Java VM not registered.");
 			var env = JavaVMManager.CurrentEnv;
-			if (AndroidHelper.DeviceApiLevel < 26) throw new NotSupportedException("AAudio is not available below API level 26.");
+			if (AndroidHelper.DeviceApiLevel < 26) throw new PlatformNotSupportedException("AAudio is not available below API level 26.");
 			_manager = env.NewGlobalRef(AndroidHelper.GetSystemService(env, AndroidHelper.GetCurrentApplication(env), "AUDIO_SERVICE"));
 		}
 
