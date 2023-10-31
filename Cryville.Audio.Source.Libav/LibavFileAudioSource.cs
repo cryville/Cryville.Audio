@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
-namespace Cryville.Audio.Source {
+namespace Cryville.Audio.Source.Libav {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that uses Libav to demux and decode audio files.
 	/// </summary>
@@ -305,7 +305,7 @@ namespace Cryville.Audio.Source {
 		public double GetStreamDuration(int streamId = -1) => _internal.GetDuration(streamId);
 
 		/// <inheritdoc />
-		protected internal override bool IsFormatSupported(WaveFormat format)
+		protected override bool IsFormatSupported(WaveFormat format)
 			=> format.SampleFormat == SampleFormat.U8
 			|| format.SampleFormat == SampleFormat.S16
 			|| format.SampleFormat == SampleFormat.S32

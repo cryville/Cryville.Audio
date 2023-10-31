@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.OpenSLES", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.AAudio", "Cryville.Audio.AAudio\Cryville.Audio.AAudio.csproj", "{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.Source.Libav", "Cryville.Audio.Source.Libav\Cryville.Audio.Source.Libav.csproj", "{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -233,6 +235,34 @@ Global
 		{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}.Release|x64.Build.0 = Release|Any CPU
 		{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}.Release|x86.ActiveCfg = Release|Any CPU
 		{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}.Release|x86.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|ARM.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|x64.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Debug|x86.Build.0 = Debug|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|ARM.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|ARM.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|ARM64.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|iPhone.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|x64.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|x64.Build.0 = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|x86.ActiveCfg = Release|Any CPU
+		{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
