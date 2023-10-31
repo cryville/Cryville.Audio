@@ -13,13 +13,16 @@ Submit an issue if you want to use this library in an older framework.
 
 ## Usage
 ```cs
+// Add engines into the builder
+EngineBuilder.Engines.Add(typeof(MMDeviceEnumeratorWrapper));
+EngineBuilder.Engines.Add(typeof(WaveDeviceManager));
+
 AudioManager = EngineBuilder.Create();
 if (AudioManager == null) {
 	// Initialization failed. Handle the error here.
 }
 else {
-	AudioClient = AudioManager.GetDefaultDevice(DataFlow.Out).Connect();
-	AudioClient.Init(AudioClient.DefaultFormat);
+	AudioClient = AudioManager.GetDefaultDevice(DataFlow.Out).Connect(device.DefaultFormat, device.DefaultBufferSize);
 	AudioClient.Source = new AudioSource(); // Set an audio source here, see the Cryville.Audio.Source namespace for all available audio sources.
 	AudioClient.Start();
 }
@@ -47,14 +50,14 @@ Executable binaries are not required. The following libraries are required:
 
 Only `file` protocol, demuxers, parsers, and decoders are required. Besides, `aresample` filter is required for resampling.
 
-## Supported hardware API
+## Supported API
 Current support:
 - WASAPI (Windows Vista+)
-- WinMM (Windows 2000+)
+- WaveformAudio (Windows 2000+)
 - OpenSL ES (Android 2.3+)
+- AAudio (Android 8+)
 
 Working in progress:
-- AAudio (Android 8+)
 - Core Audio (iOS 2.0+, iPadOS 2.0+, MacOS 10.0+)
 
 Dropped support:

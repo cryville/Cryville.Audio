@@ -13,13 +13,16 @@
 
 ## 使用
 ```cs
+// 将引擎加入构建器中
+EngineBuilder.Engines.Add(typeof(MMDeviceEnumeratorWrapper));
+EngineBuilder.Engines.Add(typeof(WaveDeviceManager));
+
 AudioManager = EngineBuilder.Create();
 if (AudioManager == null) {
 	// 初始化失败。在此处处理错误。
 }
 else {
-	AudioClient = AudioManager.GetDefaultDevice(DataFlow.Out).Connect();
-	AudioClient.Init(AudioClient.DefaultFormat);
+	AudioClient = AudioManager.GetDefaultDevice(DataFlow.Out).Connect(device.DefaultFormat, device.DefaultBufferSize);
 	AudioClient.Source = new AudioSource(); // 在此处设置音频源，所有可用的音频源参见 Cryville.Audio.Source 命名空间。
 	AudioClient.Start();
 }
@@ -47,14 +50,14 @@ else {
 
 本项目只使用 `file` 协议、解流器、解析器和解码器。另外，重采样需要 `aresample` 滤波器。
 
-## 支持硬件 API
+## 支持 API
 当前支持：
 - WASAPI（Windows Vista+）
 - WinMM（Windows 2000+）
 - OpenSL ES（Android 2.3+）
+- AAudio（Android 8+）
 
 开发中：
-- AAudio（Android 8+）
 - Core Audio（iOS 2.0+；iPadOS 2.0+；MacOS 10.0+）
 
 取消支持：
