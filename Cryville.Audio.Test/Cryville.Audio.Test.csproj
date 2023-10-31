@@ -7,6 +7,7 @@
 		<PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Cryville.Audio.Source.Libav\Cryville.Audio.Source.Libav.csproj" />
 		<ProjectReference Include="..\Cryville.Audio.Wasapi\Cryville.Audio.Wasapi.csproj" />
 		<ProjectReference Include="..\Cryville.Audio.WaveformAudio\Cryville.Audio.WaveformAudio.csproj" />
 		<ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
