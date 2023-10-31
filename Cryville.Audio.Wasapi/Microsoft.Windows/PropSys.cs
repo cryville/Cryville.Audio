@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.PropSys {
+	[ComImport]
 	[Guid("6f79d558-3e96-4549-a1d1-7d75d2288814")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	internal interface IPropertyDescription {
@@ -69,6 +70,7 @@ namespace Microsoft.Windows.PropSys {
 		void IsValueCanonical(ref PROPVARIANT propvar);
 	}
 
+	[ComImport]
 	[Guid("1f9fc1d0-c39b-4b26-817f-011967d3440e")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	internal interface IPropertyDescriptionList {
@@ -81,6 +83,7 @@ namespace Microsoft.Windows.PropSys {
 		);
     }
 
+	[ComImport]
 	[Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	internal interface IPropertyStore {
