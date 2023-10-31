@@ -39,6 +39,22 @@
         <member name="M:Cryville.Audio.Wasapi.AudioClientWrapper.Pause">
             <inheritdoc />
         </member>
+        <member name="T:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper">
+            <summary>
+            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interact with Wasapi.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.#ctor">
+            <summary>
+            Creates an instance of the <see cref="T:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper" /> class.
+            </summary>
+        </member>
+        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.GetDevices(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.GetDefaultDevice(Cryville.Audio.DataFlow)">
+            <inheritdoc />
+        </member>
         <member name="T:Cryville.Audio.Wasapi.MMDeviceWrapper">
             <summary>
             An <see cref="T:Cryville.Audio.IAudioDevice" /> that interacts with Wasapi.
@@ -74,22 +90,6 @@
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Wasapi.MMDeviceWrapper.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
-            <inheritdoc />
-        </member>
-        <member name="T:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper">
-            <summary>
-            An <see cref="T:Cryville.Audio.IAudioDeviceManager" /> that interact with Wasapi.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.#ctor">
-            <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper" /> class.
-            </summary>
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.GetDevices(Cryville.Audio.DataFlow)">
-            <inheritdoc />
-        </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper.GetDefaultDevice(Cryville.Audio.DataFlow)">
             <inheritdoc />
         </member>
     </members>

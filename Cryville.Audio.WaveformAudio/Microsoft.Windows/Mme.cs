@@ -1,4 +1,4 @@
-﻿using Microsoft.Windows.MmSysCom;
+using Microsoft.Windows.MmSysCom;
 using System;
 using System.Runtime.InteropServices;
 
@@ -56,10 +56,10 @@ namespace Microsoft.Windows.Mme {
 		SR4M16  = 0x00000400,       /* 44.1   kHz, Mono,   16-bit */
 		SR4S16  = 0x00000800,       /* 44.1   kHz, Stereo, 16-bit */
 
-		SR44M08 = 0x00000100,       /* 44.1   kHz, Mono,   8-bit  */
-		SR44S08 = 0x00000200,       /* 44.1   kHz, Stereo, 8-bit  */
-		SR44M16 = 0x00000400,       /* 44.1   kHz, Mono,   16-bit */
-		SR44S16 = 0x00000800,       /* 44.1   kHz, Stereo, 16-bit */
+		SR44M08 = SR4M08,           /* 44.1   kHz, Mono,   8-bit  */
+		SR44S08 = SR4S08,           /* 44.1   kHz, Stereo, 8-bit  */
+		SR44M16 = SR4M16,           /* 44.1   kHz, Mono,   16-bit */
+		SR44S16 = SR4S16,           /* 44.1   kHz, Stereo, 16-bit */
 		SR48M08 = 0x00001000,       /* 48     kHz, Mono,   8-bit  */
 		SR48S08 = 0x00002000,       /* 48     kHz, Stereo, 8-bit  */
 		SR48M16 = 0x00004000,       /* 48     kHz, Mono,   16-bit */
@@ -92,9 +92,15 @@ namespace Microsoft.Windows.Mme {
 	internal static class MmeExports {
 		public const UInt32 WAVE_MAPPER = UInt32.MaxValue;
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutClose(IntPtr hwo);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutGetDevCapsW(
 			UInt32 uDeviceID,
@@ -102,9 +108,15 @@ namespace Microsoft.Windows.Mme {
 			UInt32 cbwoc
 		);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutGetNumDevs();
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutGetPosition(
 			IntPtr hwo,
@@ -112,6 +124,9 @@ namespace Microsoft.Windows.Mme {
 			UInt32 cbmmt
 		);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutOpen(
 			ref IntPtr phwo,
@@ -122,9 +137,15 @@ namespace Microsoft.Windows.Mme {
 			UInt32 fdwOpen
 		);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutPause(IntPtr hwo);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutPrepareHeader(
 			IntPtr hwo,
@@ -132,12 +153,21 @@ namespace Microsoft.Windows.Mme {
 			UInt32 cbwh
 		);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutReset(IntPtr hwo);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutRestart(IntPtr hwo);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutUnprepareHeader(
 			IntPtr hwo,
@@ -145,6 +175,9 @@ namespace Microsoft.Windows.Mme {
 			UInt32 cbwh
 		);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("winmm.dll")]
 		public static extern UInt32 waveOutWrite(
 			IntPtr hwo,

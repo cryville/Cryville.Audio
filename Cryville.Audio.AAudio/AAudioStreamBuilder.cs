@@ -25,7 +25,11 @@ namespace Cryville.Audio.AAudio {
 				m_toString = env.GetMethodID(c_charSequence, "toString", "()Ljava/lang/String;");
 			}
 		}
+#if NETCOREAPP1_0_OR_GREATER || NETSTANDARD1_3_OR_GREATER || NET46_OR_GREATER
+		static readonly JniValue[] _args0 = Array.Empty<JniValue>();
+#else
 		static readonly JniValue[] _args0 = new JniValue[0];
+#endif
 		internal unsafe AAudioStreamBuilder(IJniEnv env, IntPtr deviceInfo) {
 			GetMethodIds(env);
 			using (var frame = new JniLocalFrame(env, 2)) {

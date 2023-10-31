@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.PropSys {
@@ -105,12 +105,18 @@ namespace Microsoft.Windows.PropSys {
 	}
 
 	internal static class NativeMethods {
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("propsys.dll", PreserveSig = false)]
 		public static extern int PSEnumeratePropertyDescriptions(
 			PROPDESC_ENUMFILTER filterOn,
 			ref Guid riid,
 			[MarshalAs(UnmanagedType.IUnknown)] out object ppv
 		);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("propsys.dll", PreserveSig = false)]
 		public static extern int PSGetPropertyDescription(
 			ref PROPERTYKEY propkey,

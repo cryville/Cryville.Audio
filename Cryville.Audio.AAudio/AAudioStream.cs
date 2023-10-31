@@ -2,12 +2,14 @@ using Android.AAudio.Native;
 using Cryville.Common.Interop;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.AAudio {
 	/// <summary>
 	/// An <see cref="AudioClient" /> that interacts with AAudio.
 	/// </summary>
+	[SuppressMessage("Naming", "CA1711")]
 	public class AAudioStream : AudioClient {
 		static readonly Dictionary<IntPtr, AAudioStream> _instances = new Dictionary<IntPtr, AAudioStream>();
 
@@ -83,11 +85,11 @@ namespace Cryville.Audio.AAudio {
 		}
 
 		[MonoPInvokeCallback]
-		internal unsafe static aaudio_data_callback_result_t DataCallback(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames) {
+		internal static unsafe aaudio_data_callback_result_t DataCallback(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames) {
 			if (!_instances.TryGetValue(stream, out var instance))
 				return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_STOP;
 			instance.FillBuffer(audioData, numFrames);
-			return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_CONTINUE;			
+			return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_CONTINUE;
 		}
 	}
 }

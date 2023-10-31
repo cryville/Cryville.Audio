@@ -26,6 +26,9 @@ namespace OpenSLES.Native {
 	}
 
 	internal static class Exports {
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("OpenSLES")]
 		public static extern SLresult slCreateEngine(
 			out IntPtr pEngine,
@@ -36,11 +39,17 @@ namespace OpenSLES.Native {
 			IntPtr pInterfaceRequired
 		);
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("OpenSLES")]
 		public static extern SLresult slQueryNumSupportedEngineInterfaces(
             out UInt32 pNumSupportedInterfaces
         );
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport("OpenSLES")]
 		public static extern SLresult slQuerySupportedEngineInterfaces(
             UInt32 index,

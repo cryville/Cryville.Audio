@@ -86,7 +86,7 @@ namespace OpenSLES.Native {
 	);*/
 	#endregion
 	#region SLBufferQueueItf
-	internal delegate void slBufferQueueCallback (
+	internal delegate void slBufferQueueCallback(
 		IntPtr caller,
 		IntPtr pContext
 	);
@@ -233,7 +233,7 @@ namespace OpenSLES.Native {
 		IntPtr self,
 		[MarshalAs(UnmanagedType.Bool)] bool async
 	);
-	internal delegate SLresult SLObjectItf_Resume (
+	internal delegate SLresult SLObjectItf_Resume(
 		IntPtr self,
 		[MarshalAs(UnmanagedType.Bool)] bool async
 	);
@@ -273,7 +273,7 @@ namespace OpenSLES.Native {
 	);
 	#endregion
 	#region SLOutputMix
-	internal delegate void slMixDeviceChangeCallback (
+	internal delegate void slMixDeviceChangeCallback(
 		SLOutputMixItf caller,
 		IntPtr pContext
 	);

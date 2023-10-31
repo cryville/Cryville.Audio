@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 
 namespace Microsoft.Windows {
 	[Flags]
 	internal enum STGM : UInt32 {
-		READ      = 0x00000000,
+		DEFAULT   = 0,
+
+		READ      = DEFAULT,
 		WRITE     = 0x00000001,
 		READWRITE = 0x00000002,
 
@@ -15,9 +17,9 @@ namespace Microsoft.Windows {
 
 		CREATE      = 0x00001000,
 		CONVERT     = 0x00020000,
-		FAILIFTHERE = 0x00000000,
+		FAILIFTHERE = DEFAULT,
 
-		DIRECT     = 0x00000000,
+		DIRECT     = DEFAULT,
 		TRANSACTED = 0x00010000,
 
 		NOSCRATCH  = 0x00100000,

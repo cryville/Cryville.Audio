@@ -6,160 +6,352 @@ namespace Android.AAudio.Native {
 	internal static class UnsafeNativeMethods {
 		private const string LibraryName = "aaudio";
 
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName, CharSet = CharSet.Unicode)]
 		[return: MarshalAs(UnmanagedType.LPWStr)]
 		public static extern string AAudio_convertResultToText(aaudio_result_t returnCode);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName, CharSet = CharSet.Unicode)]
 		[return: MarshalAs(UnmanagedType.LPWStr)]
 		public static extern string AAudio_convertStreamStateToText(aaudio_stream_state_t state);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudio_createStreamBuilder(out IntPtr builder);
 		#region AAudioStreamBuilder
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStreamBuilder_delete(IntPtr builder);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStreamBuilder_openStream(IntPtr builder, out IntPtr stream);
 		/// <remarks>Available since API level 29.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setAllowedCapturePolicy(IntPtr builder, aaudio_allowed_capture_policy_t capturePolicy);
 		/// <remarks>Available since API level 31.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName, CharSet = CharSet.Unicode)]
 		public static extern void AAudioStreamBuilder_setAttributionTag(IntPtr builder, [MarshalAs(UnmanagedType.LPWStr)] string attributionTag);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setBufferCapacityInFrames(IntPtr builder, int numFrames);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setChannelCount(IntPtr builder, int channelCount);
 		/// <remarks>Available since API level 32.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setChannelMask(IntPtr builder, aaudio_channel_mask_t channelMask);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setContentType(IntPtr builder, aaudio_content_type_t contentType);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setDataCallback(IntPtr builder, AAudioStream_dataCallback callback, IntPtr userData);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setDeviceId(IntPtr builder, int deviceId);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setDirection(IntPtr builder, aaudio_direction_t direction);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setErrorCallback(IntPtr builder, AAudioStream_errorCallback callback, IntPtr userData);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setFormat(IntPtr builder, aaudio_format_t format);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setFramesPerDataCallback(IntPtr builder, int numFrames);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setInputPreset(IntPtr builder, aaudio_input_preset_t inputPreset);
 		/// <remarks>Available since API level 32.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setIsContentSpatialized(IntPtr builder, bool isSpatialized);
 		/// <remarks>Available since API level 31.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName, CharSet = CharSet.Unicode)]
 		public static extern void AAudioStreamBuilder_setPackageName(IntPtr builder, [MarshalAs(UnmanagedType.LPWStr)] string packageName);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setPerformanceMode(IntPtr builder, aaudio_performance_mode_t mode);
 		/// <remarks>Available since API level 30.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setPrivacySensitive(IntPtr builder, bool privacySensitive);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setSampleRate(IntPtr builder, int sampleRate);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setSamplesPerFrame(IntPtr builder, int samplesPerFrame);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setSessionId(IntPtr builder, aaudio_session_id_t sessionId);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setSharingMode(IntPtr builder, aaudio_sharing_mode_t sharingMode);
 		/// <remarks>Available since API level 32.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setSpatializationBehavior(IntPtr builder, aaudio_spatialization_behavior_t spatializationBehavior);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern void AAudioStreamBuilder_setUsage(IntPtr builder, aaudio_usage_t usage);
 		#endregion
 		#region AAudioStream
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_close(IntPtr stream);
 		/// <remarks>Available since API level 29.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_allowed_capture_policy_t AAudioStream_getAllowedCapturePolicy(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getBufferCapacityInFrames(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getBufferSizeInFrames(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getChannelCount(IntPtr stream);
 		/// <remarks>Available since API level 32.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_channel_mask_t AAudioStream_getChannelMask(IntPtr stream);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_content_type_t AAudioStream_getContentType(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getDeviceId(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_direction_t AAudioStream_getDirection(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_format_t AAudioStream_getFormat(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getFramesPerBurst(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getFramesPerDataCallback(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern long AAudioStream_getFramesRead(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern long AAudioStream_getFramesWritten(IntPtr stream);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_input_preset_t AAudioStream_getInputPreset(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_performance_mode_t AAudioStream_getPerformanceMode(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getSampleRate(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getSamplesPerFrame(IntPtr stream);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_session_id_t AAudioStream_getSessionId(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_sharing_mode_t AAudioStream_getSharingMode(IntPtr stream);
 		/// <remarks>Available since API level 32.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_spatialization_behavior_t AAudioStream_getSpatializationBehavior(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_stream_state_t AAudioStream_getState(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_getTimestamp(IntPtr stream, clockid_t clockid, out long framePosition, out long timeNanoseconds);
 		/// <remarks>Available since API level 28.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_usage_t AAudioStream_getUsage(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern int AAudioStream_getXRunCount(IntPtr stream);
 		/// <remarks>Available since API level 32.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool AAudioStream_isContentSpatialized(IntPtr stream);
 		/// <remarks>Available since API level 30.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool AAudioStream_isPrivacySensitive(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_read(IntPtr stream, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer, int numFrames, long timeoutNanoseconds);
 		/// <remarks>Available since API level 30.</remarks>
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_release(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_requestFlush(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_requestPause(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_requestStart(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_requestStop(IntPtr stream);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_setBufferSizeInFrames(IntPtr stream, int numFrames);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_waitForStateChange(IntPtr stream, aaudio_stream_state_t inputState, out aaudio_stream_state_t nextState, long timeoutNanoseconds);
+#if USE_SAFE_DLL_IMPORT
+		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+#endif
 		[DllImport(LibraryName)]
 		public static extern aaudio_result_t AAudioStream_write(IntPtr stream, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer, int numFrames, long timeoutNanoseconds);
 		#endregion
