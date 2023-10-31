@@ -97,10 +97,13 @@
         <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DataFlow">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DefaultBufferDuration">
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.BurstSize">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.MinimumBufferDuration">
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.MinimumBufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DefaultBufferSize">
             <inheritdoc />
         </member>
         <member name="P:Cryville.Audio.AAudio.AAudioStreamBuilder.DefaultFormat">
@@ -109,7 +112,7 @@
         <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+        <member name="M:Cryville.Audio.AAudio.AAudioStreamBuilder.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
         <member name="M:Android.AAudio.Native.UnsafeNativeMethods.AAudioStreamBuilder_setAllowedCapturePolicy(System.IntPtr,Android.AAudio.Native.aaudio_allowed_capture_policy_t)">

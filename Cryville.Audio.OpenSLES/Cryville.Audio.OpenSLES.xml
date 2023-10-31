@@ -90,10 +90,13 @@
         <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DataFlow">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DefaultBufferDuration">
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.BurstSize">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.MinimumBufferDuration">
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.MinimumBufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DefaultBufferSize">
             <inheritdoc />
         </member>
         <member name="P:Cryville.Audio.OpenSLES.OutputDevice.DefaultFormat">
@@ -102,7 +105,7 @@
         <member name="M:Cryville.Audio.OpenSLES.OutputDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+        <member name="M:Cryville.Audio.OpenSLES.OutputDevice.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.OpenSLES.OpenSLException">

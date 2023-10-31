@@ -32,6 +32,9 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// The maximum latency of the connection in milliseconds.
 		/// </summary>
+		/// <remarks>
+		/// <para>May be zero if the API does not provide this value.</para>
+		/// </remarks>
 		public abstract float MaximumLatency { get; }
 		/// <summary>
 		/// Whether the client is playing.

@@ -31,8 +31,11 @@ namespace Cryville.Audio {
 		int DefaultBufferSize { get; }
 
 		/// <summary>
-		/// The default wave format of the device.
+		/// The default wave format of the device for shared-mode streams.
 		/// </summary>
+		/// <remarks>
+		/// <para>For exclusive-mode streams, call <see cref="IsFormatSupported(WaveFormat, out WaveFormat?, AudioShareMode)" /> to determine an eligible format.</para>
+		/// </remarks>
 		WaveFormat DefaultFormat { get; }
 
 		/// <summary>

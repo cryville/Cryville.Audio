@@ -30,13 +30,16 @@
 		</member>
 		<member name="P:Cryville.Audio.AudioClient.BufferSize">
 			<summary>
-				缓存大小（字节）。
+				缓存大小（帧）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.AudioClient.MaximumLatency">
 			<summary>
 				连接的最大延迟（毫秒）。
 			</summary>
+			<remarks>
+				<para>如果 API 不提供最大延迟，则该值为 0。</para>
+			</remarks>
 		</member>
 		<member name="P:Cryville.Audio.AudioClient.Playing">
 			<summary>
@@ -107,7 +110,7 @@
 		</member>
 		<member name="P:Cryville.Audio.AudioStream.BufferSize">
 			<summary>
-				缓存大小（字节）。
+				缓存大小（帧）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.AudioStream.EndOfData">
@@ -120,7 +123,7 @@
 				设置音频流的波形格式和缓存大小。
 			</summary>
 			<param name="format">波形格式。</param>
-			<param name="bufferSize">缓存大小（字节）。</param>
+			<param name="bufferSize">缓存大小（帧）。</param>
 			<exception cref="T:System.InvalidOperationException">该方法在当前音频流上已被成功调用过一次。</exception>
 			<exception cref="T:System.NotSupportedException">
 				音频流不支持 <paramref name="format" />。
@@ -239,20 +242,30 @@
 				设备的数据流向。
 			</summary>
 		</member>
-		<member name="P:Cryville.Audio.IAudioDevice.DefaultBufferDuration">
+		<member name="P:Cryville.Audio.IAudioDevice.BurstSize">
 			<summary>
-				设备的默认缓存时长（毫秒）。
+				设备的脉冲大小（帧）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.IAudioDevice.MinimumBufferDuration">
 			<summary>
-				设备的最小缓存时长（毫秒）。
+				设备的最小缓存大小（帧）。
+			</summary>
+		</member>
+		<member name="P:Cryville.Audio.IAudioDevice.DefaultBufferDuration">
+			<summary>
+				设备的默认缓存大小（帧）。
 			</summary>
 		</member>
 		<member name="P:Cryville.Audio.IAudioDevice.DefaultFormat">
 			<summary>
-				设备的默认波形格式。
+				设备在共享模式下的默认波形格式。
 			</summary>
+			<remarks>
+				<para>
+					对于独占模式的流，调用 <see cref="M:Cryville.Audio.IAudioDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)" /> 以确定可用的格式。
+				</para>
+			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.IAudioDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
 			<summary>
@@ -267,12 +280,12 @@
 				设备是否支持 <paramref name="format" />。
 			</returns>
 		</member>
-		<member name="M:Cryville.Audio.IAudioDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+		<member name="M:Cryville.Audio.IAudioDevice.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
 			<summary>
 				连接到设备。
 			</summary>
 			<param name="format">波形格式。</param>
-			<param name="bufferDuration">连接的缓存时长（毫秒）。</param>
+			<param name="bufferSize">连接的缓存大小（帧）。</param>
 			<param name="shareMode">连接的共享模式。</param>
 			<returns>
 				一个用于与设备交互的 <see cref="T:Cryville.Audio.AudioClient" />。

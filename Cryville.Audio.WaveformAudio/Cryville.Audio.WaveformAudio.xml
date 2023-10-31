@@ -95,10 +95,13 @@
         <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DataFlow">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DefaultBufferDuration">
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.BurstSize">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.MinimumBufferDuration">
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.MinimumBufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DefaultBufferSize">
             <inheritdoc />
         </member>
         <member name="P:Cryville.Audio.WaveformAudio.WaveOutDevice.DefaultFormat">
@@ -107,7 +110,7 @@
         <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+        <member name="M:Cryville.Audio.WaveformAudio.WaveOutDevice.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.WaveformAudio.WaveDeviceManager">

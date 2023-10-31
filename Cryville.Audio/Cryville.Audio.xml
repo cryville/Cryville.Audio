@@ -30,13 +30,16 @@
         </member>
         <member name="P:Cryville.Audio.AudioClient.BufferSize">
             <summary>
-            The buffer size in bytes.
+            The buffer size in frames.
             </summary>
         </member>
         <member name="P:Cryville.Audio.AudioClient.MaximumLatency">
             <summary>
             The maximum latency of the connection in milliseconds.
             </summary>
+            <remarks>
+            <para>May be zero if the API does not provide this value.</para>
+            </remarks>
         </member>
         <member name="P:Cryville.Audio.AudioClient.Playing">
             <summary>
@@ -107,7 +110,7 @@
         </member>
         <member name="P:Cryville.Audio.AudioStream.BufferSize">
             <summary>
-            The buffer size in bytes.
+            The buffer size in frames.
             </summary>
         </member>
         <member name="P:Cryville.Audio.AudioStream.EndOfData">
@@ -120,7 +123,7 @@
             Sets the wave format and the buffer size of this audio stream.
             </summary>
             <param name="format">The wave format.</param>
-            <param name="bufferSize">The buffer size in bytes.</param>
+            <param name="bufferSize">The buffer size in frames.</param>
             <exception cref="T:System.InvalidOperationException">This method has already been called successfully once on the audio stream.</exception>
             <exception cref="T:System.NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
         </member>
@@ -227,20 +230,28 @@
             The data-flow direction of the device.
             </summary>
         </member>
-        <member name="P:Cryville.Audio.IAudioDevice.DefaultBufferDuration">
+        <member name="P:Cryville.Audio.IAudioDevice.BurstSize">
             <summary>
-            The default buffer duration of the device in milliseconds.
+            The burst size of the device in frames.
             </summary>
         </member>
-        <member name="P:Cryville.Audio.IAudioDevice.MinimumBufferDuration">
+        <member name="P:Cryville.Audio.IAudioDevice.MinimumBufferSize">
             <summary>
-            The minimum buffer duration of the device in milliseconds.
+            The minimum buffer size of the device in frames.
+            </summary>
+        </member>
+        <member name="P:Cryville.Audio.IAudioDevice.DefaultBufferSize">
+            <summary>
+            The default buffer size of the device in frames.
             </summary>
         </member>
         <member name="P:Cryville.Audio.IAudioDevice.DefaultFormat">
             <summary>
-            The default wave format of the device.
+            The default wave format of the device for shared-mode streams.
             </summary>
+            <remarks>
+            <para>For exclusive-mode streams, call <see cref="M:Cryville.Audio.IAudioDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)" /> to determine an eligible format.</para>
+            </remarks>
         </member>
         <member name="M:Cryville.Audio.IAudioDevice.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
             <summary>
@@ -251,12 +262,12 @@
             <param name="shareMode">The share mode.</param>
             <returns>Whether <paramref name="format" /> is supported.</returns>
         </member>
-        <member name="M:Cryville.Audio.IAudioDevice.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+        <member name="M:Cryville.Audio.IAudioDevice.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
             <summary>
             Connects to the device.
             </summary>
             <param name="format">The wave format.</param>
-            <param name="bufferDuration">The buffer duration of the connection in milliseconds.</param>
+            <param name="bufferSize">The buffer size of the connection in frames.</param>
             <param name="shareMode">The share mode of the connection.</param>
             <returns>An <see cref="T:Cryville.Audio.AudioClient" /> for interaction with the device.</returns>
         </member>

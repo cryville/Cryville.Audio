@@ -58,10 +58,13 @@
         <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.DataFlow">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.DefaultBufferDuration">
+        <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.BurstSize">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.MinimumBufferDuration">
+        <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.MinimumBufferSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.DefaultBufferSize">
             <inheritdoc />
         </member>
         <member name="P:Cryville.Audio.Wasapi.MMDeviceWrapper.DefaultFormat">
@@ -70,7 +73,7 @@
         <member name="M:Cryville.Audio.Wasapi.MMDeviceWrapper.IsFormatSupported(Cryville.Audio.WaveFormat,System.Nullable{Cryville.Audio.WaveFormat}@,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Wasapi.MMDeviceWrapper.Connect(Cryville.Audio.WaveFormat,System.Single,Cryville.Audio.AudioShareMode)">
+        <member name="M:Cryville.Audio.Wasapi.MMDeviceWrapper.Connect(Cryville.Audio.WaveFormat,System.Int32,Cryville.Audio.AudioShareMode)">
             <inheritdoc />
         </member>
         <member name="T:Cryville.Audio.Wasapi.MMDeviceEnumeratorWrapper">
