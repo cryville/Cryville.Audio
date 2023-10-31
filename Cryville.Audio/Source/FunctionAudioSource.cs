@@ -1,4 +1,3 @@
-using Cryville.Common.Math;
 using System;
 using System.IO;
 using UnsafeIL;
@@ -80,24 +79,24 @@ namespace Cryville.Audio.Source {
 		}
 
 		static unsafe void WriteU8(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, ClampScale.ToByte(v));
+			Unsafe.Write(ptr, SampleClipping.ToByte(v));
 			ptr += sizeof(byte);
 		}
 
 		static unsafe void WriteS16(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, ClampScale.ToInt16(v));
+			Unsafe.Write(ptr, SampleClipping.ToInt16(v));
 			ptr += sizeof(short);
 		}
 
 		static unsafe void WriteS24(ref byte* ptr, double v) {
-			int d = ClampScale.ToInt24(v);
+			int d = SampleClipping.ToInt24(v);
 			*ptr++ = (byte)d;
 			*ptr++ = (byte)(d >> 8);
 			*ptr++ = (byte)(d >> 16);
 		}
 
 		static unsafe void WriteS32(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, ClampScale.ToInt32(v));
+			Unsafe.Write(ptr, SampleClipping.ToInt32(v));
 			ptr += sizeof(int);
 		}
 

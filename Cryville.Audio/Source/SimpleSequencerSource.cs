@@ -1,4 +1,3 @@
-using Cryville.Common.Math;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -120,14 +119,14 @@ namespace Cryville.Audio.Source {
 				switch (Format.SampleFormat) {
 					case SampleFormat.U8:
 						for (int i = offset; i < count + offset; i++) {
-							buffer[i] = ClampScale.ToByte(_pribuf[i]);
+							buffer[i] = SampleClipping.ToByte(_pribuf[i]);
 						}
 						break;
 					case SampleFormat.S16:
 						fixed (byte* rptr = buffer) {
 							short* ptr = (short*)(rptr + offset);
 							for (int i = 0; i < count / sizeof(short); i++, ptr++) {
-								*ptr = ClampScale.ToInt16(_pribuf[i]);
+								*ptr = SampleClipping.ToInt16(_pribuf[i]);
 							}
 						}
 						break;
@@ -135,7 +134,7 @@ namespace Cryville.Audio.Source {
 						fixed (byte* rptr = buffer) {
 							int* ptr = (int*)(rptr + offset);
 							for (int i = 0; i < count / sizeof(int); i++, ptr++) {
-								*ptr = ClampScale.ToInt32(_pribuf[i]);
+								*ptr = SampleClipping.ToInt32(_pribuf[i]);
 							}
 						}
 						break;
