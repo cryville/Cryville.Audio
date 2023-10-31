@@ -49,5 +49,11 @@ namespace Cryville.Audio.Wasapi {
 				default: throw new NotSupportedException();
 			}
 		}
+		public static int FromReferenceTime(uint sampleRate, long value) {
+			return (int)(value * sampleRate / 1e7 + 0.5);
+		}
+		public static long ToReferenceTime(uint sampleRate, int value) {
+			return (long)(1e7 / sampleRate * value + 0.5);
+		}
 	}
 }

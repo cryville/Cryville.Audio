@@ -79,31 +79,33 @@ namespace Cryville.Audio.AAudio {
 		public DataFlow DataFlow { get; private set; }
 
 		void GetDefaultParameters() {
-			if (m_defaultBufferDuration != 0) return;
+			if (m_defaultBufferSize != 0) return;
 			var builder = CreateStreamBuilder();
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
 			m_defaultFormat = Util.FromInternalWaveFormat(stream);
-			m_defaultBufferDuration = (float)((double)UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream) / m_defaultFormat.SampleRate * 1000);
-			m_minimumBufferDuration = (float)((double)UnsafeNativeMethods.AAudioStream_getFramesPerBurst(stream) / m_defaultFormat.SampleRate * 1000);
+			m_defaultBufferSize = UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream);
+			m_burstSize = UnsafeNativeMethods.AAudioStream_getFramesPerBurst(stream);
 			UnsafeNativeMethods.AAudioStream_close(stream);
 		}
 
-		float m_defaultBufferDuration;
+		int m_burstSize;
 		/// <inheritdoc />
-		public float DefaultBufferDuration {
+		public int BurstSize {
 			get {
 				GetDefaultParameters();
-				return m_defaultBufferDuration;
+				return m_burstSize;
 			}
 		}
-
-		float m_minimumBufferDuration;
 		/// <inheritdoc />
-		public float MinimumBufferDuration {
+		public int MinimumBufferSize => BurstSize;
+
+		int m_defaultBufferSize;
+		/// <inheritdoc />
+		public int DefaultBufferSize {
 			get {
 				GetDefaultParameters();
-				return m_minimumBufferDuration;
+				return m_defaultBufferSize;
 			}
 		}
 
@@ -128,13 +130,13 @@ namespace Cryville.Audio.AAudio {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
 			Util.SetWaveFormatAndShareMode(builder, format, shareMode);
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
-			if (bufferDuration > 0) {
-				UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, (int)Math.Round(bufferDuration / 1000 * format.BytesPerSecond / format.FrameSize));
+			if (bufferSize > 0) {
+				UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, bufferSize);
 			}
 			return new AAudioStream(this, stream);
 		}

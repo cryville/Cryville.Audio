@@ -13,7 +13,7 @@ namespace Cryville.Audio.OpenSLES {
 		static readonly List<OutputClient> _instances = new List<OutputClient>();
 		readonly int _id;
 
-		internal OutputClient(Engine engine, OutputDevice device, WaveFormat format, float bufferDuration, AudioShareMode shareMode) {
+		internal OutputClient(Engine engine, OutputDevice device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
 			_id = _instances.Count;
 			_instances.Add(this);
 
@@ -22,7 +22,7 @@ namespace Cryville.Audio.OpenSLES {
 
 			if (shareMode == AudioShareMode.Exclusive)
 				throw new NotSupportedException("Exclusive mode not supported.");
-			if (bufferDuration == 0) bufferDuration = device.DefaultBufferDuration;
+			if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
 			m_format = format;
 
 			Guid[] ids = new Guid[4];
@@ -52,9 +52,9 @@ namespace Cryville.Audio.OpenSLES {
 			Util.SLR(_objPlayer.Obj.GetInterface(_objPlayer, typeof(SLPlayItf).GUID, out var pPlay));
 			_play = new SLItfWrapper<SLPlayItf>(pPlay);
 
-			m_bufferSize = format.Align(bufferDuration / 1000 * format.BytesPerSecond);
+			m_bufferSize = bufferSize;
 			for (int i = 0; i < BUFFER_COUNT; i++) {
-				_buf[i] = new byte[m_bufferSize];
+				_buf[i] = new byte[m_bufferSize * m_format.FrameSize];
 				_hbuf[i] = GCHandle.Alloc(_buf[i], GCHandleType.Pinned);
 			}
 
@@ -145,11 +145,12 @@ namespace Cryville.Audio.OpenSLES {
 			lock (_enqlock) {
 				if (_bufc >= BUFFER_COUNT) return;
 				_bufc++;
-				if (Source == null || Muted) Array.Clear(_buf[_bufi], 0, BufferSize);
-				else Source.Read(_buf[_bufi], 0, BufferSize);
-				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)BufferSize));
+				int length = BufferSize * m_format.FrameSize;
+				if (Source == null || Muted) Array.Clear(_buf[_bufi], 0, length);
+				else Source.Read(_buf[_bufi], 0, length);
+				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)length));
 				_bufi %= BUFFER_COUNT;
-				m_bufferPosition += (double)BufferSize / Format.BytesPerSecond;
+				m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 			}
 		}
 

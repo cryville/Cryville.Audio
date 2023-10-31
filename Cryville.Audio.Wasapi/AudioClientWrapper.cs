@@ -15,34 +15,31 @@ namespace Cryville.Audio.Wasapi {
 
 		static Guid GUID_AUDIO_CLOCK = new Guid("CD63314F-3FBA-4a1b-812C-EF96358728E7");
 		static Guid GUID_AUDIO_RENDER_CLIENT = new Guid("F294ACFC-3146-4483-A7BF-ADDCA7C260E2");
-		internal AudioClientWrapper(IAudioClient obj, MMDeviceWrapper device, WaveFormat format, float bufferDuration, AudioShareMode shareMode) {
+		internal AudioClientWrapper(IAudioClient obj, MMDeviceWrapper device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
 			m_device = device;
 			_internal = obj;
 
-			if (shareMode == AudioShareMode.Shared) bufferDuration = 0;
-			else if (bufferDuration == 0) bufferDuration = device.MinimumBufferDuration;
-			float period = shareMode == AudioShareMode.Shared ? 0 : bufferDuration;
+			if (shareMode == AudioShareMode.Shared) bufferSize = 0;
+			else if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
 			m_format = Util.ToInternalFormat(format);
 
+			var bufferDuration = Util.ToReferenceTime(format.SampleRate, bufferSize);
 			bool retryFlag = false;
 		retry:
 			try {
 				_internal.Initialize(
 					ToInternalShareModeEnum(shareMode),
 					(uint)AUDCLNT_STREAMFLAGS.EVENTCALLBACK,
-					ToReferenceTime(bufferDuration),
-					ToReferenceTime(period),
+					bufferDuration, bufferDuration,
 					ref m_format, IntPtr.Zero
 				);
 			}
-			catch (COMException ex) {
-				if (!retryFlag && (ex.ErrorCode & 0x7ffffff) == 0x08890019) { // AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED
-					_internal.GetBufferSize(out uint nFrames);
-					period = bufferDuration = (long)(1e7 / m_format.nSamplesPerSec * nFrames + 0.5);
-					retryFlag = true;
-					goto retry;
-				}
-				else throw;
+			catch (COMException ex) when ((ex.ErrorCode & 0x7ffffff) == 0x08890019) { // AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED
+				if (retryFlag) throw;
+				retryFlag = true;
+				_internal.GetBufferSize(out uint nFrames);
+				bufferDuration = (long)(1e7 / m_format.nSamplesPerSec * nFrames + 0.5);
+				goto retry;
 			}
 			_eventHandle = Synch.CreateEventW(IntPtr.Zero, false, false, null);
 			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
@@ -114,7 +111,7 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (_eventHandle == IntPtr.Zero)
 					throw new InvalidOperationException("Connection not initialized.");
-				return (int)(m_bufferFrames * m_format.nBlockAlign);
+				return (int)m_bufferFrames;
 			}
 		}
 
@@ -122,7 +119,7 @@ namespace Cryville.Audio.Wasapi {
 		public override float MaximumLatency {
 			get {
 				_internal.GetStreamLatency(out var result);
-				return FromReferenceTime(result);
+				return result / 1e4f;
 			}
 		}
 
@@ -170,7 +167,7 @@ namespace Cryville.Audio.Wasapi {
 		bool _threadAbortFlag;
 		void ThreadLogic() {
 			_threadAbortFlag = false;
-			var buffer = new byte[BufferSize];
+			var buffer = new byte[BufferSize * m_format.nBlockAlign];
 			while (true) {
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
 					throw new InvalidOperationException("Error while pending for event.");
@@ -197,13 +194,6 @@ namespace Cryville.Audio.Wasapi {
 				case AudioShareMode.Exclusive: return AUDCLNT_SHAREMODE.EXCLUSIVE;
 				default: throw new ArgumentOutOfRangeException(nameof(value));
 			}
-		}
-
-		static long ToReferenceTime(float value) {
-			return (long)(value * 1e4);
-		}
-		static float FromReferenceTime(long value) {
-			return value / 1e4f;
 		}
 	}
 }

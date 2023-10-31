@@ -12,7 +12,7 @@ namespace Cryville.Audio {
 		protected WaveFormat Format { get; private set; }
 
 		/// <summary>
-		/// The buffer size in bytes.
+		/// The buffer size in frames.
 		/// </summary>
 		protected int BufferSize { get; private set; }
 
@@ -25,7 +25,7 @@ namespace Cryville.Audio {
 		/// Sets the wave format and the buffer size of this audio stream.
 		/// </summary>
 		/// <param name="format">The wave format.</param>
-		/// <param name="bufferSize">The buffer size in bytes.</param>
+		/// <param name="bufferSize">The buffer size in frames.</param>
 		/// <exception cref="InvalidOperationException">This method has already been called successfully once on the audio stream.</exception>
 		/// <exception cref="NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
 		public void SetFormat(WaveFormat format, int bufferSize) {

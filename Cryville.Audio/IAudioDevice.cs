@@ -16,14 +16,19 @@ namespace Cryville.Audio {
 		DataFlow DataFlow { get; }
 
 		/// <summary>
-		/// The default buffer duration of the device in milliseconds.
+		/// The burst size of the device in frames.
 		/// </summary>
-		float DefaultBufferDuration { get; }
+		int BurstSize { get; }
 
 		/// <summary>
-		/// The minimum buffer duration of the device in milliseconds.
+		/// The minimum buffer size of the device in frames.
 		/// </summary>
-		float MinimumBufferDuration { get; }
+		int MinimumBufferSize { get; }
+
+		/// <summary>
+		/// The default buffer size of the device in frames.
+		/// </summary>
+		int DefaultBufferSize { get; }
 
 		/// <summary>
 		/// The default wave format of the device.
@@ -43,9 +48,9 @@ namespace Cryville.Audio {
 		/// Connects to the device.
 		/// </summary>
 		/// <param name="format">The wave format.</param>
-		/// <param name="bufferDuration">The buffer duration of the connection in milliseconds.</param>
+		/// <param name="bufferSize">The buffer size of the connection in frames.</param>
 		/// <param name="shareMode">The share mode of the connection.</param>
 		/// <returns>An <see cref="AudioClient" /> for interaction with the device.</returns>
-		AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared);
+		AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared);
 	}
 }

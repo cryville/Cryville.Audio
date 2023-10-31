@@ -13,12 +13,12 @@ namespace Cryville.Audio.WaveformAudio {
 		const int BUFFER_COUNT = 3;
 		static readonly uint SIZE_WAVEHDR = (uint)Marshal.SizeOf(typeof(WAVEHDR));
 
-		internal WaveOutClient(WaveOutDevice device, WaveFormat format, float bufferDuration, AudioShareMode shareMode) {
+		internal WaveOutClient(WaveOutDevice device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
 			m_device = device;
 
 			if (shareMode == AudioShareMode.Exclusive)
 				throw new NotSupportedException("Exclusive mode not supported.");
-			if (bufferDuration == 0) bufferDuration = device.DefaultBufferDuration;
+			if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
 
 			m_format = format;
 			var iformat = Util.ToInternalFormat(format);
@@ -32,10 +32,10 @@ namespace Cryville.Audio.WaveformAudio {
 				(uint)CALLBACK_TYPE.CALLBACK_EVENT
 			));
 
-			m_bufferSize = format.Align(bufferDuration / 1000 * format.BytesPerSecond);
+			m_bufferSize = bufferSize;
 			_buffers = new WaveBuffer[BUFFER_COUNT];
 			for (int i = 0; i < BUFFER_COUNT; i++) {
-				_buffers[i] = new WaveBuffer((uint)m_bufferSize);
+				_buffers[i] = new WaveBuffer((uint)(m_bufferSize * format.FrameSize));
 				MmSysComExports.MMR(MmeExports.waveOutPrepareHeader(
 					_waveOutHandle,
 					ref _buffers[i].Header,
@@ -143,11 +143,11 @@ namespace Cryville.Audio.WaveformAudio {
 							Array.Clear(b.Buffer, 0, b.Buffer.Length);
 						}
 						else {
-							Source.Read(b.Buffer, 0, BufferSize);
+							Source.Read(b.Buffer, 0, BufferSize * m_format.FrameSize);
 						}
 						MmSysComExports.MMR(MmeExports.waveOutWrite(_waveOutHandle, ref b.Header, SIZE_WAVEHDR));
 						b.Filled = true;
-						m_bufferPosition += (double)BufferSize / m_format.BytesPerSecond;
+						m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 					}
 				}
 				if (_threadAbortFlag) break;

@@ -47,7 +47,7 @@ namespace Cryville.Audio.Test {
 			FFmpeg.AutoGen.ffmpeg.RootPath = "";
 			manager = CreateEngine();
 			device = manager.GetDefaultDevice(DataFlow.Out);
-			client = device.Connect(device.DefaultFormat, 2 * device.MinimumBufferDuration);
+			client = device.Connect(device.DefaultFormat, device.BurstSize + device.MinimumBufferSize);
 		}
 
 		[Test]
@@ -65,13 +65,14 @@ namespace Cryville.Audio.Test {
 		public virtual void GetDeviceInformation() {
 			Log("Name: {0}", device.Name);
 			Log("Data Flow: {0}", device.DataFlow);
-			Log("Default Buffer Duration: {0}", device.DefaultBufferDuration);
-			Log("Minimum Buffer Duration: {0}", device.MinimumBufferDuration);
+			Log("Burst Size: {0}", device.BurstSize);
+			Log("Minimum Buffer Size: {0}", device.MinimumBufferSize);
+			Log("Default Buffer Size: {0}", device.DefaultBufferSize);
 			Log("Device Default Format: {0}", device.DefaultFormat);
 			Log("Connection Format: {0}", client.Format);
-			Log("Buffer Size: {0}B", client.BufferSize);
+			Log("Buffer Size: {0}", client.BufferSize);
 			Log("Maximum Latency: {0}ms", client.MaximumLatency);
-			Log("Actual Latency: {0}ms", (float)client.BufferSize / client.Format.BytesPerSecond * 1000 + client.MaximumLatency);
+			Log("Actual Latency: {0}ms", (float)client.BufferSize / client.Format.SampleRate * 1000 + client.MaximumLatency);
 		}
 
 		[Test]

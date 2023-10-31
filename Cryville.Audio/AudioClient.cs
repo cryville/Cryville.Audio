@@ -26,7 +26,7 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract WaveFormat Format { get; }
 		/// <summary>
-		/// The buffer size in bytes.
+		/// The buffer size in frames.
 		/// </summary>
 		public abstract int BufferSize { get; }
 		/// <summary>

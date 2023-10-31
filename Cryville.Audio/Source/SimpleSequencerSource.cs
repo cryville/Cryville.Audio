@@ -48,8 +48,8 @@ namespace Cryville.Audio.Source {
 
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
-			_pribuf = new double[BufferSize / (Format.BitsPerSample / 8)];
-			_secbuf = new byte[BufferSize];
+			_pribuf = new double[BufferSize * Format.Channels];
+			_secbuf = new byte[BufferSize * Format.FrameSize];
 			if (BufferSize == 0) Playing = false;
 		}
 

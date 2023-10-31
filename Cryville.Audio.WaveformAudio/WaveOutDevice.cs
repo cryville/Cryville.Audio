@@ -38,10 +38,11 @@ namespace Cryville.Audio.WaveformAudio {
 		public DataFlow DataFlow => DataFlow.Out;
 
 		/// <inheritdoc />
-		public float DefaultBufferDuration => 40;
-
+		public int BurstSize => 0;
 		/// <inheritdoc />
-		public float MinimumBufferDuration => 0;
+		public int MinimumBufferSize => 0;
+		/// <inheritdoc />
+		public int DefaultBufferSize => 1920;
 
 		/// <inheritdoc />
 		public WaveFormat DefaultFormat {
@@ -155,8 +156,8 @@ namespace Cryville.Audio.WaveformAudio {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
-			return new WaveOutClient(this, format, bufferDuration, shareMode);
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
+			return new WaveOutClient(this, format, bufferSize, shareMode);
 		}
 	}
 }

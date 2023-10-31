@@ -18,7 +18,7 @@ namespace Cryville.Audio.AAudio {
 			_builder = builder;
 			_stream = stream;
 			m_format = Util.FromInternalWaveFormat(stream);
-			_buffer = new byte[BufferSize];
+			_buffer = new byte[BufferSize * m_format.FrameSize];
 			_instances.Add(_stream, this);
 		}
 
@@ -39,7 +39,7 @@ namespace Cryville.Audio.AAudio {
 		public override WaveFormat Format => m_format;
 
 		/// <inheritdoc />
-		public override int BufferSize => UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(_stream) * Format.FrameSize;
+		public override int BufferSize => UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(_stream);
 
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;

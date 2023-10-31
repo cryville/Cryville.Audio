@@ -40,17 +40,19 @@ namespace Cryville.Audio.OpenSLES {
 		/// <inheritdoc />
 		public DataFlow DataFlow => DataFlow.Out;
 
+		int m_burstSize;
 		/// <inheritdoc />
-		public float DefaultBufferDuration => 2 * MinimumBufferDuration;
-
-		float m_minimumBufferDuration;
-		/// <inheritdoc />
-		public float MinimumBufferDuration {
+		public int BurstSize {
 			get {
 				GetDefaultParameters();
-				return m_minimumBufferDuration;
+				return m_burstSize;
 			}
 		}
+		/// <inheritdoc />
+		public int MinimumBufferSize => BurstSize;
+
+		/// <inheritdoc />
+		public int DefaultBufferSize => MinimumBufferSize + BurstSize;
 
 		uint m_defaultSampleRate;
 		/// <inheritdoc />
@@ -66,7 +68,7 @@ namespace Cryville.Audio.OpenSLES {
 		unsafe void GetDefaultParameters() {
 			if (m_defaultSampleRate != 0) return;
 			if (JavaVMManager.CurrentVM == null) {
-				m_minimumBufferDuration = 20;
+				m_burstSize = 256;
 				m_defaultSampleRate = WaveFormat.Default.SampleRate;
 			}
 			else {
@@ -77,7 +79,7 @@ namespace Cryville.Audio.OpenSLES {
 					if (c == IntPtr.Zero) throw new InvalidOperationException("Could not get the AudioManager class.");
 					var m = env.GetMethodID(c, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
 					if (m == IntPtr.Zero) {
-						m_minimumBufferDuration = 20;
+						m_burstSize = 256;
 						m_defaultSampleRate = WaveFormat.Default.SampleRate;
 						return;
 					}
@@ -96,10 +98,10 @@ namespace Cryville.Audio.OpenSLES {
 					if (f2 == IntPtr.Zero) throw new InvalidOperationException("Could not find the static field PROPERTY_OUTPUT_FRAMES_PER_BUFFER.");
 					var p2 = env.GetStaticObjectField(c, f2);
 					var v2 = env.CallObjectMethod(manager, m, new JniValue[] { new JniValue(p2) });
-					if (v2 == IntPtr.Zero) m_minimumBufferDuration = 20;
+					if (v2 == IntPtr.Zero) m_burstSize = 256;
 					else {
 						var pstr = env.GetStringChars(v2, out _);
-						m_minimumBufferDuration = (float)(double.Parse(new string(pstr, 0, env.GetStringLength(v2))) / m_defaultSampleRate * 1000);
+						m_burstSize = int.Parse(new string(pstr, 0, env.GetStringLength(v2)));
 					}
 				}
 			}
@@ -153,6 +155,6 @@ namespace Cryville.Audio.OpenSLES {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) => new OutputClient(_engine, this, format, bufferDuration, shareMode);
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) => new OutputClient(_engine, this, format, bufferSize, shareMode);
 	}
 }

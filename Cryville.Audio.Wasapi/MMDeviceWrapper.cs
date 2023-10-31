@@ -77,13 +77,17 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		private readonly long m_defaultBufferDuration;
+		static int GCD(int a, int b) => b == 0 ? a : GCD(b, a % b);
 		/// <inheritdoc />
-		public float DefaultBufferDuration => FromReferenceTime(m_defaultBufferDuration);
+		public int BurstSize => GCD(MinimumBufferSize, DefaultBufferSize);
 
 		private readonly long m_minimumBufferDuration;
 		/// <inheritdoc />
-		public float MinimumBufferDuration => FromReferenceTime(m_minimumBufferDuration);
+		public int MinimumBufferSize => Util.FromReferenceTime(DefaultFormat.SampleRate, m_minimumBufferDuration);
+
+		private readonly long m_defaultBufferDuration;
+		/// <inheritdoc />
+		public int DefaultBufferSize => Util.FromReferenceTime(DefaultFormat.SampleRate, m_defaultBufferDuration);
 
 		/// <inheritdoc />
 		public WaveFormat DefaultFormat {
@@ -127,10 +131,10 @@ namespace Cryville.Audio.Wasapi {
 
 		static Guid GUID_AUDIOCLIENT = new Guid("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2");
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, float bufferDuration = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (_client == null) throw new InvalidOperationException("The device is not available.");
 			_connected = true;
-			return new AudioClientWrapper(_client, this, format, bufferDuration, shareMode);
+			return new AudioClientWrapper(_client, this, format, bufferSize, shareMode);
 		}
 
 		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) {
@@ -139,9 +143,6 @@ namespace Cryville.Audio.Wasapi {
 				case AudioShareMode.Exclusive: return AUDCLNT_SHAREMODE.EXCLUSIVE;
 				default: throw new ArgumentOutOfRangeException(nameof(value));
 			}
-		}
-		static float FromReferenceTime(long value) {
-			return value / 1e4f;
 		}
 	}
 }

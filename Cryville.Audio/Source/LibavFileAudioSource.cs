@@ -91,7 +91,7 @@ namespace Cryville.Audio.Source {
 				ffmpeg.av_channel_layout_default(&outLayout, outFormat.Channels);
 
 				frame = ffmpeg.av_frame_alloc();
-				_buffer = (byte*)Marshal.AllocHGlobal(BufferSize).ToPointer();
+				_buffer = (byte*)Marshal.AllocHGlobal(BufferSize * format.FrameSize).ToPointer();
 
 				fixed (SwrContext** pSwrContext = &swrContext)
 					HR(ffmpeg.swr_alloc_set_opts2(
