@@ -8,7 +8,7 @@ namespace Microsoft.Windows.MMDevice {
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	internal interface IMMDevice {
 		void Activate(
-			ref Guid iid,
+			[MarshalAs(UnmanagedType.LPStruct)] Guid iid,
 			UInt32 dwClsCtx,
 			/* ref PROPVARIANT */ IntPtr pActivationParams,
 			[MarshalAs(UnmanagedType.IUnknown)] out object ppInterface

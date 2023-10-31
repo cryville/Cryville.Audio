@@ -53,7 +53,7 @@ namespace Microsoft.Windows.AudioClient {
 		);
 
 		void GetService(
-			ref Guid riid,
+			[MarshalAs(UnmanagedType.LPStruct)] Guid riid,
 			[MarshalAs(UnmanagedType.IUnknown)] out object ppv
 		);
 	}

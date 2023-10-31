@@ -51,6 +51,7 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
+		[Order(0)]
 		public virtual void EnumerateDevices() {
 			uint count = 0;
 			foreach (var dev in manager.GetDevices(DataFlow.Out)) {
@@ -62,6 +63,7 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
+		[Order(1)]
 		public virtual void GetDeviceInformation() {
 			Log("Name: {0}", device.Name);
 			Log("Data Flow: {0}", device.DataFlow);

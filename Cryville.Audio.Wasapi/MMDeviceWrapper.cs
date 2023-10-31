@@ -21,7 +21,7 @@ namespace Cryville.Audio.Wasapi {
 			_internal = obj;
 			_internal.GetState(out var state);
 			if (state == (uint)DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE) {
-				_internal.Activate(ref GUID_AUDIOCLIENT, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
+				_internal.Activate(typeof(IAudioClient).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
 				_client = client as IAudioClient;
 				_client.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
 			}
@@ -57,7 +57,7 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		static Guid GUID_MM_ENDPOINT = new Guid("1BE09788-6894-4089-8586-9A2A6C265AC5");
+		static Guid GUID_MM_ENDPOINT = typeof(IMMEndpoint).GUID;
 		DataFlow? m_dataFlow;
 		/// <inheritdoc />
 		public DataFlow DataFlow {
@@ -129,7 +129,6 @@ namespace Cryville.Audio.Wasapi {
 			throw new NotSupportedException("Theoretically unreachable");
 		}
 
-		static Guid GUID_AUDIOCLIENT = new Guid("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2");
 		/// <inheritdoc />
 		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (_client == null) throw new InvalidOperationException("The device is not available.");

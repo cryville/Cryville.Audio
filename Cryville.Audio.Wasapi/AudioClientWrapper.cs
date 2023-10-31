@@ -13,8 +13,6 @@ namespace Cryville.Audio.Wasapi {
 	public class AudioClientWrapper : AudioClient {
 		IAudioClient _internal;
 
-		static Guid GUID_AUDIO_CLOCK = new Guid("CD63314F-3FBA-4a1b-812C-EF96358728E7");
-		static Guid GUID_AUDIO_RENDER_CLIENT = new Guid("F294ACFC-3146-4483-A7BF-ADDCA7C260E2");
 		internal AudioClientWrapper(IAudioClient obj, MMDeviceWrapper device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
 			m_device = device;
 			_internal = obj;
@@ -45,13 +43,13 @@ namespace Cryville.Audio.Wasapi {
 			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
 			_internal.SetEventHandle(_eventHandle);
 
-			_internal.GetService(ref GUID_AUDIO_CLOCK, out var clock);
+			_internal.GetService(typeof(IAudioClock).GUID, out var clock);
 			_clock = clock as IAudioClock;
 			_clock.GetFrequency(out _clockFreq);
 
 			_internal.GetBufferSize(out m_bufferFrames);
 			if (m_device.DataFlow == DataFlow.Out) {
-				_internal.GetService(ref GUID_AUDIO_RENDER_CLIENT, out var prc);
+				_internal.GetService(typeof(IAudioRenderClient).GUID, out var prc);
 				_renderClient = new AudioRenderClientWrapper(prc as IAudioRenderClient);
 			}
 			else
