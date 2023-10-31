@@ -6,7 +6,7 @@ The following projects are licensed under [MIT](LICENSE-MIT.txt):
 - Cryville.Audio.Wasapi
 - Cryville.Audio.WaveformAudio
 
-The following projects are licensed under [LGPL-3.0](LICENSE-LGPL-3.0.txt):
+The following projects are licensed under [LGPL-3.0](LICENSE-LGPLv3.txt):
 - FFmpeg.AutoGen
 - Cryville.Audio.Source.Libav
 - Cryville.Audio.Test
