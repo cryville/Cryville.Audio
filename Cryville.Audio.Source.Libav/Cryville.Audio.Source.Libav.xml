@@ -4,39 +4,39 @@
         <name>Cryville.Audio.Source.Libav</name>
     </assembly>
     <members>
-        <member name="T:Cryville.Audio.Source.LibavFileAudioSource">
+        <member name="T:Cryville.Audio.Source.Libav.LibavFileAudioSource">
             <summary>
             An <see cref="T:Cryville.Audio.AudioStream" /> that uses Libav to demux and decode audio files.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.#ctor(System.String)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.#ctor(System.String)">
             <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.Source.LibavFileAudioSource" /> class and loads the specified <paramref name="file" />.
+            Creates an instance of the <see cref="T:Cryville.Audio.Source.Libav.LibavFileAudioSource" /> class and loads the specified <paramref name="file" />.
             </summary>
             <param name="file">The audio file.</param>
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Disposed">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.Disposed">
             <summary>
             Whether this audio stream has been disposed.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Dispose(System.Boolean)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Dispose(System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.EndOfData">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.EndOfData">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.BestStreamIndex">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.BestStreamIndex">
             <summary>
             The index to the best audio stream.
             </summary>
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Streams">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.Streams">
             <summary>
             The collection of indices to all audio streams.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.SelectStream">
             <summary>
             Selects the best stream as the source.
             </summary>
@@ -45,7 +45,7 @@
             <para>This method can only be called before <see cref="M:Cryville.Audio.AudioStream.SetFormat(Cryville.Audio.WaveFormat,System.Int32)" /> is called, which is called while setting <see cref="P:Cryville.Audio.AudioClient.Source" />.</para>
             </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SelectStream(System.Int32)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.SelectStream(System.Int32)">
             <summary>
             Selects a stream as the source.
             </summary>
@@ -55,82 +55,82 @@
             <para>This method can only be called before <see cref="M:Cryville.Audio.AudioStream.SetFormat(Cryville.Audio.WaveFormat,System.Int32)" /> is called, which is called while setting <see cref="P:Cryville.Audio.AudioClient.Source" />.</para>
             </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.GetStreamDuration(System.Int32)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.GetStreamDuration(System.Int32)">
             <summary>
             Gets the duration of a stream or the file.
             </summary>
             <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
             <returns>The duration in seconds.</returns>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.IsFormatSupported(Cryville.Audio.WaveFormat)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.OnSetFormat">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.OnSetFormat">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SeekTime(System.Double,System.IO.SeekOrigin)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.SeekTime(System.Double,System.IO.SeekOrigin)">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.CanRead">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.CanRead">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.CanSeek">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.CanSeek">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.CanWrite">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.CanWrite">
             <inheritdoc />
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Length">
-            <inheritdoc />
-            <remarks>
-            <para>This property may be inaccurate.</para>
-            </remarks>
-        </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Duration">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.Length">
             <inheritdoc />
             <remarks>
             <para>This property may be inaccurate.</para>
             </remarks>
         </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Time">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Source.LibavFileAudioSource.Position">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.Duration">
             <inheritdoc />
             <remarks>
-            <para>This property may become inaccurate after <see cref="M:Cryville.Audio.Source.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)" /> is called.</para>
+            <para>This property may be inaccurate.</para>
             </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Flush">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.Time">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.SetLength(System.Int64)">
+        <member name="P:Cryville.Audio.Source.Libav.LibavFileAudioSource.Position">
+            <inheritdoc />
+            <remarks>
+            <para>This property may become inaccurate after <see cref="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)" /> is called.</para>
+            </remarks>
+        </member>
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Flush">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavFileAudioSource.Write(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.SetLength(System.Int64)">
             <inheritdoc />
         </member>
-        <member name="T:Cryville.Audio.Source.LibavException">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cryville.Audio.Source.Libav.LibavException">
             <summary>
             The exception that is thrown by Libav.
             </summary>
         </member>
-        <member name="M:Cryville.Audio.Source.LibavException.#ctor">
+        <member name="M:Cryville.Audio.Source.Libav.LibavException.#ctor">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavException.#ctor(System.String)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavException.#ctor(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavException.#ctor(System.String,System.Exception)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavException.#ctor(System.String,System.Exception)">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.LibavException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
     </members>
