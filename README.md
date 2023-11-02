@@ -1,4 +1,4 @@
-[普通话（简体）](README_cmn-hans.md)
+[中文](README_zh.md)
 
 # Cryville.Audio
 Project #A012 [cau] Cryville.Audio is a realtime audio playback library under .NET.
