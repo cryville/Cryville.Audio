@@ -40,7 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Cryville.Audio.cmn-hans.xml">
+	  <None Update="Cryville.Audio-zh.xml">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="Cryville.Audio.xml">

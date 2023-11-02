@@ -247,12 +247,12 @@
 				设备的脉冲大小（帧）。
 			</summary>
 		</member>
-		<member name="P:Cryville.Audio.IAudioDevice.MinimumBufferDuration">
+		<member name="P:Cryville.Audio.IAudioDevice.MinimumBufferSize">
 			<summary>
 				设备的最小缓存大小（帧）。
 			</summary>
 		</member>
-		<member name="P:Cryville.Audio.IAudioDevice.DefaultBufferDuration">
+		<member name="P:Cryville.Audio.IAudioDevice.DefaultBufferSize">
 			<summary>
 				设备的默认缓存大小（帧）。
 			</summary>
