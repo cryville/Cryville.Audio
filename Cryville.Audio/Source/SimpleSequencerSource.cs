@@ -91,7 +91,7 @@ namespace Cryville.Audio.Source {
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
-			count = Format.Align(count, true);
+			count = (int)Format.Align(count, true);
 			if (m_playing) {
 				Array.Clear(_pribuf, 0, count / (Format.BitsPerSample / 8));
 				lock (_lock) {
@@ -111,7 +111,7 @@ namespace Cryville.Audio.Source {
 							if (_sources.Count >= MaxPolyphony) continue;
 							var source = item.Source;
 							_sources.Add(source);
-							int len = Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
+							int len = (int)Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
 							FillBufferInternal(source, count - len, len);
 						}
 					}

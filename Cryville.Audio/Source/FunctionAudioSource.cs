@@ -62,7 +62,7 @@ namespace Cryville.Audio.Source {
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
-			var len = Format.Align(count, true);
+			var len = (int)Format.Align(count, true);
 			var sampleCount = len / Format.FrameSize;
 			fixed (byte* fptr = buffer) {
 				byte* ptr = fptr;

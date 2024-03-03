@@ -51,7 +51,7 @@ namespace Cryville.Audio.Source {
 			}
 			public void SetFormat(WaveFormat format, int bufferSize) {
 				Source.SetFormat(format, bufferSize);
-				int len = format.Align(Duration * format.BytesPerSecond);
+				int len = (int)format.Align(Duration * format.BytesPerSecond);
 				Buffer = new byte[len];
 			}
 			public void FillBufferTo(int pos) {
@@ -94,7 +94,7 @@ namespace Cryville.Audio.Source {
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
-			count = Format.Align(count, true);
+			count = (int)Format.Align(count, true);
 			int loadTo = Math.Min(_cache.Buffer.Length, _pos + count);
 			if (loadTo > _cache.LoadPosition) _cache.FillBufferTo(loadTo);
 			int rem = _cache.Buffer.Length - _pos;

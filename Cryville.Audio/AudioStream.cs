@@ -87,7 +87,7 @@ namespace Cryville.Audio {
 		/// <param name="count">The length in bytes to be filled.</param>
 		public static unsafe int SilentBuffer(WaveFormat format, byte[] buffer, int offset, int count) {
 			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-			count = format.Align(count, true);
+			count = (int)format.Align(count, true);
 			fixed (byte* rptr = buffer) {
 				switch (format.SampleFormat) {
 					case SampleFormat.U8:
