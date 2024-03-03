@@ -315,7 +315,7 @@ namespace Cryville.Audio.Source.Libav {
 		/// <inheritdoc />
 		protected override void OnSetFormat() => _internal.SetFormat(Format, BufferSize);
 
-		int _pos;
+		long _pos;
 		double _time;
 		/// <inheritdoc />
 		public override int Read(byte[] buffer, int offset, int count) {
