@@ -53,7 +53,7 @@ namespace Cryville.Audio.Source {
 		int _pos;
 
 		/// <inheritdoc />
-		public override bool EndOfData => _pos >= _cache.Buffer.Length;
+		public override bool EndOfData => _pos >= (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
 
 		/// <summary>
 		/// Whether this audio stream has been disposed.
@@ -109,7 +109,7 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		public override bool CanWrite => false;
 		/// <inheritdoc />
-		public override long Length => _cache.Buffer.Length;
+		public override long Length => (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
 		/// <inheritdoc />
 		public override long Position { get => _pos; set => throw new NotSupportedException(); }
 		/// <inheritdoc />
