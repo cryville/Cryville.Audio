@@ -157,10 +157,43 @@
             The duration in seconds of the audio stream.
             </summary>
         </member>
+        <member name="P:Cryville.Audio.AudioStream.Position">
+            <inheritdoc />
+        </member>
         <member name="P:Cryville.Audio.AudioStream.Time">
             <summary>
             The time in seconds within the current audio stream.
             </summary>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.ReadFrames(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
+            </summary>
+            <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the frames read from the current audio source.</param>
+            <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+            <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
+            <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.ReadInternal(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+            </summary>
+            <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the bytes read from the current audio source.</param>
+            <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+            <param name="count">The maximum number of bytes to be read from the current audio stream.</param>
+            <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if <paramref name="count" /> is 0 or the end of the stream has been reached.</returns>
+        </member>
+        <member name="M:Cryville.Audio.AudioStream.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            When overridden in a derived class, reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
+            </summary>
+            <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the frames read from the current audio source.</param>
+            <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+            <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
+            <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
         </member>
         <member name="M:Cryville.Audio.AudioStream.SilentBuffer(Cryville.Audio.WaveFormat,System.Byte[],System.Int32,System.Int32)">
             <summary>
@@ -298,11 +331,16 @@
             <remarks>
             <para>This stream is not seekable. Use <see cref="M:Cryville.Audio.Source.CachedAudioSource.Rewind" /> to reset its timestamp to zero.</para>
             </remarks>
+            <param name="source">The <see cref="T:Cryville.Audio.AudioStream" /> to be cached.</param>
+            <param name="duration">The duration of the cache in seconds.</param>
         </member>
         <member name="M:Cryville.Audio.Source.CachedAudioSource.#ctor(Cryville.Audio.AudioStream,System.Double)">
             <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> class.
+            An <see cref="T:Cryville.Audio.AudioStream" /> that caches data for reuse.
             </summary>
+            <remarks>
+            <para>This stream is not seekable. Use <see cref="M:Cryville.Audio.Source.CachedAudioSource.Rewind" /> to reset its timestamp to zero.</para>
+            </remarks>
             <param name="source">The <see cref="T:Cryville.Audio.AudioStream" /> to be cached.</param>
             <param name="duration">The duration of the cache in seconds.</param>
         </member>
@@ -340,7 +378,10 @@
         <member name="M:Cryville.Audio.Source.CachedAudioSource.OnSetFormat">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.CachedAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.ReadInternal(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cryville.Audio.Source.CachedAudioSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.CachedAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
@@ -397,7 +438,7 @@
         <member name="M:Cryville.Audio.Source.FunctionAudioSource.OnSetFormat">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.FunctionAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.FunctionAudioSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.FunctionAudioSource.Func(System.Double,System.Int32)">
@@ -420,9 +461,6 @@
             <inheritdoc />
         </member>
         <member name="P:Cryville.Audio.Source.FunctionAudioSource.Length">
-            <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Source.FunctionAudioSource.Position">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.FunctionAudioSource.Flush">
@@ -481,7 +519,7 @@
             There is a tiny delay before the playback state actually toggles, which is approximately <see cref="P:Cryville.Audio.AudioClient.BufferPosition" /> substracted by <see cref="P:Cryville.Audio.AudioClient.Position" />.
             </remarks>
         </member>
-        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Read(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.SimpleSequencerSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)">
@@ -506,12 +544,6 @@
         </member>
         <member name="P:Cryville.Audio.Source.SimpleSequencerSource.Length">
             <inheritdoc />
-        </member>
-        <member name="P:Cryville.Audio.Source.SimpleSequencerSource.Position">
-            <inheritdoc />
-            <remarks>
-            <para>Although this stream is seekable, setting this property is not supported and throws <see cref="T:System.NotSupportedException" />. This stream can only be seeked from the current position, and forward only. See <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)" />.</para>
-            </remarks>
         </member>
         <member name="M:Cryville.Audio.Source.SimpleSequencerSource.Flush">
             <inheritdoc />
@@ -644,6 +676,14 @@
             <summary>
             The default wave format.
             </summary>
+        </member>
+        <member name="M:Cryville.Audio.WaveFormat.Align(System.Int64,System.Boolean)">
+            <summary>
+            Gets the aligned buffer size.
+            </summary>
+            <param name="size">The prefered buffer size in bytes.</param>
+            <param name="floored">Whether the result is floored or ceiled.</param>
+            <returns>The aligned buffer size in bytes.</returns>
         </member>
         <member name="M:Cryville.Audio.WaveFormat.Align(System.Double,System.Boolean)">
             <summary>

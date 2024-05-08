@@ -163,10 +163,61 @@
 				音频流的时长（秒）。
 			</summary>
 		</member>
+		<member name="P:Cryville.Audio.AudioStream.Position">
+			<inheritdoc />
+		</member>
 		<member name="P:Cryville.Audio.AudioStream.Time">
 			<summary>
 				当前音频流的时间（秒）。
 			</summary>
+		</member>
+		<member name="M:Cryville.Audio.AudioStream.Read(System.Byte[],System.Int32,System.Int32)">
+			<inheritdoc />
+		</member>
+		<member name="M:Cryville.Audio.AudioStream.ReadFrames(System.Byte[],System.Int32,System.Int32)">
+			<summary>
+				从当前流读取字节序列，并将此流中的位置推进读取的字节数。
+			</summary>
+			<param name="buffer">
+				字节数组。当此方法返回时，此缓冲区包含指定的字节数组，此数组中从 <paramref name="offset" /> 开始的值被从当前音频源中读取的字节所替换。
+			</param>
+			<param name="offset">
+				<paramref name="buffer" /> 中的从零开始的字节偏移量，从此处开始存储从当前音频流中读取的数据。
+			</param>
+			<param name="count">要从当前音频流中最多读取的字节数。</param>
+			<returns>
+				读入缓冲区中的总字节数。如果多个字节当前不可用，则这可以小于请求的字节数；如果 <paramref name="count" /> 为 0 或已到达流的末尾，则为 0。
+			</returns>
+		</member>
+		<member name="M:Cryville.Audio.AudioStream.ReadInternal(System.Byte[],System.Int32,System.Int32)">
+			<summary>
+				当在派生类中重写时，从当前流读取字节序列，并将此流中的位置推进读取的字节数。
+			</summary>
+			<param name="buffer">
+				字节数组。当此方法返回时，此缓冲区包含指定的字节数组，此数组中从 <paramref name="offset" /> 开始的值被从当前音频源中读取的字节所替换。
+			</param>
+			<param name="offset">
+				<paramref name="buffer" /> 中的从零开始的字节偏移量，从此处开始存储从当前音频流中读取的数据。
+			</param>
+			<param name="count">要从当前音频流中最多读取的字节数。</param>
+			<returns>
+				读入缓冲区中的总字节数。如果多个字节当前不可用，则这可以小于请求的字节数；如果 <paramref name="count" /> 为 0 或已到达流的末尾，则为 0。
+			</returns>
+		</member>
+		<member name="M:Cryville.Audio.AudioStream.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
+			<summary>
+				当在派生类中重写时，从当前流读取帧序列，并将此流中的位置推进读取的字节数。
+			</summary>
+			<param name="buffer">
+				字节数组。当此方法返回时，此缓冲区包含指定的字节数组，此数组中从 <paramref name="offset" /> 开始的值被从当前音频源中读取的帧所替换。
+			</param>
+			<param name="offset">
+				<paramref name="buffer" /> 中的从零开始的字节偏移量，从此处开始存储从当前音频流中读取的数据。
+			</param>
+			<param name="count">要从当前音频流中最多读取的帧数。</param>
+			<returns>
+				读入缓冲区中的总帧数。如果多个帧当前不可用，则这可以小于请求的帧数；如果 <paramref name="count" /> 为 0 或已到达流的末尾，则为 0。
+			</returns>
 		</member>
 		<member name="M:Cryville.Audio.AudioStream.SilentBuffer(Cryville.Audio.WaveFormat,System.Byte[],System.Int32,System.Int32)">
 			<summary>
@@ -320,11 +371,20 @@
 					该流不支持定位。可以通过调用 <see cref="M:Cryville.Audio.Source.CachedAudioSource.Rewind" /> 重置其时间戳。
 				</para>
 			</remarks>
+			<param name="source">
+				被缓存的 <see cref="T:Cryville.Audio.AudioStream" />。
+			</param>
+			<param name="duration">缓存长度（秒）。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.CachedAudioSource.#ctor(Cryville.Audio.AudioStream,System.Double)">
 			<summary>
-				创建一个 <see cref="T:Cryville.Audio.Source.CachedAudioSource" /> 类的实例。
+				一个缓存数据并对其进行复用的 <see cref="T:Cryville.Audio.AudioStream" />。
 			</summary>
+			<remarks>
+				<para>
+					该流不支持定位。可以通过调用 <see cref="M:Cryville.Audio.Source.CachedAudioSource.Rewind" /> 重置其时间戳。
+				</para>
+			</remarks>
 			<param name="source">
 				被缓存的 <see cref="T:Cryville.Audio.AudioStream" />。
 			</param>
@@ -366,7 +426,10 @@
 		<member name="M:Cryville.Audio.Source.CachedAudioSource.OnSetFormat">
 			<inheritdoc />
 		</member>
-		<member name="M:Cryville.Audio.Source.CachedAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+		<member name="M:Cryville.Audio.Source.CachedAudioSource.ReadInternal(System.Byte[],System.Int32,System.Int32)">
+			<inheritdoc />
+		</member>
+		<member name="M:Cryville.Audio.Source.CachedAudioSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
 			<inheritdoc />
 		</member>
 		<member name="M:Cryville.Audio.Source.CachedAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
@@ -423,7 +486,7 @@
 		<member name="M:Cryville.Audio.Source.FunctionAudioSource.OnSetFormat">
 			<inheritdoc />
 		</member>
-		<member name="M:Cryville.Audio.Source.FunctionAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+		<member name="M:Cryville.Audio.Source.FunctionAudioSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
 			<inheritdoc />
 		</member>
 		<member name="M:Cryville.Audio.Source.FunctionAudioSource.Func(System.Double,System.Int32)">
@@ -446,9 +509,6 @@
 			<inheritdoc />
 		</member>
 		<member name="P:Cryville.Audio.Source.FunctionAudioSource.Length">
-			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Source.FunctionAudioSource.Position">
 			<inheritdoc />
 		</member>
 		<member name="M:Cryville.Audio.Source.FunctionAudioSource.Flush">
@@ -521,7 +581,7 @@
 				播放状态切换时有一个小延迟，大约是 <see cref="P:Cryville.Audio.AudioClient.BufferPosition" /> 减去 <see cref="P:Cryville.Audio.AudioClient.Position" />。
 			</remarks>
 		</member>
-		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.Read(System.Byte[],System.Int32,System.Int32)">
+		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
 			<inheritdoc />
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)">
@@ -552,14 +612,6 @@
 		</member>
 		<member name="P:Cryville.Audio.Source.SimpleSequencerSource.Length">
 			<inheritdoc />
-		</member>
-		<member name="P:Cryville.Audio.Source.SimpleSequencerSource.Position">
-			<inheritdoc />
-			<remarks>
-				<para>
-					虽然该流支持定位，但是不支持设置该属性，否则会抛出 <see cref="T:System.NotSupportedException" />。该流只能从当前位置开始向后定位。参见 <see cref="M:Cryville.Audio.Source.SimpleSequencerSource.Seek(System.Int64,System.IO.SeekOrigin)" />。
-				</para>
-			</remarks>
 		</member>
 		<member name="M:Cryville.Audio.Source.SimpleSequencerSource.Flush">
 			<inheritdoc />
@@ -696,6 +748,14 @@
 			<summary>
 				默认波形格式。
 			</summary>
+		</member>
+		<member name="M:Cryville.Audio.WaveFormat.Align(System.Int64,System.Boolean)">
+			<summary>
+				获取对齐的缓存大小。
+			</summary>
+			<param name="size">需要的缓存大小（字节）。</param>
+			<param name="floored">结果被向下还是向上取整。</param>
+			<returns>对齐的缓存大小（字节）。</returns>
 		</member>
 		<member name="M:Cryville.Audio.WaveFormat.Align(System.Double,System.Boolean)">
 			<summary>
