@@ -7,46 +7,34 @@
 		<AnalysisLevel>latest-all</AnalysisLevel>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
 		<Authors>Cryville</Authors>
-		<Version>4.0.0</Version>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Copyright>Copyright (c) Cryville 2024</Copyright>
+		<Description>A realtime audio playback library.</Description>
 		<DocumentationFile>Cryville.Audio.xml</DocumentationFile>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netframework35|AnyCPU'">
-	  <DebugType>none</DebugType>
-	  <DefineConstants>$(DefineConstants)</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-	  <DebugType>none</DebugType>
-	  <DefineConstants>$(DefineConstants)</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netframework35|AnyCPU'">
-	  <DefineConstants>$(DefineConstants)</DefineConstants>
-	  <DebugType>portable</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-	  <DefineConstants>$(DefineConstants)</DefineConstants>
-	  <DebugType>portable</DebugType>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.cryville.world/Projects/A012</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageTags>audio, playback</PackageTags>
+		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
+		<Version>4.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="UnsafeIL">
-		  <HintPath>..\References\UnsafeIL.dll</HintPath>
-		</Reference>
+		<PackageReference Include="UnsafeIL" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Cryville.Audio-zh.xml">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Cryville.Audio.xml">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<None Update="Cryville.Audio-zh.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Cryville.Audio.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="README.md" Pack="True" PackagePath="\" />
 	</ItemGroup>
 </Project>
