@@ -7,7 +7,6 @@ namespace Cryville.Audio.Source {
 	/// An <see cref="AudioStream" /> that generates sound by a given function.
 	/// </summary>
 	public abstract class FunctionAudioSource : AudioStream {
-		long _pos;
 		double _time;
 
 		/// <summary>
@@ -54,26 +53,19 @@ namespace Cryville.Audio.Source {
 		};
 
 		/// <inheritdoc />
-		public sealed override unsafe int Read(byte[] buffer, int offset, int count) {
-			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
-			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
-			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+		protected sealed override unsafe int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			var len = (int)Format.Align(count, true);
-			var sampleCount = len / Format.FrameSize;
 			fixed (byte* fptr = buffer) {
 				byte* ptr = fptr;
-				for (int i = 0; i < sampleCount; i++) {
+				for (int i = 0; i < frameCount; i++) {
 					for (int j = 0; j < Format.Channels; j++) {
 						float v = Func(_time, j);
-						_sampleHandler(ref ptr, v);
+						_sampleHandler!(ref ptr, v);
 					}
 					_time += 1d / Format.SampleRate;
 				}
 			}
-			_pos += len;
-			return len;
+			return frameCount;
 		}
 
 		static unsafe void WriteU8(ref byte* ptr, double v) {
@@ -125,8 +117,7 @@ namespace Cryville.Audio.Source {
 				_ => throw new ArgumentException("Invalid SeekOrigin.", nameof(origin)),
 			};
 			if (newPos < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
-			_pos = newPos;
-			_time = Time;
+			_time = newPos / Format.BytesPerSecond;
 			return newPos;
 		}
 
@@ -138,8 +129,6 @@ namespace Cryville.Audio.Source {
 		public override bool CanWrite => false;
 		/// <inheritdoc />
 		public override long Length => long.MaxValue;
-		/// <inheritdoc />
-		public override long Position { get => _pos; set => Seek(0, SeekOrigin.Begin); }
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />

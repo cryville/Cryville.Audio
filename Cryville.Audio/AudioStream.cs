@@ -73,10 +73,71 @@ namespace Cryville.Audio {
 		/// </summary>
 		public virtual double Duration => (double)Length / Format.BytesPerSecond;
 
+		long m_position;
+		/// <inheritdoc />
+		public override long Position {
+			get => m_position;
+			set => m_position = Seek(value, SeekOrigin.Begin);
+		}
+
 		/// <summary>
 		/// The time in seconds within the current audio stream.
 		/// </summary>
 		public virtual double Time => (double)Position / Format.BytesPerSecond;
+
+		void CheckParams(byte[] buffer, int offset, int count) {
+			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+			if (Format == default) throw new InvalidOperationException("Format not set.");
+		}
+
+		/// <inheritdoc />
+		public override sealed int Read(byte[] buffer, int offset, int count) {
+			CheckParams(buffer, offset, count);
+			count = (int)Format.Align(count, true);
+			count = ReadInternal(buffer, offset, count);
+			m_position += count;
+			return count;
+		}
+
+		/// <summary>
+		/// Reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the frames read from the current audio source.</param>
+		/// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+		/// <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
+		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
+		public int ReadFrames(byte[] buffer, int offset, int frameCount) {
+			CheckParams(buffer, offset, frameCount * Format.FrameSize);
+			frameCount = ReadFramesInternal(buffer, offset, frameCount);
+			m_position += frameCount * Format.FrameSize;
+			return frameCount;
+		}
+
+		/// <summary>
+		/// When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the bytes read from the current audio source.</param>
+		/// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+		/// <param name="count">The maximum number of bytes to be read from the current audio stream.</param>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if <paramref name="count" /> is 0 or the end of the stream has been reached.</returns>
+		protected virtual int ReadInternal(byte[] buffer, int offset, int count) {
+			count = (int)Format.Align(count, true);
+			count = ReadFramesInternal(buffer, offset, count / Format.FrameSize) * Format.FrameSize;
+			m_position += count;
+			return count;
+		}
+
+		/// <summary>
+		/// When overridden in a derived class, reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the frames read from the current audio source.</param>
+		/// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+		/// <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
+		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
+		protected abstract int ReadFramesInternal(byte[] buffer, int offset, int frameCount);
 
 		/// <summary>
 		/// Fills the buffer with silence.

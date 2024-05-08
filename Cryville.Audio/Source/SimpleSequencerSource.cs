@@ -77,7 +77,6 @@ namespace Cryville.Audio.Source {
 				m_playing = value;
 			}
 		}
-		long _pos;
 		double _time;
 		readonly object _lock = new();
 		readonly List<AudioStream> _sources;
@@ -85,97 +84,92 @@ namespace Cryville.Audio.Source {
 		double[]? _pribuf;
 		byte[]? _secbuf;
 		/// <inheritdoc />
-		public override unsafe int Read(byte[] buffer, int offset, int count) {
+		protected override unsafe int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
 			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
-			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
-			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
-			count = (int)Format.Align(count, true);
-			if (m_playing) {
-				Array.Clear(_pribuf, 0, count / (Format.BitsPerSample / 8));
-				lock (_lock) {
-					_rmsources.Clear();
-					foreach (var source in _sources) {
-						FillBufferInternal(source, 0, count);
-						if (source.EndOfData) _rmsources.Add(source);
-					}
-					foreach (var source in _rmsources)
-						_sources.Remove(source);
-					lock (Session._lock) {
-						var seq = Session._seq;
-						_time += (double)count / Format.BytesPerSecond;
-						while (seq.Count > 0 && seq[0].Time < _time) {
-							var item = seq[0];
-							seq.RemoveAt(0);
-							if (_sources.Count >= MaxPolyphony) continue;
-							var source = item.Source;
-							_sources.Add(source);
-							int len = (int)Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
-							FillBufferInternal(source, count - len, len);
-						}
-					}
-				}
-				switch (Format.SampleFormat) {
-					case SampleFormat.U8:
-						for (int i = offset; i < count + offset; i++) {
-							buffer[i] = SampleClipping.ToByte(_pribuf[i]);
-						}
-						break;
-					case SampleFormat.S16:
-						fixed (byte* rptr = buffer) {
-							short* ptr = (short*)(rptr + offset);
-							for (int i = 0; i < count / sizeof(short); i++, ptr++) {
-								*ptr = SampleClipping.ToInt16(_pribuf[i]);
-							}
-						}
-						break;
-					case SampleFormat.S32:
-						fixed (byte* rptr = buffer) {
-							int* ptr = (int*)(rptr + offset);
-							for (int i = 0; i < count / sizeof(int); i++, ptr++) {
-								*ptr = SampleClipping.ToInt32(_pribuf[i]);
-							}
-						}
-						break;
-					case SampleFormat.F32:
-						fixed (byte* rptr = buffer) {
-							float* ptr = (float*)(rptr + offset);
-							for (int i = 0; i < count / sizeof(float); i++, ptr++) {
-								*ptr = (float)_pribuf[i];
-							}
-						}
-						break;
-					case SampleFormat.F64:
-						fixed (byte* rptr = buffer) {
-							double* ptr = (double*)(rptr + offset);
-							for (int i = 0; i < count / sizeof(double); i++, ptr++) {
-								*ptr = _pribuf[i];
-							}
-						}
-						break;
-				}
-				_pos += count;
-				return count;
-			}
-			else {
+			if (Session == null) throw new InvalidOperationException("No session is active.");
+			var count = frameCount * Format.FrameSize;
+			if (!m_playing) {
 				SilentBuffer(Format, buffer, offset, count);
 				return 0;
 			}
+			Array.Clear(_pribuf, 0, frameCount * Format.Channels);
+			lock (_lock) {
+				_rmsources.Clear();
+				foreach (var source in _sources) {
+					FillBufferInternal(source, 0, count);
+					if (source.EndOfData) _rmsources.Add(source);
+				}
+				foreach (var source in _rmsources)
+					_sources.Remove(source);
+				lock (Session._lock) {
+					var seq = Session._seq;
+					_time += (double)frameCount / Format.SampleRate;
+					while (seq.Count > 0 && seq[0].Time < _time) {
+						var item = seq[0];
+						seq.RemoveAt(0);
+						if (_sources.Count >= MaxPolyphony) continue;
+						var source = item.Source;
+						_sources.Add(source);
+						int len = (int)Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
+						FillBufferInternal(source, count - len, len);
+					}
+				}
+			}
+			switch (Format.SampleFormat) {
+				case SampleFormat.U8:
+					for (int i = offset; i < count + offset; i++) {
+						buffer[i] = SampleClipping.ToByte(_pribuf![i]);
+					}
+					break;
+				case SampleFormat.S16:
+					fixed (byte* rptr = buffer) {
+						short* ptr = (short*)(rptr + offset);
+						for (int i = 0; i < count / sizeof(short); i++, ptr++) {
+							*ptr = SampleClipping.ToInt16(_pribuf![i]);
+						}
+					}
+					break;
+				case SampleFormat.S32:
+					fixed (byte* rptr = buffer) {
+						int* ptr = (int*)(rptr + offset);
+						for (int i = 0; i < count / sizeof(int); i++, ptr++) {
+							*ptr = SampleClipping.ToInt32(_pribuf![i]);
+						}
+					}
+					break;
+				case SampleFormat.F32:
+					fixed (byte* rptr = buffer) {
+						float* ptr = (float*)(rptr + offset);
+						for (int i = 0; i < count / sizeof(float); i++, ptr++) {
+							*ptr = (float)_pribuf![i];
+						}
+					}
+					break;
+				case SampleFormat.F64:
+					fixed (byte* rptr = buffer) {
+						double* ptr = (double*)(rptr + offset);
+						for (int i = 0; i < count / sizeof(double); i++, ptr++) {
+							*ptr = _pribuf![i];
+						}
+					}
+					break;
+			}
+			return count;
 		}
 		unsafe void FillBufferInternal(AudioStream source, int offset, int count) {
-			count = source.Read(_secbuf, offset, count);
+			count = source.Read(_secbuf!, offset, count);
 			switch (Format.SampleFormat) {
 				case SampleFormat.U8:
 					for (int i = offset; i < count; i++) {
-						_pribuf[i] += _secbuf[i] / (double)0x80 - 1;
+						_pribuf![i] += _secbuf![i] / (double)0x80 - 1;
 					}
 					break;
 				case SampleFormat.S16:
 					fixed (byte* rptr = _secbuf) {
 						short* ptr = (short*)rptr;
 						for (int i = offset / sizeof(short); i < count / sizeof(short); i++, ptr++) {
-							_pribuf[i] += *ptr / (double)0x8000;
+							_pribuf![i] += *ptr / (double)0x8000;
 						}
 					}
 					break;
@@ -183,7 +177,7 @@ namespace Cryville.Audio.Source {
 					fixed (byte* rptr = _secbuf) {
 						int* ptr = (int*)rptr;
 						for (int i = offset / sizeof(int); i < count / sizeof(int); i++, ptr++) {
-							_pribuf[i] += *ptr / (double)0x80000000;
+							_pribuf![i] += *ptr / (double)0x80000000;
 						}
 					}
 					break;
@@ -191,7 +185,7 @@ namespace Cryville.Audio.Source {
 					fixed (byte* rptr = _secbuf) {
 						float* ptr = (float*)rptr;
 						for (int i = offset / sizeof(float); i < count / sizeof(float); i++, ptr++) {
-							_pribuf[i] += *ptr;
+							_pribuf![i] += *ptr;
 						}
 					}
 					break;
@@ -199,7 +193,7 @@ namespace Cryville.Audio.Source {
 					fixed (byte* rptr = _secbuf) {
 						double* ptr = (double*)rptr;
 						for (int i = offset / sizeof(double); i < count / sizeof(double); i++, ptr++) {
-							_pribuf[i] += *ptr;
+							_pribuf![i] += *ptr;
 						}
 					}
 					break;
@@ -216,6 +210,7 @@ namespace Cryville.Audio.Source {
 			if (origin != SeekOrigin.Current) throw new ArgumentException("Must seek from current position.", nameof(origin));
 			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 			if (Disposed) throw new ObjectDisposedException(null);
+			if (Session == null) throw new InvalidOperationException("No session is active.");
 			offset = Format.Align(offset, true);
 			lock (_lock) {
 				_rmsources.Clear();
@@ -240,8 +235,7 @@ namespace Cryville.Audio.Source {
 					}
 				}
 			}
-			_pos += offset;
-			return _pos;
+			return Position + offset;
 		}
 
 		/// <inheritdoc />
@@ -255,11 +249,6 @@ namespace Cryville.Audio.Source {
 		public override bool CanWrite => false;
 		/// <inheritdoc />
 		public override long Length => long.MaxValue;
-		/// <inheritdoc />
-		/// <remarks>
-		/// <para>Although this stream is seekable, setting this property is not supported and throws <see cref="NotSupportedException" />. This stream can only be seeked from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" />.</para>
-		/// </remarks>
-		public override long Position { get => _pos; set => throw new NotSupportedException(); }
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />

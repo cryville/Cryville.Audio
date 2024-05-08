@@ -78,11 +78,7 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
-		public override unsafe int Read(byte[] buffer, int offset, int count) {
-			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
-			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
-			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+		protected override unsafe int ReadInternal(byte[] buffer, int offset, int count) {
 			if (Disposed) throw new ObjectDisposedException(null);
 			count = (int)Format.Align(count, true);
 			int loadTo = Math.Min(_cache.Buffer!.Length, _pos + count);
@@ -97,6 +93,11 @@ namespace Cryville.Audio.Source {
 			}
 			SilentBuffer(Format, buffer, offset + len, count - len);
 			return len;
+		}
+
+		/// <inheritdoc />
+		protected override int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
+			return ReadInternal(buffer, offset, frameCount * Format.FrameSize) / Format.FrameSize;
 		}
 
 		/// <inheritdoc />
