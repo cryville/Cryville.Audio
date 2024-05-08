@@ -79,11 +79,11 @@ namespace Cryville.Audio.Source {
 		}
 		long _pos;
 		double _time;
-		readonly object _lock = new object();
+		readonly object _lock = new();
 		readonly List<AudioStream> _sources;
 		readonly List<AudioStream> _rmsources;
-		double[] _pribuf;
-		byte[] _secbuf;
+		double[]? _pribuf;
+		byte[]? _secbuf;
 		/// <inheritdoc />
 		public override unsafe int Read(byte[] buffer, int offset, int count) {
 			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -278,7 +278,7 @@ namespace Cryville.Audio.Source {
 		/// <summary>
 		/// The <see cref="SimpleSequencerSession" /> currently playing.
 		/// </summary>
-		public SimpleSequencerSession Session { get; private set; }
+		public SimpleSequencerSession? Session { get; private set; }
 		/// <summary>
 		/// Stops the current session and creates a new <see cref="SimpleSequencerSession" /> to replace it.
 		/// </summary>
@@ -299,19 +299,14 @@ namespace Cryville.Audio.Source {
 	/// A session for <see cref="SimpleSequencerSource" />.
 	/// </summary>
 	public class SimpleSequencerSession {
-		internal struct Schedule : IComparable<Schedule> {
-			public double Time { get; set; }
-			public AudioStream Source { get; set; }
-			public Schedule(double time, AudioStream source) {
-				Time = time;
-				Source = source;
-			}
-			public int CompareTo(Schedule other) {
-				return Time.CompareTo(other.Time);
-			}
+		internal struct Schedule(double time, AudioStream source) : IComparable<Schedule> {
+			public double Time { get; set; } = time;
+			public AudioStream Source { get; set; } = source;
+
+			public readonly int CompareTo(Schedule other) => Time.CompareTo(other.Time);
 		}
-		internal object _lock = new object();
-		internal List<Schedule> _seq = new List<Schedule>();
+		internal object _lock = new();
+		internal List<Schedule> _seq = [];
 		readonly WaveFormat _format;
 		readonly int _bufferSize;
 		internal SimpleSequencerSession(WaveFormat format, int bufferSize) {

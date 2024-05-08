@@ -9,16 +9,9 @@ namespace Cryville.Audio.Source {
 	/// <remarks>
 	/// <para>This stream is not seekable. Use <see cref="Rewind" /> to reset its timestamp to zero.</para>
 	/// </remarks>
-	public class CachedAudioSource : AudioStream {
-		/// <summary>
-		/// Creates an instance of the <see cref="CachedAudioSource" /> class.
-		/// </summary>
-		/// <param name="source">The <see cref="AudioStream" /> to be cached.</param>
-		/// <param name="duration">The duration of the cache in seconds.</param>
-		public CachedAudioSource(AudioStream source, double duration) {
-			_cache = new Cache(source, duration);
-		}
-
+	/// <param name="source">The <see cref="AudioStream" /> to be cached.</param>
+	/// <param name="duration">The duration of the cache in seconds.</param>
+	public class CachedAudioSource(AudioStream source, double duration) : AudioStream {
 		/// <summary>
 		/// Gets a clone of this <see cref="CachedAudioSource" /> with the timestamp reset.
 		/// </summary>
@@ -40,26 +33,23 @@ namespace Cryville.Audio.Source {
 		/// </remarks>
 		public void Rewind() => _pos = 0;
 
-		sealed class Cache {
+		sealed class Cache(AudioStream source, double duration) {
 			public int LoadPosition;
-			public readonly AudioStream Source;
-			public readonly double Duration;
-			public byte[] Buffer;
-			public Cache(AudioStream source, double duration) {
-				Source = source;
-				Duration = duration;
-			}
+			public readonly AudioStream Source = source;
+			public readonly double Duration = duration;
+			public byte[]? Buffer;
+
 			public void SetFormat(WaveFormat format, int bufferSize) {
 				Source.SetFormat(format, bufferSize);
 				int len = (int)format.Align(Duration * format.BytesPerSecond);
 				Buffer = new byte[len];
 			}
 			public void FillBufferTo(int pos) {
-				Source.Read(Buffer, LoadPosition, pos - LoadPosition);
+				Source.Read(Buffer!, LoadPosition, pos - LoadPosition);
 				LoadPosition = pos;
 			}
 		}
-		readonly Cache _cache;
+		readonly Cache _cache = new(source, duration);
 		int _pos;
 
 		/// <inheritdoc />
@@ -95,7 +85,7 @@ namespace Cryville.Audio.Source {
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
 			if (Disposed) throw new ObjectDisposedException(null);
 			count = (int)Format.Align(count, true);
-			int loadTo = Math.Min(_cache.Buffer.Length, _pos + count);
+			int loadTo = Math.Min(_cache.Buffer!.Length, _pos + count);
 			if (loadTo > _cache.LoadPosition) _cache.FillBufferTo(loadTo);
 			int rem = _cache.Buffer.Length - _pos;
 			int len = Math.Min(rem, count);

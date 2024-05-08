@@ -40,20 +40,18 @@ namespace Cryville.Audio.Source {
 		}
 
 		unsafe delegate void SampleHandler(ref byte* ptr, double v);
-		SampleHandler _sampleHandler;
+		SampleHandler? _sampleHandler;
 
 		/// <inheritdoc />
-		protected override unsafe void OnSetFormat() {
-			switch (Format.SampleFormat) {
-				case SampleFormat.U8: _sampleHandler = WriteU8; break;
-				case SampleFormat.S16: _sampleHandler = WriteS16; break;
-				case SampleFormat.S24: _sampleHandler = WriteS24; break;
-				case SampleFormat.S32: _sampleHandler = WriteS32; break;
-				case SampleFormat.F32: _sampleHandler = WriteF32; break;
-				case SampleFormat.F64: _sampleHandler = WriteF64; break;
-				default: throw new NotSupportedException();
-			}
-		}
+		protected override unsafe void OnSetFormat() => _sampleHandler = Format.SampleFormat switch {
+			SampleFormat.U8 => WriteU8,
+			SampleFormat.S16 => WriteS16,
+			SampleFormat.S24 => WriteS24,
+			SampleFormat.S32 => WriteS32,
+			SampleFormat.F32 => WriteF32,
+			SampleFormat.F64 => WriteF64,
+			_ => throw new NotSupportedException(),
+		};
 
 		/// <inheritdoc />
 		public sealed override unsafe int Read(byte[] buffer, int offset, int count) {
@@ -120,13 +118,12 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		public override long Seek(long offset, SeekOrigin origin) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			long newPos;
-			switch (origin) {
-				case SeekOrigin.Begin: newPos = offset; break;
-				case SeekOrigin.Current: newPos = Position + offset; break;
-				case SeekOrigin.End: newPos = Length + offset; break;
-				default: throw new ArgumentException("Invalid SeekOrigin.", nameof(origin));
-			}
+			var newPos = origin switch {
+				SeekOrigin.Begin => offset,
+				SeekOrigin.Current => Position + offset,
+				SeekOrigin.End => Length + offset,
+				_ => throw new ArgumentException("Invalid SeekOrigin.", nameof(origin)),
+			};
 			if (newPos < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
 			_pos = newPos;
 			_time = Time;

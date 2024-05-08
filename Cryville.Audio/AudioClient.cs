@@ -53,11 +53,11 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract double BufferPosition { get; }
 
-		private AudioStream m_source;
+		AudioStream? m_source;
 		/// <summary>
 		/// The audio source.
 		/// </summary>
-		public AudioStream Source {
+		public AudioStream? Source {
 			get => m_source;
 			set {
 				if (Device.DataFlow != DataFlow.Out)

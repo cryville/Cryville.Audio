@@ -21,34 +21,29 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// Bit count per sample.
 		/// </summary>
-		public ushort BitsPerSample {
-			get {
-				switch (SampleFormat) {
-					case SampleFormat.U8: return 8;
-					case SampleFormat.S16: return 16;
-					case SampleFormat.S24: return 24;
-					case SampleFormat.S32:
-					case SampleFormat.F32: return 32;
-					case SampleFormat.F64: return 64;
-					default: throw new InvalidOperationException(); // Unreachable
-				}
-			}
-		}
+		public readonly ushort BitsPerSample => SampleFormat switch {
+			SampleFormat.U8 => 8,
+			SampleFormat.S16 => 16,
+			SampleFormat.S24 => 24,
+			SampleFormat.S32 or SampleFormat.F32 => 32,
+			SampleFormat.F64 => 64,
+			_ => throw new InvalidOperationException(), // Unreachable
+		};
 
 		/// <summary>
 		/// Bytes per frame.
 		/// </summary>
-		public int FrameSize => Channels * BitsPerSample / 8;
+		public readonly int FrameSize => Channels * BitsPerSample / 8;
 
 		/// <summary>
 		/// Bytes per second.
 		/// </summary>
-		public uint BytesPerSecond => SampleRate * (uint)FrameSize;
+		public readonly uint BytesPerSecond => SampleRate * (uint)FrameSize;
 
 		/// <summary>
 		/// The default wave format.
 		/// </summary>
-		public static readonly WaveFormat Default = new WaveFormat {
+		public static readonly WaveFormat Default = new() {
 			Channels = 2, SampleRate = 48000, SampleFormat = SampleFormat.S16
 		};
 
@@ -58,7 +53,7 @@ namespace Cryville.Audio {
 		/// <param name="size">The prefered buffer size in bytes.</param>
 		/// <param name="floored">Whether the result is floored or ceiled.</param>
 		/// <returns>The aligned buffer size in bytes.</returns>
-		public long Align(long size, bool floored = false) {
+		public readonly long Align(long size, bool floored = false) {
 			if (size % FrameSize == 0) return size;
 			size /= FrameSize;
 			if (!floored) size++;
@@ -71,7 +66,7 @@ namespace Cryville.Audio {
 		/// <param name="size">The prefered buffer size in bytes.</param>
 		/// <param name="floored">Whether the result is floored or ceiled.</param>
 		/// <returns>The aligned buffer size in bytes.</returns>
-		public long Align(double size, bool floored = false) {
+		public readonly long Align(double size, bool floored = false) {
 			if (size < 0 || size > long.MaxValue) throw new ArgumentOutOfRangeException(nameof(size));
 			size /= FrameSize;
 			long blockNum = (long)(floored ? Math.Floor(size) : Math.Ceiling(size));
@@ -79,12 +74,12 @@ namespace Cryville.Audio {
 		}
 
 		/// <inheritdoc />
-		public override string ToString() {
+		public override readonly string ToString() {
 			return string.Format(CultureInfo.InvariantCulture, "{0}ch * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample);
 		}
 
 		/// <inheritdoc />
-		public bool Equals(WaveFormat other) {
+		public readonly bool Equals(WaveFormat other) {
 			if (Channels != other.Channels) return false;
 			if (SampleRate != other.SampleRate) return false;
 			if (SampleFormat != other.SampleFormat) return false;
@@ -92,14 +87,14 @@ namespace Cryville.Audio {
 		}
 
 		/// <inheritdoc />
-		public override bool Equals(object obj) {
+		public override readonly bool Equals(object obj) {
 			if (obj is WaveFormat other)
 				return Equals(other);
 			return false;
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode() {
+		public override readonly int GetHashCode() {
 			return Channels ^ (int)SampleRate ^ ((int)SampleFormat << 16);
 		}
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cryville.Audio {
@@ -11,7 +10,7 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// The list of available engines.
 		/// </summary>
-		public static readonly IList<Type> Engines = new Collection<Type> { };
+		public static readonly IList<Type> Engines = [];
 
 		/// <summary>
 		/// Creates a <see cref="IAudioDeviceManager" /> in the <see cref="Engines" /> list.
@@ -21,7 +20,7 @@ namespace Cryville.Audio {
 		/// <para>Add engines to <see cref="Engines" /> before calling this method.</para>
 		/// </remarks>
 		[SuppressMessage("Design", "CA1031")]
-		public static IAudioDeviceManager Create() {
+		public static IAudioDeviceManager? Create() {
 			foreach (var type in Engines) {
 				if (!typeof(IAudioDeviceManager).IsAssignableFrom(type)) continue;
 				try {
