@@ -18,7 +18,12 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://www.cryville.world/Projects/A012</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageReleaseNotes>## Breaking changes
+- Pull some common checks and calculations from derived audio stream classes up to the base audio stream class.
+
+## Bug fixes
+- Add format set check in cache audio source.
+</PackageReleaseNotes>
 		<PackageTags>audio, playback</PackageTags>
 		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
 		<Version>4.0.0</Version>
