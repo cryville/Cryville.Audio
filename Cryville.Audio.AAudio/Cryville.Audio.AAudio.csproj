@@ -1,5 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<ProjectGuid>{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}</ProjectGuid>
 		<TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
@@ -30,7 +29,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="README.md" />
+		<None Update="Cryville.Audio.AAudio.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="README.md" Pack="True" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
