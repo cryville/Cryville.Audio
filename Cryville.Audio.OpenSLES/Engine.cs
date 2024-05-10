@@ -1,6 +1,8 @@
 using OpenSLES.Native;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 
 namespace Cryville.Audio.OpenSLES {
 	/// <summary>
@@ -18,40 +20,34 @@ namespace Cryville.Audio.OpenSLES {
 			Util.SLR(ObjEngine.Obj.Realize(ObjEngine, false), "ObjEngine.Realize");
 		}
 
+		int _disposed;
 		/// <inheritdoc />
 		~Engine() {
 			Dispose(false);
 		}
-
 		/// <inheritdoc />
 		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">Whether the method is being called by user.</param>
 		protected virtual void Dispose(bool disposing) {
-			if (ObjEngine != null) {
-				ObjEngine.Obj.Destroy(ObjEngine);
-				ObjEngine = null;
-			}
+			if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+			ObjEngine.Obj.Destroy(ObjEngine);
 		}
 
 		/// <inheritdoc />
-		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) {
-			return new OutputDevice(this);
-		}
+		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) => new OutputDevice(this);
 
 		/// <inheritdoc />
-		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
-			switch (dataFlow) {
-				case DataFlow.Out: return new IAudioDevice[] { new OutputDevice(this) };
-				case DataFlow.In: throw new NotImplementedException();
-				default: throw new NotSupportedException();
-			}
-		}
+		[SuppressMessage("Reliability", "CA2000")]
+		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) => dataFlow switch {
+			DataFlow.Out => [new OutputDevice(this)],
+			DataFlow.In => throw new NotImplementedException(),
+			_ => throw new NotSupportedException(),
+		};
 	}
 }

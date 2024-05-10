@@ -33,7 +33,7 @@ namespace OpenSLES.Native {
 		public static extern SLresult slCreateEngine(
 			out IntPtr pEngine,
 			UInt32 numOptions,
-			[MarshalAs(UnmanagedType.LPArray)] SLEngineOption[] pEngineOptions,
+			[MarshalAs(UnmanagedType.LPArray)] SLEngineOption[]? pEngineOptions,
 			UInt32 numInterfaces,
 			IntPtr pInterfaceIds,
 			IntPtr pInterfaceRequired

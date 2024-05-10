@@ -3,7 +3,9 @@
     <ProjectGuid>{59B41727-0B40-460F-A145-B7B92EA62A9D}</ProjectGuid>
     <TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
     <AnalysisLevel>latest-all</AnalysisLevel>
+		<Nullable>enable</Nullable>
   </PropertyGroup>
   
   <PropertyGroup>

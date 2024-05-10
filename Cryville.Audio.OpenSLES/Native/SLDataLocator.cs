@@ -15,21 +15,13 @@ namespace OpenSLES.Native {
 		CONTENTPIPE     = 0x00000009,
 	}
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct SLDataLocator_BufferQueue {
-		public UInt32 locatorType;
-		public UInt32 numBuffers;
-		public SLDataLocator_BufferQueue(UInt32 num) {
-			locatorType = (uint)SL_DATALOCATOR.BUFFERQUEUE;
-			numBuffers = num;
-		}
+	internal struct SLDataLocator_BufferQueue(UInt32 num) {
+		public UInt32 locatorType = (UInt32)SL_DATALOCATOR.BUFFERQUEUE;
+		public UInt32 numBuffers = num;
 	}
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct SLDataLocator_OutputMix {
-		public UInt32 locatorType;
-		public IntPtr outputMix;
-		public SLDataLocator_OutputMix(IntPtr obj) {
-			locatorType = (uint)SL_DATALOCATOR.OUTPUTMIX;
-			outputMix = obj;
-		}
+	internal struct SLDataLocator_OutputMix(IntPtr obj) {
+		public UInt32 locatorType = (UInt32)SL_DATALOCATOR.OUTPUTMIX;
+		public IntPtr outputMix = obj;
 	}
 }

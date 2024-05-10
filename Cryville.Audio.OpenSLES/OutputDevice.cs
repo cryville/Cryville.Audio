@@ -74,36 +74,35 @@ namespace Cryville.Audio.OpenSLES {
 			}
 			else {
 				var env = JavaVMManager.CurrentEnv;
-				using (var frame = new JniLocalFrame(env, 6)) {
-					var manager = AndroidHelper.GetSystemService(env, AndroidHelper.GetCurrentApplication(env), "AUDIO_SERVICE");
-					var c = env.GetObjectClass(manager);
-					if (c == IntPtr.Zero) throw new InvalidOperationException("Could not get the AudioManager class.");
-					var m = env.GetMethodID(c, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
-					if (m == IntPtr.Zero) {
-						m_burstSize = 256;
-						m_defaultSampleRate = WaveFormat.Default.SampleRate;
-						return;
-					}
+				using var frame = new JniLocalFrame(env, 6);
+				var manager = AndroidHelper.GetSystemService(env, AndroidHelper.GetCurrentApplication(env), "AUDIO_SERVICE");
+				var c = env.GetObjectClass(manager);
+				if (c == IntPtr.Zero) throw new InvalidOperationException("Could not get the AudioManager class.");
+				var m = env.GetMethodID(c, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+				if (m == IntPtr.Zero) {
+					m_burstSize = 256;
+					m_defaultSampleRate = WaveFormat.Default.SampleRate;
+					return;
+				}
 
-					var f1 = env.GetStaticFieldID(c, "PROPERTY_OUTPUT_SAMPLE_RATE", "Ljava/lang/String;");
-					if (f1 == IntPtr.Zero) throw new InvalidOperationException("Could not find the static field PROPERTY_OUTPUT_SAMPLE_RATE.");
-					var p1 = env.GetStaticObjectField(c, f1);
-					var v1 = env.CallObjectMethod(manager, m, new JniValue[] { new JniValue(p1) });
-					if (v1 == IntPtr.Zero) m_defaultSampleRate = WaveFormat.Default.SampleRate;
-					else {
-						var pstr = env.GetStringChars(v1, out _);
-						m_defaultSampleRate = uint.Parse(new string(pstr, 0, env.GetStringLength(v1)), CultureInfo.InvariantCulture);
-					}
+				var f1 = env.GetStaticFieldID(c, "PROPERTY_OUTPUT_SAMPLE_RATE", "Ljava/lang/String;");
+				if (f1 == IntPtr.Zero) throw new InvalidOperationException("Could not find the static field PROPERTY_OUTPUT_SAMPLE_RATE.");
+				var p1 = env.GetStaticObjectField(c, f1);
+				var v1 = env.CallObjectMethod(manager, m, [new JniValue(p1)]);
+				if (v1 == IntPtr.Zero) m_defaultSampleRate = WaveFormat.Default.SampleRate;
+				else {
+					var pstr = env.GetStringChars(v1, out _);
+					m_defaultSampleRate = uint.Parse(new string(pstr, 0, env.GetStringLength(v1)), CultureInfo.InvariantCulture);
+				}
 
-					var f2 = env.GetStaticFieldID(c, "PROPERTY_OUTPUT_FRAMES_PER_BUFFER", "Ljava/lang/String;");
-					if (f2 == IntPtr.Zero) throw new InvalidOperationException("Could not find the static field PROPERTY_OUTPUT_FRAMES_PER_BUFFER.");
-					var p2 = env.GetStaticObjectField(c, f2);
-					var v2 = env.CallObjectMethod(manager, m, new JniValue[] { new JniValue(p2) });
-					if (v2 == IntPtr.Zero) m_burstSize = 256;
-					else {
-						var pstr = env.GetStringChars(v2, out _);
-						m_burstSize = int.Parse(new string(pstr, 0, env.GetStringLength(v2)), CultureInfo.InvariantCulture);
-					}
+				var f2 = env.GetStaticFieldID(c, "PROPERTY_OUTPUT_FRAMES_PER_BUFFER", "Ljava/lang/String;");
+				if (f2 == IntPtr.Zero) throw new InvalidOperationException("Could not find the static field PROPERTY_OUTPUT_FRAMES_PER_BUFFER.");
+				var p2 = env.GetStaticObjectField(c, f2);
+				var v2 = env.CallObjectMethod(manager, m, [new JniValue(p2)]);
+				if (v2 == IntPtr.Zero) m_burstSize = 256;
+				else {
+					var pstr = env.GetStringChars(v2, out _);
+					m_burstSize = int.Parse(new string(pstr, 0, env.GetStringLength(v2)), CultureInfo.InvariantCulture);
 				}
 			}
 		}

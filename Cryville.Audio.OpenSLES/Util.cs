@@ -4,12 +4,11 @@ using System.Runtime.Serialization;
 
 namespace Cryville.Audio.OpenSLES {
 	internal static class Util {
-		public static void SLR(SLresult result, string desc = null) {
-			if (result != SLresult.SUCCESS) {
-				var msg = result.ToString();
-				if (desc != null) msg = desc + ": " + msg;
-				throw new OpenSLException(msg);
-			}
+		public static void SLR(SLresult result, string? desc = null) {
+			if (result == SLresult.SUCCESS) return;
+			var msg = result.ToString();
+			if (desc != null) msg = desc + ": " + msg;
+			throw new OpenSLException(msg);
 		}
 
 		public static SLDataFormat_PCM ToInternalFormat(WaveFormat value) {

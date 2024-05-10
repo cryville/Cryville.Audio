@@ -10,7 +10,7 @@ namespace Cryville.Audio.OpenSLES {
 	/// An <see cref="AudioClient" /> that interacts with OpenSL ES.
 	/// </summary>
 	public class OutputClient : AudioClient {
-		static readonly List<OutputClient> _instances = new List<OutputClient>();
+		static readonly List<OutputClient> _instances = [];
 		readonly int _id;
 
 		internal OutputClient(Engine engine, OutputDevice device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
@@ -79,7 +79,7 @@ namespace Cryville.Audio.OpenSLES {
 			}
 		}
 
-		readonly List<GCHandle> _handles = new List<GCHandle>();
+		readonly List<GCHandle> _handles = [];
 		readonly Engine _objEngine;
 		readonly SLItfWrapper<SLEngineItf> _engine;
 		readonly SLItfWrapper<SLObjectItf> _objMix;
@@ -139,7 +139,7 @@ namespace Cryville.Audio.OpenSLES {
 			}
 		}
 
-		readonly object _enqlock = new object();
+		readonly object _enqlock = new();
 		int _bufc;
 		void Enqueue() {
 			lock (_enqlock) {
