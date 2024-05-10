@@ -1,35 +1,44 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <ProjectGuid>{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}</ProjectGuid>
-    <TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<PropertyGroup>
+		<ProjectGuid>{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}</ProjectGuid>
+		<TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
-    <AnalysisLevel>latest-all</AnalysisLevel>
+		<AnalysisLevel>latest-all</AnalysisLevel>
 		<Nullable>enable</Nullable>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-    <Authors>Cryville</Authors>
-    <Version>3.0.0</Version>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <DocumentationFile>Cryville.Audio.AAudio.xml</DocumentationFile>
-  </PropertyGroup>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Cryville</Authors>
+		<Copyright>Copyright (c) Cryville 2024</Copyright>
+		<Description>AAudio engine adapter for Cryville.Audio.</Description>
+		<DocumentationFile>Cryville.Audio.AAudio.xml</DocumentationFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.cryville.world/Projects/A012</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageTags>audio, playback, android</PackageTags>
+		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
+		<Version>4.0.0</Version>
+	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
-  </PropertyGroup>
+		<DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="README.md" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Cryville.Common.Interop">
-      <HintPath>..\References\Cryville.Common.Interop.dll</HintPath>
-    </Reference>
-    <Reference Include="Cryville.Interop.Java">
-      <HintPath>..\References\Cryville.Interop.Java.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Cryville.Interop.Java" Version="2.0.0" />
+		<PackageReference Include="Cryville.Interop.Mono" Version="2.0.0" />
+	</ItemGroup>
 </Project>

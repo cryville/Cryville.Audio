@@ -1,5 +1,5 @@
 using Android.AAudio.Native;
-using Cryville.Common.Interop;
+using Cryville.Interop.Mono;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -79,12 +79,13 @@ namespace Cryville.Audio.AAudio {
 		unsafe void FillBuffer(IntPtr ptr, int frames) {
 			var len = frames * Format.FrameSize;
 			if (Source == null || Muted) Array.Clear(_buffer, 0, len);
-			else Source.Read(_buffer, 0, len);
+			else Source.ReadFrames(_buffer, 0, frames);
 			Marshal.Copy(_buffer, 0, ptr, len);
 			m_bufferPosition += (double)frames / Format.SampleRate;
 		}
 
-		[MonoPInvokeCallback]
+		delegate aaudio_data_callback_result_t DataHandler(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames);
+		[MonoPInvokeCallback(typeof(DataHandler))]
 		internal static unsafe aaudio_data_callback_result_t DataCallback(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames) {
 			if (!_instances.TryGetValue(stream, out var instance))
 				return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_STOP;
