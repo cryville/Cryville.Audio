@@ -1,4 +1,4 @@
-using Cryville.Common.Interop;
+using Cryville.Common.Compat;
 using System;
 using System.Runtime.InteropServices;
 

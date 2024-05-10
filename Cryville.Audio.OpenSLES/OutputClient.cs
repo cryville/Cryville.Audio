@@ -1,4 +1,4 @@
-using Cryville.Common.Interop;
+using Cryville.Interop.Mono;
 using OpenSLES.Native;
 using System;
 using System.Collections.Generic;
@@ -147,14 +147,15 @@ namespace Cryville.Audio.OpenSLES {
 				_bufc++;
 				int length = BufferSize * m_format.FrameSize;
 				if (Source == null || Muted) Array.Clear(_buf[_bufi], 0, length);
-				else Source.Read(_buf[_bufi], 0, length);
+				else Source.ReadFrames(_buf[_bufi], 0, BufferSize);
 				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)length));
 				_bufi %= BUFFER_COUNT;
 				m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 			}
 		}
 
-		[MonoPInvokeCallback]
+		delegate void DataHandler(IntPtr caller, IntPtr pContext);
+		[MonoPInvokeCallback(typeof(DataHandler))]
 		static void Callback(IntPtr caller, IntPtr pContext) {
 			var i = _instances[pContext.ToInt32()];
 			i._bufc--;
