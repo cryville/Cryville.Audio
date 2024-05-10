@@ -55,24 +55,22 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
 			var env = JavaVMManager.CurrentEnv;
-			using (var frame0 = new JniLocalFrame(env, 2)) {
-				var devs = IntPtr.Zero;
-				using (var frame1 = new JniLocalFrame(env, 2)) {
-					var c = env.GetObjectClass(_manager);
-					if (c == IntPtr.Zero) throw new InvalidOperationException("Could not get the AudioManager class.");
-					var m = env.GetMethodID(c, "getDevices", "(I)[Landroid/media/AudioDeviceInfo;");
-					if (m == IntPtr.Zero) throw new InvalidOperationException("Could not find the method getDevices(int).");
-					devs = frame1.Pop(env.CallObjectMethod(_manager, m, new JniValue[] { ToInternalDataFlow(dataFlow) }));
-				}
-				var count = env.GetArrayLength(devs);
-				var result = new AAudioStreamBuilder[count];
-				for (int i = 0; i < count; i++) {
-					using (var frame2 = new JniLocalFrame(env, 1)) {
-						result[i] = new AAudioStreamBuilder(env, env.GetObjectArrayElement(devs, i));
-					}
-				}
-				return result;
+			using var frame0 = new JniLocalFrame(env, 2);
+			var devs = IntPtr.Zero;
+			using (var frame1 = new JniLocalFrame(env, 2)) {
+				var c = env.GetObjectClass(_manager);
+				if (c == IntPtr.Zero) throw new InvalidOperationException("Could not get the AudioManager class.");
+				var m = env.GetMethodID(c, "getDevices", "(I)[Landroid/media/AudioDeviceInfo;");
+				if (m == IntPtr.Zero) throw new InvalidOperationException("Could not find the method getDevices(int).");
+				devs = frame1.Pop(env.CallObjectMethod(_manager, m, [ToInternalDataFlow(dataFlow)]));
 			}
+			var count = env.GetArrayLength(devs);
+			var result = new AAudioStreamBuilder[count];
+			for (int i = 0; i < count; i++) {
+				using var frame2 = new JniLocalFrame(env, 1);
+				result[i] = new AAudioStreamBuilder(env, env.GetObjectArrayElement(devs, i));
+			}
+			return result;
 		}
 
 		static JniValue ToInternalDataFlow(DataFlow dataFlow) {

@@ -11,7 +11,7 @@ namespace Cryville.Audio.AAudio {
 	/// </summary>
 	[SuppressMessage("Naming", "CA1711")]
 	public class AAudioStream : AudioClient {
-		static readonly Dictionary<IntPtr, AAudioStream> _instances = new Dictionary<IntPtr, AAudioStream>();
+		static readonly Dictionary<IntPtr, AAudioStream> _instances = [];
 
 		readonly AAudioStreamBuilder _builder;
 		readonly IntPtr _stream;

@@ -4,7 +4,9 @@
     <ProjectGuid>{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}</ProjectGuid>
     <TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
     <AnalysisLevel>latest-all</AnalysisLevel>
+		<Nullable>enable</Nullable>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -14,24 +16,8 @@
     <DocumentationFile>Cryville.Audio.AAudio.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netframework35|AnyCPU'">
-    <DebugType>none</DebugType>
-    <DefineConstants>$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <DebugType>none</DebugType>
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netframework35|AnyCPU'">
-    <DefineConstants>$(DefineConstants)</DefineConstants>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
-    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

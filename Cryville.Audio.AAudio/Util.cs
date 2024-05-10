@@ -3,15 +3,13 @@ using System;
 
 namespace Cryville.Audio.AAudio {
 	internal static class Util {
-		public static SampleFormat FromInternalSampleFormat(aaudio_format_t sampleFormat) {
-			switch (sampleFormat) {
-				case aaudio_format_t.AAUDIO_FORMAT_PCM_I16: return SampleFormat.S16;
-				case aaudio_format_t.AAUDIO_FORMAT_PCM_FLOAT: return SampleFormat.F32;
-				case aaudio_format_t.AAUDIO_FORMAT_PCM_I24_PACKED: return SampleFormat.S24;
-				case aaudio_format_t.AAUDIO_FORMAT_PCM_I32: return SampleFormat.S32;
-				default: return SampleFormat.Invalid;
-			}
-		}
+		public static SampleFormat FromInternalSampleFormat(aaudio_format_t sampleFormat) => sampleFormat switch {
+			aaudio_format_t.AAUDIO_FORMAT_PCM_I16 => SampleFormat.S16,
+			aaudio_format_t.AAUDIO_FORMAT_PCM_FLOAT => SampleFormat.F32,
+			aaudio_format_t.AAUDIO_FORMAT_PCM_I24_PACKED => SampleFormat.S24,
+			aaudio_format_t.AAUDIO_FORMAT_PCM_I32 => SampleFormat.S32,
+			_ => SampleFormat.Invalid,
+		};
 
 		public static WaveFormat FromInternalWaveFormat(IntPtr stream) {
 			var ch = UnsafeNativeMethods.AAudioStream_getChannelCount(stream);
@@ -31,30 +29,24 @@ namespace Cryville.Audio.AAudio {
 			UnsafeNativeMethods.AAudioStreamBuilder_setSharingMode(builder, ToInternalSharingMode(shareMode));
 		}
 
-		public static aaudio_direction_t ToInternalDataFlow(DataFlow dataFlow) {
-			switch (dataFlow) {
-				case DataFlow.Out: return aaudio_direction_t.AAUDIO_DIRECTION_OUTPUT;
-				case DataFlow.In: return aaudio_direction_t.AAUDIO_DIRECTION_INPUT;
-				default: throw new ArgumentOutOfRangeException(nameof(dataFlow));
-			}
-		}
+		public static aaudio_direction_t ToInternalDataFlow(DataFlow dataFlow) => dataFlow switch {
+			DataFlow.Out => aaudio_direction_t.AAUDIO_DIRECTION_OUTPUT,
+			DataFlow.In => aaudio_direction_t.AAUDIO_DIRECTION_INPUT,
+			_ => throw new ArgumentOutOfRangeException(nameof(dataFlow)),
+		};
 
-		public static aaudio_format_t ToInternalSampleFormat(SampleFormat sampleFormat) {
-			switch (sampleFormat) {
-				case SampleFormat.S16: return aaudio_format_t.AAUDIO_FORMAT_PCM_I16;
-				case SampleFormat.F32: return aaudio_format_t.AAUDIO_FORMAT_PCM_FLOAT;
-				case SampleFormat.S24: return aaudio_format_t.AAUDIO_FORMAT_PCM_I24_PACKED;
-				case SampleFormat.S32: return aaudio_format_t.AAUDIO_FORMAT_PCM_I32;
-				default: throw new NotSupportedException("Unsupported sample format.");
-			}
-		}
+		public static aaudio_format_t ToInternalSampleFormat(SampleFormat sampleFormat) => sampleFormat switch {
+			SampleFormat.S16 => aaudio_format_t.AAUDIO_FORMAT_PCM_I16,
+			SampleFormat.F32 => aaudio_format_t.AAUDIO_FORMAT_PCM_FLOAT,
+			SampleFormat.S24 => aaudio_format_t.AAUDIO_FORMAT_PCM_I24_PACKED,
+			SampleFormat.S32 => aaudio_format_t.AAUDIO_FORMAT_PCM_I32,
+			_ => throw new NotSupportedException("Unsupported sample format."),
+		};
 
-		public static aaudio_sharing_mode_t ToInternalSharingMode(AudioShareMode shareMode) {
-			switch (shareMode) {
-				case AudioShareMode.Shared: return aaudio_sharing_mode_t.AAUDIO_SHARING_MODE_SHARED;
-				case AudioShareMode.Exclusive: return aaudio_sharing_mode_t.AAUDIO_SHARING_MODE_EXCLUSIVE;
-				default: throw new ArgumentOutOfRangeException(nameof(shareMode));
-			}
-		}
+		public static aaudio_sharing_mode_t ToInternalSharingMode(AudioShareMode shareMode) => shareMode switch {
+			AudioShareMode.Shared => aaudio_sharing_mode_t.AAUDIO_SHARING_MODE_SHARED,
+			AudioShareMode.Exclusive => aaudio_sharing_mode_t.AAUDIO_SHARING_MODE_EXCLUSIVE,
+			_ => throw new ArgumentOutOfRangeException(nameof(shareMode)),
+		};
 	}
 }

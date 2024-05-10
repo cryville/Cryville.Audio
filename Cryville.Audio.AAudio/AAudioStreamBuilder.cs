@@ -15,33 +15,27 @@ namespace Cryville.Audio.AAudio {
 		static IntPtr m_toString;
 		static void GetMethodIds(IJniEnv env) {
 			if (m_name != IntPtr.Zero) return;
-			using (var frame = new JniLocalFrame(env, 2)) {
-				var c_deviceInfo = env.FindClass("android/media/AudioDeviceInfo");
-				m_id = env.GetMethodID(c_deviceInfo, "getId", "()I");
-				m_name = env.GetMethodID(c_deviceInfo, "getProductName", "()Ljava/lang/CharSequence;");
-				m_sink = env.GetMethodID(c_deviceInfo, "isSink", "()Z");
-				m_source = env.GetMethodID(c_deviceInfo, "isSource", "()Z");
-				var c_charSequence = env.FindClass("java/lang/CharSequence");
-				m_toString = env.GetMethodID(c_charSequence, "toString", "()Ljava/lang/String;");
-			}
+			using var frame = new JniLocalFrame(env, 2);
+			var c_deviceInfo = env.FindClass("android/media/AudioDeviceInfo");
+			m_id = env.GetMethodID(c_deviceInfo, "getId", "()I");
+			m_name = env.GetMethodID(c_deviceInfo, "getProductName", "()Ljava/lang/CharSequence;");
+			m_sink = env.GetMethodID(c_deviceInfo, "isSink", "()Z");
+			m_source = env.GetMethodID(c_deviceInfo, "isSource", "()Z");
+			var c_charSequence = env.FindClass("java/lang/CharSequence");
+			m_toString = env.GetMethodID(c_charSequence, "toString", "()Ljava/lang/String;");
 		}
-#if NETCOREAPP1_0_OR_GREATER || NETSTANDARD1_3_OR_GREATER || NET46_OR_GREATER
-		static readonly JniValue[] _args0 = Array.Empty<JniValue>();
-#else
-		static readonly JniValue[] _args0 = new JniValue[0];
-#endif
+		static readonly JniValue[] _args0 = [];
 		internal unsafe AAudioStreamBuilder(IJniEnv env, IntPtr deviceInfo) {
 			GetMethodIds(env);
-			using (var frame = new JniLocalFrame(env, 2)) {
-				_id = env.CallIntMethod(deviceInfo, m_id, _args0);
-				var cs = env.CallObjectMethod(deviceInfo, m_name, _args0);
-				var str = env.CallObjectMethod(cs, m_toString, _args0);
-				var pstr = env.GetStringChars(str, out _);
-				Name = new string(pstr, 0, env.GetStringLength(str));
-				env.ReleaseStringChars(str, pstr);
-				if (env.CallBooleanMethod(deviceInfo, m_sink, _args0)) DataFlow = DataFlow.Out;
-				if (env.CallBooleanMethod(deviceInfo, m_source, _args0)) DataFlow = DataFlow.In;
-			}
+			using var frame = new JniLocalFrame(env, 2);
+			_id = env.CallIntMethod(deviceInfo, m_id, _args0);
+			var cs = env.CallObjectMethod(deviceInfo, m_name, _args0);
+			var str = env.CallObjectMethod(cs, m_toString, _args0);
+			var pstr = env.GetStringChars(str, out _);
+			Name = new string(pstr, 0, env.GetStringLength(str));
+			env.ReleaseStringChars(str, pstr);
+			if (env.CallBooleanMethod(deviceInfo, m_sink, _args0)) DataFlow = DataFlow.Out;
+			if (env.CallBooleanMethod(deviceInfo, m_source, _args0)) DataFlow = DataFlow.In;
 		}
 		internal unsafe AAudioStreamBuilder(DataFlow dataFlow) {
 			_id = 0;
