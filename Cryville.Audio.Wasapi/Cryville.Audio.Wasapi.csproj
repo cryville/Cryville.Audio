@@ -1,41 +1,41 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <ProjectGuid>{1C6BB641-5FA5-4FD5-81E5-8300BEAD7631}</ProjectGuid>
-    <TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<ProjectGuid>{1C6BB641-5FA5-4FD5-81E5-8300BEAD7631}</ProjectGuid>
+		<TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
-    <AnalysisLevel>latest-all</AnalysisLevel>
+		<AnalysisLevel>latest-all</AnalysisLevel>
 		<Nullable>enable</Nullable>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-    <Authors>Cryville</Authors>
-    <Version>3.0.1</Version>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <DocumentationFile>Cryville.Audio.Wasapi.xml</DocumentationFile>
-  </PropertyGroup>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netframework35|AnyCPU'">
-    <DebugType>none</DebugType>
-    <DefineConstants>$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Authors>Cryville</Authors>
+		<Copyright>Copyright (c) Cryville 2024</Copyright>
+		<Description>WASAPI engine adapter for Cryville.Audio.</Description>
+		<DocumentationFile>Cryville.Audio.Wasapi.xml</DocumentationFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.cryville.world/Projects/A012</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageTags>audio, playback, windows</PackageTags>
+		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
+		<Version>4.0.0</Version>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <DebugType>none</DebugType>
-    <DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+		<DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netframework35|AnyCPU'">
-    <DefineConstants>$(DefineConstants)</DefineConstants>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
+	<ItemGroup>
+		<None Update="Cryville.Audio.Wasapi.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="README.md" Pack="True" PackagePath="\" />
+	</ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DefineConstants>$(DefineConstants);USE_SAFE_DLL_IMPORT</DefineConstants>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
+	</ItemGroup>
 </Project>
