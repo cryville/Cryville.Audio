@@ -23,14 +23,12 @@ namespace Cryville.Audio.WaveformAudio {
 				SampleFormat = FromInternalBitDepth(value.wBitsPerSample),
 			};
 		}
-		public static SampleFormat FromInternalBitDepth(ushort bitsPerSample) {
-			switch (bitsPerSample) {
-				case 8: return SampleFormat.U8;
-				case 16: return SampleFormat.S16;
-				case 24: return SampleFormat.S24;
-				case 32: return SampleFormat.S32;
-				default: throw new NotSupportedException();
-			}
-		}
+		public static SampleFormat FromInternalBitDepth(ushort bitsPerSample) => bitsPerSample switch {
+			8 => SampleFormat.U8,
+			16 => SampleFormat.S16,
+			24 => SampleFormat.S24,
+			32 => SampleFormat.S32,
+			_ => throw new NotSupportedException(),
+		};
 	}
 }

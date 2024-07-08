@@ -11,7 +11,7 @@ namespace Microsoft.Windows {
 			/* LPSECURITY_ATTRIBUTES */ IntPtr lpEventAttributes,
 			[MarshalAs(UnmanagedType.Bool)] bool bManualReset,
 			[MarshalAs(UnmanagedType.Bool)] bool bInitialState,
-			[MarshalAs(UnmanagedType.LPWStr)] string lpName
+			[MarshalAs(UnmanagedType.LPWStr)] string? lpName
 		);
 
 #if USE_SAFE_DLL_IMPORT

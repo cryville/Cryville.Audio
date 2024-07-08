@@ -29,22 +29,18 @@ namespace Cryville.Audio.WaveformAudio {
 		protected virtual void Dispose(bool disposing) { }
 
 		/// <inheritdoc />
-		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) {
-			switch (dataFlow) {
-				case DataFlow.Out: return new WaveOutDevice(MmeExports.WAVE_MAPPER);
-				case DataFlow.In: throw new NotImplementedException();
-				default: throw new NotImplementedException();
-			}
-		}
+		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) => dataFlow switch {
+			DataFlow.Out => new WaveOutDevice(MmeExports.WAVE_MAPPER),
+			DataFlow.In => throw new NotImplementedException(),
+			_ => throw new NotImplementedException(),
+		};
 
 		/// <inheritdoc />
-		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
-			switch (dataFlow) {
-				case DataFlow.Out: return new WaveOutDeviceCollection();
-				case DataFlow.In: throw new NotImplementedException();
-				default: throw new NotSupportedException();
-			}
-		}
+		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) => dataFlow switch {
+			DataFlow.Out => new WaveOutDeviceCollection(),
+			DataFlow.In => throw new NotImplementedException(),
+			_ => throw new NotSupportedException(),
+		};
 
 		internal sealed class WaveOutDeviceCollection : IEnumerable<IAudioDevice> {
 			public WaveOutDeviceCollection() {
@@ -61,28 +57,19 @@ namespace Cryville.Audio.WaveformAudio {
 				}
 			}
 
-			public Enumerator GetEnumerator() => new Enumerator(this);
-
+			public Enumerator GetEnumerator() => new(this);
 			IEnumerator<IAudioDevice> IEnumerable<IAudioDevice>.GetEnumerator() => GetEnumerator();
-
 			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-			public struct Enumerator : IEnumerator<IAudioDevice> {
-				readonly WaveOutDeviceCollection _obj;
-				int _index;
+			public struct Enumerator(WaveOutDeviceCollection obj) : IEnumerator<IAudioDevice> {
+				int _index = -1;
 
-				public Enumerator(WaveOutDeviceCollection obj) {
-					_obj = obj;
-					_index = -1;
-				}
+				public readonly IAudioDevice Current => obj[_index];
+				readonly object IEnumerator.Current => Current;
 
-				public IAudioDevice Current => _obj[_index];
+				public readonly void Dispose() { }
 
-				object IEnumerator.Current => Current;
-
-				public void Dispose() { }
-
-				public bool MoveNext() => ++_index < _obj.Count;
+				public bool MoveNext() => ++_index < obj.Count;
 
 				public void Reset() => _index = -1;
 			}

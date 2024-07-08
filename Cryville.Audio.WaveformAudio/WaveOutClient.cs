@@ -93,7 +93,7 @@ namespace Cryville.Audio.WaveformAudio {
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;
 
-		MMTIME _time = new MMTIME { wType = (uint)TIME_TYPE.BYTES };
+		MMTIME _time = new() { wType = (uint)TIME_TYPE.BYTES };
 		/// <inheritdoc />
 		public override double Position {
 			get {
@@ -123,7 +123,7 @@ namespace Cryville.Audio.WaveformAudio {
 		public override void Pause() {
 			if (Playing) {
 				_threadAbortFlag = true;
-				if (!_thread.Join(1000))
+				if (_thread != null && !_thread.Join(1000))
 					throw new InvalidOperationException("Failed to pause audio client.");
 				_thread = null;
 				MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
@@ -131,7 +131,7 @@ namespace Cryville.Audio.WaveformAudio {
 			}
 		}
 
-		Thread _thread;
+		Thread? _thread;
 		bool _threadAbortFlag;
 		void ThreadLogic() {
 			_threadAbortFlag = false;
@@ -143,7 +143,7 @@ namespace Cryville.Audio.WaveformAudio {
 							Array.Clear(b.Buffer, 0, b.Buffer.Length);
 						}
 						else {
-							Source.Read(b.Buffer, 0, BufferSize * m_format.FrameSize);
+							Source.ReadFrames(b.Buffer, 0, BufferSize);
 						}
 						MmSysComExports.MMR(MmeExports.waveOutWrite(_waveOutHandle, ref b.Header, SIZE_WAVEHDR));
 						m_bufferPosition += (double)BufferSize / m_format.SampleRate;

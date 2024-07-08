@@ -23,19 +23,15 @@ namespace Microsoft.Windows.MmSysCom {
 		[FieldOffset(4)] readonly UInt32 ticks;
 		[FieldOffset(4)] readonly smpte  smpte;
 		[FieldOffset(4)] readonly UInt32 songptrpos;
-		public object Value {
-			get {
-				switch ((TIME_TYPE)wType) {
-					case TIME_TYPE.MS: return ms;
-					case TIME_TYPE.SAMPLES: return sample;
-					case TIME_TYPE.BYTES: return cb;
-					case TIME_TYPE.TICKS: return ticks;
-					case TIME_TYPE.SMPTE: return smpte;
-					case TIME_TYPE.MIDI: return songptrpos;
-					default: throw new NotSupportedException();
-				}
-			}
-		}
+		public readonly object Value => (TIME_TYPE)wType switch {
+			TIME_TYPE.MS => ms,
+			TIME_TYPE.SAMPLES => sample,
+			TIME_TYPE.BYTES => cb,
+			TIME_TYPE.TICKS => ticks,
+			TIME_TYPE.SMPTE => smpte,
+			TIME_TYPE.MIDI => songptrpos,
+			_ => throw new NotSupportedException(),
+		};
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
