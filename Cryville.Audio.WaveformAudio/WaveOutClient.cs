@@ -10,7 +10,7 @@ namespace Cryville.Audio.WaveformAudio {
 	/// An <see cref="AudioClient" /> that interacts with WinMM.
 	/// </summary>
 	public class WaveOutClient : AudioClient {
-		const int BUFFER_COUNT = 3;
+		const int BUFFER_COUNT = 2;
 		static readonly uint SIZE_WAVEHDR = (uint)Marshal.SizeOf(typeof(WAVEHDR));
 
 		internal WaveOutClient(WaveOutDevice device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
@@ -138,7 +138,7 @@ namespace Cryville.Audio.WaveformAudio {
 			while (true) {
 				for (int i = 0; i < BUFFER_COUNT; i++) {
 					var b = _buffers[i];
-					if ((b.Header.dwFlags & (uint)WHDR.DONE) != 0 || !b.Filled) {
+					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
 						if (Source == null || Muted) {
 							Array.Clear(b.Buffer, 0, b.Buffer.Length);
 						}
@@ -146,7 +146,6 @@ namespace Cryville.Audio.WaveformAudio {
 							Source.Read(b.Buffer, 0, BufferSize * m_format.FrameSize);
 						}
 						MmSysComExports.MMR(MmeExports.waveOutWrite(_waveOutHandle, ref b.Header, SIZE_WAVEHDR));
-						b.Filled = true;
 						m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 					}
 				}

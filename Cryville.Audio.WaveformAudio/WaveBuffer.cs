@@ -11,8 +11,6 @@ namespace Cryville.Audio.WaveformAudio {
 		GCHandle _ptrbuffer;
 		public readonly IntPtr BufferPtr;
 
-		public bool Filled;
-
 		public WaveBuffer(uint bufferSize) {
 			Buffer = new byte[bufferSize];
 			_ptrbuffer = GCHandle.Alloc(Buffer, GCHandleType.Pinned);
