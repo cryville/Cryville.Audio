@@ -1,20 +1,36 @@
-using Cryville.Common.Platform.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.MMDevice;
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.Wasapi {
 	/// <summary>
 	/// An <see cref="IAudioDeviceManager" /> that interact with Wasapi.
 	/// </summary>
-	public class MMDeviceEnumeratorWrapper : ComInterfaceWrapper, IAudioDeviceManager {
-		readonly IMMDeviceEnumerator _internal;
+	public class MMDeviceEnumeratorWrapper : IAudioDeviceManager {
+		readonly IMMDeviceEnumerator _internal = new();
 
 		/// <summary>
 		/// Creates an instance of the <see cref="MMDeviceEnumeratorWrapper" /> class.
 		/// </summary>
-		public MMDeviceEnumeratorWrapper() : base(new IMMDeviceEnumerator()) {
-			_internal = (IMMDeviceEnumerator)ComObject;
+		public MMDeviceEnumeratorWrapper() { }
+
+		/// <inheritdoc />
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing">Whether the method is being called by user.</param>
+		protected virtual void Dispose(bool disposing) {
+			if (!disposing) return;
+			if (_internal != null) {
+				Marshal.ReleaseComObject(_internal);
+			}
 		}
 
 		/// <inheritdoc />

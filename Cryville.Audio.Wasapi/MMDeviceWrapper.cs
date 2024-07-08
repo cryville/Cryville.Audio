@@ -12,12 +12,12 @@ namespace Cryville.Audio.Wasapi {
 	/// <summary>
 	/// An <see cref="IAudioDevice" /> that interacts with Wasapi.
 	/// </summary>
-	public class MMDeviceWrapper : ComInterfaceWrapper, IAudioDevice {
+	public class MMDeviceWrapper : IAudioDevice {
 		bool _connected;
 		readonly IMMDevice _internal;
 		readonly IAudioClient _client;
 
-		internal MMDeviceWrapper(IMMDevice obj) : base(obj) {
+		internal MMDeviceWrapper(IMMDevice obj) {
 			_internal = obj;
 			_internal.GetState(out var state);
 			if (state == (uint)DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE) {
@@ -28,12 +28,16 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		/// <inheritdoc />
-		protected override void Dispose(bool disposing) {
-			base.Dispose(disposing);
-			if (disposing) {
-				m_properties?.Dispose();
-				if (_client != null && !_connected) Marshal.ReleaseComObject(_client);
-			}
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <inheritdoc />
+		protected virtual void Dispose(bool disposing) {
+			if (!disposing) return;
+			m_properties?.Dispose();
+			if (_client != null && !_connected) Marshal.ReleaseComObject(_client);
 		}
 
 		PropertyStore m_properties;
