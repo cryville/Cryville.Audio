@@ -28,28 +28,19 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		public Enumerator GetEnumerator() => new Enumerator(this);
-
+		public Enumerator GetEnumerator() => new(this);
 		IEnumerator<IAudioDevice> IEnumerable<IAudioDevice>.GetEnumerator() => GetEnumerator();
-
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		public struct Enumerator : IEnumerator<IAudioDevice> {
-			readonly MMDeviceCollectionWrapper _obj;
-			int _index;
+		public struct Enumerator(MMDeviceCollectionWrapper obj) : IEnumerator<IAudioDevice> {
+			int _index = -1;
 
-			public Enumerator(MMDeviceCollectionWrapper obj) {
-				_obj = obj;
-				_index = -1;
-			}
+			public readonly IAudioDevice Current => obj[_index];
+			readonly object IEnumerator.Current => Current;
 
-			public IAudioDevice Current => _obj[_index];
+			public readonly void Dispose() { }
 
-			object IEnumerator.Current => Current;
-
-			public void Dispose() { }
-
-			public bool MoveNext() => ++_index < _obj.Count;
+			public bool MoveNext() => ++_index < obj.Count;
 
 			public void Reset() => _index = -1;
 		}

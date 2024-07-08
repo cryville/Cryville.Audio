@@ -5,22 +5,18 @@ using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
 namespace Cryville.Audio.Wasapi {
 	internal static class Util {
-		public static DataFlow FromInternalDataFlowEnum(EDataFlow value) {
-			switch (value) {
-				case EDataFlow.eRender: return DataFlow.Out;
-				case EDataFlow.eCapture: return DataFlow.In;
-				case EDataFlow.eAll: return DataFlow.All;
-				default: throw new ArgumentOutOfRangeException(nameof(value));
-			}
-		}
-		public static EDataFlow ToInternalDataFlowEnum(DataFlow value) {
-			switch (value) {
-				case DataFlow.Out: return EDataFlow.eRender;
-				case DataFlow.In: return EDataFlow.eCapture;
-				case DataFlow.All: return EDataFlow.eAll;
-				default: throw new ArgumentOutOfRangeException(nameof(value));
-			}
-		}
+		public static DataFlow FromInternalDataFlowEnum(EDataFlow value) => value switch {
+			EDataFlow.eRender => DataFlow.Out,
+			EDataFlow.eCapture => DataFlow.In,
+			EDataFlow.eAll => DataFlow.All,
+			_ => throw new ArgumentOutOfRangeException(nameof(value)),
+		};
+		public static EDataFlow ToInternalDataFlowEnum(DataFlow value) => value switch {
+			DataFlow.Out => EDataFlow.eRender,
+			DataFlow.In => EDataFlow.eCapture,
+			DataFlow.All => EDataFlow.eAll,
+			_ => throw new ArgumentOutOfRangeException(nameof(value)),
+		};
 		public static WAVEFORMATEX ToInternalFormat(WaveFormat value) {
 			ushort blockAlign = (ushort)value.FrameSize;
 			return new WAVEFORMATEX {
@@ -33,27 +29,19 @@ namespace Cryville.Audio.Wasapi {
 				cbSize = 0,
 			};
 		}
-		public static WaveFormat FromInternalFormat(WAVEFORMATEX value) {
-			return new WaveFormat {
-				Channels = value.nChannels,
-				SampleRate = value.nSamplesPerSec,
-				SampleFormat = FromInternalBitDepth(value.wBitsPerSample),
-			};
-		}
-		public static SampleFormat FromInternalBitDepth(ushort bitsPerSample) {
-			switch (bitsPerSample) {
-				case 8: return SampleFormat.U8;
-				case 16: return SampleFormat.S16;
-				case 24: return SampleFormat.S24;
-				case 32: return SampleFormat.S32;
-				default: throw new NotSupportedException();
-			}
-		}
-		public static int FromReferenceTime(uint sampleRate, long value) {
-			return (int)(value * sampleRate / 1e7 + 0.5);
-		}
-		public static long ToReferenceTime(uint sampleRate, int value) {
-			return (long)(1e7 / sampleRate * value + 0.5);
-		}
+		public static WaveFormat FromInternalFormat(WAVEFORMATEX value) => new() {
+			Channels = value.nChannels,
+			SampleRate = value.nSamplesPerSec,
+			SampleFormat = FromInternalBitDepth(value.wBitsPerSample),
+		};
+		public static SampleFormat FromInternalBitDepth(ushort bitsPerSample) => bitsPerSample switch {
+			8 => SampleFormat.U8,
+			16 => SampleFormat.S16,
+			24 => SampleFormat.S24,
+			32 => SampleFormat.S32,
+			_ => throw new NotSupportedException(),
+		};
+		public static int FromReferenceTime(uint sampleRate, long value) => (int)(value * sampleRate / 1e7 + 0.5);
+		public static long ToReferenceTime(uint sampleRate, int value) => (long)(1e7 / sampleRate * value + 0.5);
 	}
 }

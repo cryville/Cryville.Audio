@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //  Microsoft Avalon
 //  Copyright (c) Microsoft Corporation, All Rights Reserved
 //
@@ -56,7 +56,7 @@ namespace Microsoft.Windows {
 
 	[StructLayout(LayoutKind.Sequential, Pack = 0)]
 	internal struct PROPARRAY {
-		internal UInt32 cElems;
+		internal uint cElems;
 		internal IntPtr pElems;
 	}
 
@@ -72,10 +72,10 @@ namespace Microsoft.Windows {
 		[FieldOffset(8)] private sbyte cVal;
 		[FieldOffset(8)] private ushort uiVal;
 		[FieldOffset(8)] private short iVal;
-		[FieldOffset(8)] private UInt32 uintVal;
-		[FieldOffset(8)] private Int32 intVal;
-		[FieldOffset(8)] private UInt64 ulVal;
-		[FieldOffset(8)] private Int64 lVal;
+		[FieldOffset(8)] private uint uintVal;
+		[FieldOffset(8)] private int intVal;
+		[FieldOffset(8)] private ulong ulVal;
+		[FieldOffset(8)] private long lVal;
 		[FieldOffset(8)] private float fltVal;
 		[FieldOffset(8)] private double dblVal;
 		[FieldOffset(8)] private short boolVal;
@@ -99,20 +99,20 @@ namespace Microsoft.Windows {
 				throw new InvalidOperationException("Insufficient Buffer Size");
 			}
 
-			byte* pCurFrom = (byte*)pbFrom;
-			byte* pCurTo = (byte*)pbTo;
+			byte* pCurFrom = pbFrom;
+			byte* pCurTo = pbTo;
 
 			for (int i = 0; i < cbFrom; i++) {
 				pCurTo[i] = pCurFrom[i];
 			}
 		}
 
-		[SecurityCritical, SecurityTreatAsSafe]
+		[SecurityCritical, SecuritySafeCritical]
 		public void InitVector(Array array, Type type, VarEnum varEnum) {
 			Init(array, type, varEnum | VarEnum.VT_VECTOR);
 		}
 
-		[SecurityCritical, SecurityTreatAsSafe]
+		[SecurityCritical, SecuritySafeCritical]
 		public void Init(Array array, Type type, VarEnum vt) {
 			if (array is null) throw new ArgumentNullException(nameof(array));
 
@@ -125,8 +125,8 @@ namespace Microsoft.Windows {
 			if (length > 0) {
 				long size = Marshal.SizeOf(type) * length;
 
-				IntPtr destPtr =IntPtr.Zero;
-				GCHandle handle = new GCHandle();
+				IntPtr destPtr = IntPtr.Zero;
+				GCHandle handle = new();
 
 				try {
 					destPtr = Marshal.AllocCoTaskMem((int)size);
@@ -152,8 +152,8 @@ namespace Microsoft.Windows {
 			}
 		}
 
-		[SecurityCritical, SecurityTreatAsSafe]
-		public unsafe void Init(String[] value, bool fAscii) {
+		[SecurityCritical, SecuritySafeCritical]
+		public unsafe void Init(string[] value, bool fAscii) {
 			if (value is null) throw new ArgumentNullException(nameof(value));
 
 			varType = (ushort)(fAscii ? VarEnum.VT_LPSTR : VarEnum.VT_LPWSTR);
@@ -181,7 +181,7 @@ namespace Microsoft.Windows {
 						else {
 							pString = Marshal.StringToCoTaskMemUni(value[index]);
 						}
-						Marshal.WriteIntPtr(destPtr, (int)index * sizeIntPtr, pString);
+						Marshal.WriteIntPtr(destPtr, index * sizeIntPtr, pString);
 					}
 
 					ca.cElems = (uint)length;
@@ -191,7 +191,7 @@ namespace Microsoft.Windows {
 				finally {
 					if (destPtr != IntPtr.Zero) {
 						for (int i = 0; i < index; i++) {
-							IntPtr pString = Marshal.ReadIntPtr(destPtr, i*sizeIntPtr);
+							IntPtr pString = Marshal.ReadIntPtr(destPtr, i * sizeIntPtr);
 							Marshal.FreeCoTaskMem(pString);
 						}
 
@@ -201,67 +201,62 @@ namespace Microsoft.Windows {
 			}
 		}
 
-		[SecurityCritical, SecurityTreatAsSafe]
+		[SecurityCritical, SecuritySafeCritical]
 		public void Init(object value) {
 			if (value == null) {
 				varType = (ushort)VarEnum.VT_EMPTY;
 			}
 			else if (value is Array) {
-				Type type = value.GetType();
-
-				if (type == typeof(sbyte[])) {
-					InitVector(value as Array, typeof(sbyte), VarEnum.VT_I1);
+				if (value is sbyte[] sbyteArr) {
+					InitVector(sbyteArr, typeof(sbyte), VarEnum.VT_I1);
 				}
-				else if (type == typeof(byte[])) {
-					InitVector(value as Array, typeof(byte), VarEnum.VT_UI1);
+				else if (value is byte[] byteArr) {
+					InitVector(byteArr, typeof(byte), VarEnum.VT_UI1);
 				}
-				else if (value is char[]) {
+				else if (value is char[] charArr) {
 					varType = (ushort)VarEnum.VT_LPSTR;
-					pszVal = Marshal.StringToCoTaskMemAnsi(new String(value as char[]));
+					pszVal = Marshal.StringToCoTaskMemAnsi(new string(charArr));
 				}
-				else if (value is char[][]) {
-					char[][] charArray = value as char[][];
-
-					String[] strArray = new String[charArray.GetLength(0)];
+				else if (value is char[][] charArray) {
+					string[] strArray = new string[charArray.GetLength(0)];
 
 					for (int i = 0; i < charArray.Length; i++) {
-						strArray[i] = new String(charArray[i] as char[]);
+						strArray[i] = new string(charArray[i]);
 					}
 
 					Init(strArray, true);
 				}
-				else if (type == typeof(short[])) {
-					InitVector(value as Array, typeof(short), VarEnum.VT_I2);
+				else if (value is short[] shortArr) {
+					InitVector(shortArr, typeof(short), VarEnum.VT_I2);
 				}
-				else if (type == typeof(ushort[])) {
-					InitVector(value as Array, typeof(ushort), VarEnum.VT_UI2);
+				else if (value is ushort[] ushortArr) {
+					InitVector(ushortArr, typeof(ushort), VarEnum.VT_UI2);
 				}
-				else if (type == typeof(int[])) {
-					InitVector(value as Array, typeof(int), VarEnum.VT_I4);
+				else if (value is int[] intArr) {
+					InitVector(intArr, typeof(int), VarEnum.VT_I4);
 				}
-				else if (type == typeof(uint[])) {
-					InitVector(value as Array, typeof(uint), VarEnum.VT_UI4);
+				else if (value is uint[] uintArr) {
+					InitVector(uintArr, typeof(uint), VarEnum.VT_UI4);
 				}
-				else if (type == typeof(Int64[])) {
-					InitVector(value as Array, typeof(Int64), VarEnum.VT_I8);
+				else if (value is long[] longArr) {
+					InitVector(longArr, typeof(long), VarEnum.VT_I8);
 				}
-				else if (type == typeof(UInt64[])) {
-					InitVector(value as Array, typeof(UInt64), VarEnum.VT_UI8);
+				else if (value is ulong[] ulongArr) {
+					InitVector(ulongArr, typeof(ulong), VarEnum.VT_UI8);
 				}
-				else if (value is float[]) {
-					InitVector(value as Array, typeof(float), VarEnum.VT_R4);
+				else if (value is float[] floatArr) {
+					InitVector(floatArr, typeof(float), VarEnum.VT_R4);
 				}
-				else if (value is double[]) {
-					InitVector(value as Array, typeof(double), VarEnum.VT_R8);
+				else if (value is double[] doubleArr) {
+					InitVector(doubleArr, typeof(double), VarEnum.VT_R8);
 				}
-				else if (value is Guid[]) {
-					InitVector(value as Array, typeof(Guid), VarEnum.VT_CLSID);
+				else if (value is Guid[] guidArr) {
+					InitVector(guidArr, typeof(Guid), VarEnum.VT_CLSID);
 				}
-				else if (value is String[]) {
-					Init(value as String[], false);
+				else if (value is string[] stringArr) {
+					Init(stringArr, false);
 				}
-				else if (value is bool[]) {
-					bool[] boolArray =value as bool[];
+				else if (value is bool[] boolArray) {
 					short[] array = new short[boolArray.Length];
 
 					for (int i = 0; i < boolArray.Length; i++) {
@@ -271,15 +266,15 @@ namespace Microsoft.Windows {
 					InitVector(array, typeof(short), VarEnum.VT_BOOL);
 				}
 				else {
-					throw new System.InvalidOperationException("Property Not Supported");
+					throw new InvalidOperationException("Property Not Supported");
 				}
 			}
 			else {
 				Type type = value.GetType();
 
-				if (value is String) {
+				if (value is string) {
 					varType = (ushort)VarEnum.VT_LPWSTR;
-					pwszVal = Marshal.StringToCoTaskMemUni(value as String);
+					pwszVal = Marshal.StringToCoTaskMemUni(value as string);
 				}
 				else if (type == typeof(sbyte)) {
 					varType = (ushort)VarEnum.VT_I1;
@@ -295,7 +290,7 @@ namespace Microsoft.Windows {
 				}
 				else if (value is char @char) {
 					varType = (ushort)VarEnum.VT_LPSTR;
-					pszVal = Marshal.StringToCoTaskMemAnsi(new String(new char[] { @char }));
+					pszVal = Marshal.StringToCoTaskMemAnsi(@char.ToString());
 				}
 				else if (type == typeof(short)) {
 					varType = (ushort)VarEnum.VT_I2;
@@ -313,13 +308,13 @@ namespace Microsoft.Windows {
 					varType = (ushort)VarEnum.VT_UI4;
 					uintVal = (uint)value;
 				}
-				else if (type == typeof(Int64)) {
+				else if (type == typeof(long)) {
 					varType = (ushort)VarEnum.VT_I8;
-					lVal = (Int64)value;
+					lVal = (long)value;
 				}
-				else if (type == typeof(UInt64)) {
+				else if (type == typeof(ulong)) {
 					varType = (ushort)VarEnum.VT_UI8;
-					ulVal = (UInt64)value;
+					ulVal = (ulong)value;
 				}
 				else if (value is float @float) {
 					varType = (ushort)VarEnum.VT_R4;
@@ -362,14 +357,14 @@ namespace Microsoft.Windows {
 					punkVal = punkTemp;
 				}*/
 				else {
-					throw new System.InvalidOperationException("Property Not Supported");
+					throw new InvalidOperationException("Property Not Supported");
 				}
 			}
 		}
 
-		[SecurityCritical, SecurityTreatAsSafe]
-		public unsafe void Clear() {
-			VarEnum vt = (VarEnum) varType;
+		[SecurityCritical, SecuritySafeCritical]
+		public readonly unsafe void Clear() {
+			VarEnum vt = (VarEnum)varType;
 
 			if ((vt & VarEnum.VT_VECTOR) != 0 || vt == VarEnum.VT_BLOB) {
 				if (ca.pElems != IntPtr.Zero) {
@@ -380,7 +375,7 @@ namespace Microsoft.Windows {
 						int sizeIntPtr = sizeof(IntPtr);
 
 						for (uint i = 0; i < ca.cElems; i++) {
-// #pragma warning suppress 6031 // Return value ignored on purpose.
+							// #pragma warning suppress 6031 // Return value ignored on purpose.
 							Marshal.Release(Marshal.ReadIntPtr(punkPtr, (int)(i * sizeIntPtr)));
 						}
 					}
@@ -408,10 +403,10 @@ namespace Microsoft.Windows {
 			// vt = VarEnum.VT_EMPTY;
 		}
 
-		[SecurityCritical, SecurityTreatAsSafe]
+		[SecurityCritical, SecuritySafeCritical]
 #pragma warning disable IDE0060 // Remove unused parameter
-		public unsafe object ToObject(object syncObject) {
-			VarEnum vt = (VarEnum) varType;
+		public readonly unsafe object? ToObject(object? syncObject) {
+			VarEnum vt = (VarEnum)varType;
 
 			if ((vt & VarEnum.VT_VECTOR) != 0) {
 				switch (vt & (~VarEnum.VT_VECTOR)) {
@@ -458,15 +453,15 @@ namespace Microsoft.Windows {
 						}
 
 					case VarEnum.VT_I8: {
-							Int64[] array = new Int64[ca.cElems];
+							long[] array = new long[ca.cElems];
 							Marshal.Copy(ca.pElems, array, 0, (int)ca.cElems);
 							return array;
 						}
 
 					case VarEnum.VT_UI8: {
-							UInt64[] array = new UInt64[ca.cElems];
+							ulong[] array = new ulong[ca.cElems];
 							for (int i = 0; i < ca.cElems; i++)
-								array[i] = (UInt64)Marshal.ReadInt64(ca.pElems, i * sizeof(UInt64));
+								array[i] = (ulong)Marshal.ReadInt64(ca.pElems, i * sizeof(ulong));
 							return array;
 						}
 
@@ -485,7 +480,7 @@ namespace Microsoft.Windows {
 					case VarEnum.VT_BOOL: {
 							bool[] array = new bool[ca.cElems];
 							for (int i = 0; i < ca.cElems; i++)
-								array[i] = (bool)(Marshal.ReadInt16(ca.pElems, i * sizeof(ushort)) != 0);
+								array[i] = Marshal.ReadInt16(ca.pElems, i * sizeof(ushort)) != 0;
 							return array;
 						}
 
@@ -500,22 +495,22 @@ namespace Microsoft.Windows {
 						}
 
 					case VarEnum.VT_LPSTR: {
-							String[] array = new String[ca.cElems];
+							string[] array = new string[ca.cElems];
 							int sizeIntPtr = sizeof(IntPtr);
 
 							for (int i = 0; i < ca.cElems; i++) {
-								IntPtr ptr = Marshal.ReadIntPtr(ca.pElems, i*sizeIntPtr);
+								IntPtr ptr = Marshal.ReadIntPtr(ca.pElems, i * sizeIntPtr);
 								array[i] = Marshal.PtrToStringAnsi(ptr);
 							}
 							return array;
 						}
 
 					case VarEnum.VT_LPWSTR: {
-							String[] array = new String[ca.cElems];
+							string[] array = new string[ca.cElems];
 							int sizeIntPtr = sizeof(IntPtr);
 
 							for (int i = 0; i < ca.cElems; i++) {
-								IntPtr ptr = Marshal.ReadIntPtr(ca.pElems, i*sizeIntPtr);
+								IntPtr ptr = Marshal.ReadIntPtr(ca.pElems, i * sizeIntPtr);
 								array[i] = Marshal.PtrToStringUni(ptr);
 							}
 							return array;
@@ -565,7 +560,7 @@ namespace Microsoft.Windows {
 						return filetime;
 
 					case VarEnum.VT_BOOL:
-						return (bool)(boolVal != 0);
+						return boolVal != 0;
 
 					case VarEnum.VT_CLSID:
 						byte[] guid = new byte[16];
@@ -629,15 +624,13 @@ namespace Microsoft.Windows {
 				}
 			}
 
-			throw new System.NotSupportedException("Property Not Supported");
+			throw new NotSupportedException("Property Not Supported");
 		}
 #pragma warning restore IDE0060 // Remove unused parameter
 
-		public bool RequiresSyncObject {
-			[SecurityCritical, SecurityTreatAsSafe]
-			get {
-				return (varType == (ushort)VarEnum.VT_UNKNOWN);
-			}
+		public readonly bool RequiresSyncObject {
+			[SecurityCritical, SecuritySafeCritical]
+			get => varType == (ushort)VarEnum.VT_UNKNOWN;
 		}
 	}
 }

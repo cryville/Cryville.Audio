@@ -11,7 +11,7 @@ namespace Cryville.Audio.Wasapi {
 	/// An <see cref="AudioClient" /> that interact with Wasapi.
 	/// </summary>
 	public class AudioClientWrapper : AudioClient {
-		IAudioClient _internal;
+		readonly IAudioClient _internal;
 
 		internal AudioClientWrapper(IAudioClient obj, MMDeviceWrapper device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
 			m_device = device;
@@ -44,13 +44,13 @@ namespace Cryville.Audio.Wasapi {
 			_internal.SetEventHandle(_eventHandle);
 
 			_internal.GetService(typeof(IAudioClock).GUID, out var clock);
-			_clock = clock as IAudioClock;
+			_clock = (IAudioClock)clock;
 			_clock.GetFrequency(out _clockFreq);
 
 			_internal.GetBufferSize(out m_bufferFrames);
 			if (m_device.DataFlow == DataFlow.Out) {
 				_internal.GetService(typeof(IAudioRenderClient).GUID, out var prc);
-				_renderClient = new AudioRenderClientWrapper(prc as IAudioRenderClient);
+				_renderClient = new AudioRenderClientWrapper((IAudioRenderClient)prc);
 			}
 			else
 				throw new NotImplementedException();
@@ -70,24 +70,19 @@ namespace Cryville.Audio.Wasapi {
 					Handle.CloseHandle(_eventHandle);
 					_eventHandle = IntPtr.Zero;
 				}
-				if (_renderClient != null) {
-					_renderClient.Dispose();
-					_renderClient = null;
-				}
+				_renderClient?.Dispose();
 				if (_clock != null && disposing) {
 					Marshal.ReleaseComObject(_clock);
-					_clock = null;
 				}
 				if (_internal != null && disposing) {
 					Marshal.ReleaseComObject(_internal);
-					_internal = null;
 				}
 			}
 		}
 
 		IntPtr _eventHandle;
-		AudioRenderClientWrapper _renderClient;
-		IAudioClock _clock;
+		readonly AudioRenderClientWrapper _renderClient;
+		readonly IAudioClock _clock;
 
 		readonly IAudioDevice m_device;
 		/// <inheritdoc />
@@ -153,7 +148,7 @@ namespace Cryville.Audio.Wasapi {
 		public override void Pause() {
 			if (Playing) {
 				_threadAbortFlag = true;
-				if (!_thread.Join(1000))
+				if (_thread != null && !_thread.Join(1000))
 					throw new InvalidOperationException("Failed to pause audio client.");
 				_thread = null;
 				_internal.Stop();
@@ -161,7 +156,7 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		Thread _thread;
+		Thread? _thread;
 		bool _threadAbortFlag;
 		void ThreadLogic() {
 			_threadAbortFlag = false;
@@ -177,7 +172,7 @@ namespace Cryville.Audio.Wasapi {
 				}
 				else {
 					var length = frames * m_format.nBlockAlign;
-					Source.Read(buffer, 0, (int)length);
+					Source.ReadFrames(buffer, 0, (int)frames);
 					_renderClient.FillBuffer(buffer, frames, length);
 					_renderClient.ReleaseBuffer(frames);
 				}
@@ -186,12 +181,10 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
-		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) {
-			switch (value) {
-				case AudioShareMode.Shared: return AUDCLNT_SHAREMODE.SHARED;
-				case AudioShareMode.Exclusive: return AUDCLNT_SHAREMODE.EXCLUSIVE;
-				default: throw new ArgumentOutOfRangeException(nameof(value));
-			}
-		}
+		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) => value switch {
+			AudioShareMode.Shared => AUDCLNT_SHAREMODE.SHARED,
+			AudioShareMode.Exclusive => AUDCLNT_SHAREMODE.EXCLUSIVE,
+			_ => throw new ArgumentOutOfRangeException(nameof(value)),
+		};
 	}
 }

@@ -15,14 +15,14 @@ namespace Cryville.Audio.Wasapi {
 	public class MMDeviceWrapper : IAudioDevice {
 		bool _connected;
 		readonly IMMDevice _internal;
-		readonly IAudioClient _client;
+		readonly IAudioClient? _client;
 
 		internal MMDeviceWrapper(IMMDevice obj) {
 			_internal = obj;
 			_internal.GetState(out var state);
 			if (state == (uint)DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE) {
 				_internal.Activate(typeof(IAudioClient).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
-				_client = client as IAudioClient;
+				_client = (IAudioClient)client;
 				_client.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
 			}
 		}
@@ -40,26 +40,23 @@ namespace Cryville.Audio.Wasapi {
 			if (_client != null && !_connected) Marshal.ReleaseComObject(_client);
 		}
 
-		PropertyStore m_properties;
+		PropertyStore? m_properties;
 		/// <summary>
 		/// The properties of the device.
 		/// </summary>
 		internal PropertyStore Properties {
 			get {
-				EnsureOpenPropertyStore();
+				if (m_properties == null) {
+					_internal.OpenPropertyStore((uint)STGM.READ, out var result);
+					m_properties = new PropertyStore(result);
+				}
 				return m_properties;
 			}
 		}
 
-		string m_name;
+		string? m_name;
 		/// <inheritdoc />
-		public string Name {
-			get {
-				if (m_name == null)
-					m_name = (string)Properties.Get(new PROPERTYKEY("a45c254e-df1c-4efd-8020-67d146a850e0", 14));
-				return m_name;
-			}
-		}
+		public string Name => m_name ??= ((string?)Properties.Get(new PROPERTYKEY("a45c254e-df1c-4efd-8020-67d146a850e0", 14)) ?? "");
 
 		static Guid GUID_MM_ENDPOINT = typeof(IMMEndpoint).GUID;
 		DataFlow? m_dataFlow;
@@ -68,11 +65,11 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (m_dataFlow == null) {
 					Marshal.QueryInterface(
-						Marshal.GetIUnknownForObject(ComObject),
+						Marshal.GetIUnknownForObject(_internal),
 						ref GUID_MM_ENDPOINT,
 						out var pendpoint
 					);
-					var endpoint = Marshal.GetObjectForIUnknown(pendpoint) as IMMEndpoint;
+					var endpoint = (IMMEndpoint)Marshal.GetObjectForIUnknown(pendpoint);
 					endpoint.GetDataFlow(out var presult);
 					m_dataFlow = Util.FromInternalDataFlowEnum(presult);
 					Marshal.ReleaseComObject(endpoint);
@@ -101,12 +98,6 @@ namespace Cryville.Audio.Wasapi {
 				var result = (WAVEFORMATEX)Marshal.PtrToStructure(presult, typeof(WAVEFORMATEX));
 				return Util.FromInternalFormat(result);
 			}
-		}
-
-		private void EnsureOpenPropertyStore() {
-			if (m_properties != null) return;
-			_internal.OpenPropertyStore((uint)STGM.READ, out var result);
-			m_properties = new PropertyStore(result);
 		}
 
 		/// <inheritdoc />
@@ -140,12 +131,10 @@ namespace Cryville.Audio.Wasapi {
 			return new AudioClientWrapper(_client, this, format, bufferSize, shareMode);
 		}
 
-		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) {
-			switch (value) {
-				case AudioShareMode.Shared: return AUDCLNT_SHAREMODE.SHARED;
-				case AudioShareMode.Exclusive: return AUDCLNT_SHAREMODE.EXCLUSIVE;
-				default: throw new ArgumentOutOfRangeException(nameof(value));
-			}
-		}
+		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) => value switch {
+			AudioShareMode.Shared => AUDCLNT_SHAREMODE.SHARED,
+			AudioShareMode.Exclusive => AUDCLNT_SHAREMODE.EXCLUSIVE,
+			_ => throw new ArgumentOutOfRangeException(nameof(value)),
+		};
 	}
 }
