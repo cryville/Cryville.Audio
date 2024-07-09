@@ -11,7 +11,8 @@ namespace Cryville.Audio.Source.Libav {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that uses Libav to demux and decode audio files.
 	/// </summary>
-	public class LibavFileAudioSource : AudioStream {
+	/// <param name="file">The audio file.</param>
+	public class LibavFileAudioSource(string file) : AudioStream {
 		internal sealed unsafe class Internal {
 			readonly AVFormatContext* formatCtx;
 			AVCodec* codec;
@@ -36,7 +37,7 @@ namespace Cryville.Audio.Source.Libav {
 				}
 				HR(ffmpeg.avformat_find_stream_info(formatCtx, null));
 				BestStreamIndex = HR(ffmpeg.av_find_best_stream(formatCtx, AVMediaType.AVMEDIA_TYPE_AUDIO, -1, -1, null, 0));
-				List<int> streams = new List<int>();
+				List<int> streams = [];
 				for (int i = 0; i < formatCtx->nb_streams; i++)
 					if (formatCtx->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
 						streams.Add(i);
@@ -104,15 +105,14 @@ namespace Cryville.Audio.Source.Libav {
 				HR(ffmpeg.swr_init(swrContext));
 			}
 
-			public int FillBuffer(byte[] buffer, int offset, int count) {
+			public int FillBuffer(byte[] buffer, int offset, int frameCount) {
 				if (swrContext == null) throw new ObjectDisposedException(null);
-				int samples = count / frameSize;
 				int decoded = 0;
 				if (!EOF) {
-					while (decoded < samples) {
+					while (decoded < frameCount) {
 						int frame_size;
 						int out_samples = HR(ffmpeg.swr_get_out_samples(swrContext, 0));
-						if (out_samples < samples) {
+						if (out_samples < frameCount) {
 							// Samples in the buffer are not sufficient. Read and decode a new frame.
 							int ret = ffmpeg.avcodec_receive_frame(codecCtx, frame);
 							if (ret == -0xb) {
@@ -134,14 +134,14 @@ namespace Cryville.Audio.Source.Libav {
 								continue;
 							}
 							fixed (byte** ptr = &_buffer) {
-								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, samples - decoded, frame->extended_data, frame->nb_samples));
+								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, frameCount - decoded, frame->extended_data, frame->nb_samples));
 							}
 							ffmpeg.av_frame_unref(frame);
 						}
 						else {
 							// Samples in the buffer are sufficient. Flush them.
 							fixed (byte** ptr = &_buffer) {
-								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, samples - decoded, null, 0));
+								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, frameCount - decoded, null, 0));
 							}
 							if (frame_size == 0) goto eof; // Don't know why this happens but dumb fix anyway
 						}
@@ -151,7 +151,7 @@ namespace Cryville.Audio.Source.Libav {
 				}
 			eof:
 				int len = decoded * frameSize;
-				SilentBuffer(OutFormat.Value, buffer, offset + len, count - len);
+				SilentBuffer(OutFormat!.Value, buffer, offset + len, frameCount * frameSize - len);
 				return len;
 			}
 
@@ -233,26 +233,16 @@ namespace Cryville.Audio.Source.Libav {
 				return value;
 			}
 
-			static AVSampleFormat ToInternalFormat(WaveFormat value) {
-				switch (value.SampleFormat) {
-					case SampleFormat.U8: return AVSampleFormat.AV_SAMPLE_FMT_U8;
-					case SampleFormat.S16: return AVSampleFormat.AV_SAMPLE_FMT_S16;
-					case SampleFormat.S32: return AVSampleFormat.AV_SAMPLE_FMT_S32;
-					case SampleFormat.F32: return AVSampleFormat.AV_SAMPLE_FMT_FLT;
-					case SampleFormat.F64: return AVSampleFormat.AV_SAMPLE_FMT_DBL;
-					default: throw new NotSupportedException();
-				}
-			}
+			static AVSampleFormat ToInternalFormat(WaveFormat value) => value.SampleFormat switch {
+				SampleFormat.U8 => AVSampleFormat.AV_SAMPLE_FMT_U8,
+				SampleFormat.S16 => AVSampleFormat.AV_SAMPLE_FMT_S16,
+				SampleFormat.S32 => AVSampleFormat.AV_SAMPLE_FMT_S32,
+				SampleFormat.F32 => AVSampleFormat.AV_SAMPLE_FMT_FLT,
+				SampleFormat.F64 => AVSampleFormat.AV_SAMPLE_FMT_DBL,
+				_ => throw new NotSupportedException(),
+			};
 		}
-		readonly Internal _internal;
-
-		/// <summary>
-		/// Creates an instance of the <see cref="LibavFileAudioSource" /> class and loads the specified <paramref name="file" />.
-		/// </summary>
-		/// <param name="file">The audio file.</param>
-		public LibavFileAudioSource(string file) {
-			_internal = new Internal(file);
-		}
+		readonly Internal _internal = new(file);
 
 		/// <summary>
 		/// Whether this audio stream has been disposed.
@@ -318,15 +308,10 @@ namespace Cryville.Audio.Source.Libav {
 		long _pos;
 		double _time;
 		/// <inheritdoc />
-		public override int Read(byte[] buffer, int offset, int count) {
-			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
-			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
-			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+		protected override int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			var readCount = _internal.FillBuffer(buffer, offset, count);
+			var readCount = _internal.FillBuffer(buffer, offset, frameCount);
 			_time = _internal.GetPresentationTimestamp();
-			_pos += readCount;
 			return readCount;
 		}
 
@@ -338,13 +323,12 @@ namespace Cryville.Audio.Source.Libav {
 		/// <inheritdoc />
 		public override double SeekTime(double offset, SeekOrigin origin) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			double newTime;
-			switch (origin) {
-				case SeekOrigin.Begin: newTime = offset; break;
-				case SeekOrigin.Current: newTime = _time + offset; break;
-				case SeekOrigin.End: newTime = Duration + offset; break;
-				default: throw new ArgumentException("Invalid SeekOrigin.", nameof(origin));
-			}
+			var newTime = origin switch {
+				SeekOrigin.Begin => offset,
+				SeekOrigin.Current => _time + offset,
+				SeekOrigin.End => Duration + offset,
+				_ => throw new ArgumentException("Invalid SeekOrigin.", nameof(origin)),
+			};
 			if (newTime < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
 			_internal.Seek(newTime);
 			_time = _internal.GetPresentationTimestamp();

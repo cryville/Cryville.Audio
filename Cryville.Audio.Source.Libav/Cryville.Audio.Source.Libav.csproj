@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
     <AnalysisLevel>latest-all</AnalysisLevel>
+		<Nullable>enable</Nullable>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -35,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Cryville.Audio.Source.Libav.cmn-hans.xml">
+		<None Update="Cryville.Audio.Source.Libav-zh.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Cryville.Audio.Source.Libav.xml">

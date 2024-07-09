@@ -8,10 +8,11 @@
 			<summary>
 				一个使用 Libav 解流并解码音频文件的 <see cref="T:Cryville.Audio.AudioStream" />。
 			</summary>
+			<param name="file">音频文件。</param>
 		</member>
 		<member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.#ctor(System.String)">
 			<summary>
-				创建一个 <see cref="T:Cryville.Audio.Source.Libav.LibavFileAudioSource" /> 类的实例并加载指定的 <paramref name="file" />。
+				一个使用 Libav 解流并解码音频文件的 <see cref="T:Cryville.Audio.AudioStream" />。
 			</summary>
 			<param name="file">音频文件。</param>
 		</member>
@@ -74,7 +75,7 @@
 		<member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.OnSetFormat">
 			<inheritdoc />
 		</member>
-		<member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+		<member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
 			<inheritdoc />
 		</member>
 		<member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">

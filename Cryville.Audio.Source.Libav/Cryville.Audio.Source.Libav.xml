@@ -8,10 +8,11 @@
             <summary>
             An <see cref="T:Cryville.Audio.AudioStream" /> that uses Libav to demux and decode audio files.
             </summary>
+            <param name="file">The audio file.</param>
         </member>
         <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.#ctor(System.String)">
             <summary>
-            Creates an instance of the <see cref="T:Cryville.Audio.Source.Libav.LibavFileAudioSource" /> class and loads the specified <paramref name="file" />.
+            An <see cref="T:Cryville.Audio.AudioStream" /> that uses Libav to demux and decode audio files.
             </summary>
             <param name="file">The audio file.</param>
         </member>
@@ -68,7 +69,7 @@
         <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.OnSetFormat">
             <inheritdoc />
         </member>
-        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Read(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.ReadFramesInternal(System.Byte[],System.Int32,System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Cryville.Audio.Source.Libav.LibavFileAudioSource.Seek(System.Int64,System.IO.SeekOrigin)">
