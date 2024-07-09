@@ -7,14 +7,16 @@ using AndroidX.AppCompat.App;
 using Cryville.Interop.Java;
 using Cryville.Interop.Java.Xamarin;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Xamarin.Essentials;
 using Exception = System.Exception;
 
 namespace Cryville.Audio.Test.Android {
 	[Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
 	public class MainActivity : AppCompatActivity {
-		TextView log;
-		protected override void OnCreate(Bundle savedInstanceState) {
+		[SuppressMessage("Usage", "CA2213", Justification = "Marshaled to Android GC")]
+		TextView? log;
+		protected override void OnCreate(Bundle? savedInstanceState) {
 			base.OnCreate(savedInstanceState);
 			Platform.Init(this, savedInstanceState);
 			// Set our view from the "main" layout resource
@@ -24,7 +26,8 @@ namespace Cryville.Audio.Test.Android {
 			EngineBuilder.Engines.Add(typeof(AAudio.AAudioManager));
 			EngineBuilder.Engines.Add(typeof(OpenSLES.Engine));
 
-			FindViewById<Button>(Resource.Id.button1).Click += OnClick;
+			var button = FindViewById<Button>(Resource.Id.button1) ?? throw new InvalidOperationException("Button not found.");
+			button.Click += OnClick;
 			log = FindViewById<TextView>(Resource.Id.textView1);
 		}
 		public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults) {
@@ -32,7 +35,9 @@ namespace Cryville.Audio.Test.Android {
 
 			base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
-		async void OnClick(object sender, EventArgs e) {
+		[SuppressMessage("Design", "CA1031", Justification = "Test method")]
+		async void OnClick(object? sender, EventArgs e) {
+			if (log == null) return;
 			log.Text += "\nTest started\n";
 			var test = new AndroidManagedTest(log);
 			try {
@@ -45,7 +50,7 @@ namespace Cryville.Audio.Test.Android {
 				test.GetDeviceInformation();
 				log.Text += $"= PlaySingleTone =\n";
 				test.PlaySingleTone();
-				var file = await FilePicker.PickAsync();
+				var file = await FilePicker.PickAsync().ConfigureAwait(true);
 				log.Text += $"= PlayWithLibAV =\n";
 				test.PlayWithLibAV(file.FullPath);
 				log.Text += $"= PlayWithSimpleQueue =\n";
@@ -64,14 +69,8 @@ namespace Cryville.Audio.Test.Android {
 			}
 		}
 
-		class AndroidManagedTest : DefaultManagedTest {
-			public AndroidManagedTest(TextView log) {
-				_log = log;
-			}
-			readonly TextView _log;
-			protected override void Log(string msg) {
-				_log.Text += msg + "\n";
-			}
+		sealed class AndroidManagedTest(TextView log) : DefaultManagedTest {
+			protected override void Log(string msg) => log.Text += msg + "\n";
 		}
 	}
 }
