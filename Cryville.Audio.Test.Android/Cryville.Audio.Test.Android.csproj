@@ -148,26 +148,11 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cryville.Audio.AAudio\Cryville.Audio.AAudio.csproj">
-      <Project>{503656b1-3c6f-475f-9c10-c9dfc21ecfe5}</Project>
-      <Name>Cryville.Audio.AAudio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cryville.Audio.OpenSLES\Cryville.Audio.OpenSLES.csproj">
-      <Project>{59b41727-0b40-460f-a145-b7b92ea62a9d}</Project>
-      <Name>Cryville.Audio.OpenSLES</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cryville.Audio.Test\Cryville.Audio.Test.csproj">
-      <Project>{2e9b7ae9-d822-4b46-8046-469c87e545f6}</Project>
-      <Name>Cryville.Audio.Test</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj">
-      <Project>{48b40913-aedd-4493-94dd-1435ed5fecba}</Project>
-      <Name>Cryville.Audio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj">
-      <Project>{5d7acd9a-ca0b-4b44-a1ab-c85659010931}</Project>
-      <Name>FFmpeg.AutoGen</Name>
-    </ProjectReference>
+		<ProjectReference Include="..\Cryville.Audio.AAudio\Cryville.Audio.AAudio.csproj" />
+		<ProjectReference Include="..\Cryville.Audio.OpenSLES\Cryville.Audio.OpenSLES.csproj" />
+		<ProjectReference Include="..\Cryville.Audio.Source.Libav\Cryville.Audio.Source.Libav.csproj" />
+		<ProjectReference Include="..\Cryville.Audio.Test\Cryville.Audio.Test.csproj" />
+		<ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

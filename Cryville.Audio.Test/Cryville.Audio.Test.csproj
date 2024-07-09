@@ -14,8 +14,6 @@
 		<ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<Reference Include="UnsafeIL">
-			<HintPath>..\References\UnsafeIL.dll</HintPath>
-		</Reference>
+		<PackageReference Include="UnsafeIL" Version="6.0.0" />
 	</ItemGroup>
 </Project>
