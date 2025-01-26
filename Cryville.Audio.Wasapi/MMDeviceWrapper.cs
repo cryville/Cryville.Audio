@@ -101,7 +101,11 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (_client == null) throw new InvalidOperationException("The device is not available.");
 				_client.GetMixFormat(out var pResult);
+#if NET451_OR_GREATER || NETSTANDARD1_2_OR_GREATER || NETCOREAPP1_0_OR_GREATER
+				var result = Marshal.PtrToStructure<WAVEFORMATEX>(pResult);
+#else
 				var result = (WAVEFORMATEX)Marshal.PtrToStructure(pResult, typeof(WAVEFORMATEX));
+#endif
 				return Helpers.FromInternalFormat(result);
 			}
 		}
@@ -117,7 +121,11 @@ namespace Cryville.Audio.Wasapi {
 				return true;
 			}
 			else if (hr == 1) { // S_FALSE
+#if NET451_OR_GREATER || NETSTANDARD1_2_OR_GREATER || NETCOREAPP1_0_OR_GREATER
+				suggestion = Helpers.FromInternalFormat(Marshal.PtrToStructure<WAVEFORMATEX>(pResult));
+#else
 				suggestion = Helpers.FromInternalFormat((WAVEFORMATEX)Marshal.PtrToStructure(pResult, typeof(WAVEFORMATEX)));
+#endif
 				if (pResult != IntPtr.Zero) Marshal.FreeCoTaskMem(pResult);
 				return false;
 			}

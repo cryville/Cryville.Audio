@@ -11,7 +11,11 @@ namespace Cryville.Audio.WaveformAudio {
 	/// </summary>
 	public class WaveOutClient : AudioClient {
 		const int BUFFER_COUNT = 2;
+#if NET451_OR_GREATER || NETSTANDARD1_2_OR_GREATER || NETCOREAPP1_0_OR_GREATER
+		static readonly uint SIZE_WAVEHDR = (uint)Marshal.SizeOf<WAVEHDR>();
+#else
 		static readonly uint SIZE_WAVEHDR = (uint)Marshal.SizeOf(typeof(WAVEHDR));
+#endif
 
 		internal WaveOutClient(WaveOutDevice device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
 			m_device = device;
