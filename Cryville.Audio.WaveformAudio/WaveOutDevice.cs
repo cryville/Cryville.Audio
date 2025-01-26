@@ -42,7 +42,7 @@ namespace Cryville.Audio.WaveformAudio {
 		/// <inheritdoc />
 		public int MinimumBufferSize => 0;
 		/// <inheritdoc />
-		public int DefaultBufferSize => 1920;
+		public int DefaultBufferSize => (int)(0.04 * DefaultFormat.SampleRate);
 
 		/// <inheritdoc />
 		public WaveFormat DefaultFormat {
