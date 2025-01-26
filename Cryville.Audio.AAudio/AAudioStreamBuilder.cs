@@ -147,8 +147,11 @@ namespace Cryville.Audio.AAudio {
 			UnsafeNativeMethods.AAudioStreamBuilder_setDirection(builder, Helpers.ToInternalDataFlow(DataFlow));
 			UnsafeNativeMethods.AAudioStreamBuilder_setPerformanceMode(builder, aaudio_performance_mode_t.AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
 			if (AndroidHelper.DeviceApiLevel >= 32) {
-				UnsafeNativeMethods.AAudioStreamBuilder_setIsContentSpatialized(builder, true);
-				UnsafeNativeMethods.AAudioStreamBuilder_setSpatializationBehavior(builder, aaudio_spatialization_behavior_t.AAUDIO_SPATIALIZATION_BEHAVIOR_NEVER);
+				try {
+					UnsafeNativeMethods.AAudioStreamBuilder_setIsContentSpatialized(builder, true);
+					UnsafeNativeMethods.AAudioStreamBuilder_setSpatializationBehavior(builder, aaudio_spatialization_behavior_t.AAUDIO_SPATIALIZATION_BEHAVIOR_NEVER);
+				}
+				catch (EntryPointNotFoundException) { }
 			}
 			return builder;
 		}
