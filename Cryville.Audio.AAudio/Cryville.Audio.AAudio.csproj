@@ -12,13 +12,11 @@
 		<Authors>Cryville</Authors>
 		<Copyright>Copyright (c) Cryville 2024</Copyright>
 		<Description>AAudio engine adapter for Cryville.Audio.</Description>
-		<DocumentationFile>Cryville.Audio.AAudio.xml</DocumentationFile>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://www.cryville.world/Projects/A012</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageTags>audio, playback, android</PackageTags>
 		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
 		<Version>4.0.0</Version>
@@ -29,9 +27,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Update="Cryville.Audio.AAudio.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Include="README.md" Pack="True" PackagePath="\" />
 	</ItemGroup>
 
