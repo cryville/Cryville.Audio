@@ -4,6 +4,22 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.AudioClient {
+	enum AUDCLNT_STREAMOPTIONS {
+		NONE = 0x00,
+		RAW = 0x01,
+		MATCH_FORMAT = 0x02,
+		AMBISONICS = 0x04
+	}
+
+	unsafe struct AudioClientProperties {
+		public readonly UInt32 cbSize = (uint)sizeof(AudioClientProperties);
+		public bool bIsOffload;
+		public AUDIO_STREAM_CATEGORY eCategory;
+		public AUDCLNT_STREAMOPTIONS Options;
+
+		public AudioClientProperties() { }
+	}
+
 	[ComImport]
 	[Guid("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -55,6 +71,25 @@ namespace Microsoft.Windows.AudioClient {
 		void GetService(
 			[MarshalAs(UnmanagedType.LPStruct)] Guid riid,
 			[MarshalAs(UnmanagedType.IUnknown)] out object ppv
+		);
+	}
+
+	[ComImport]
+	[Guid("726778CD-F60A-4eda-82DE-E47610CD78AA")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	interface IAudioClient2 {
+		void IsOffloadCapable(
+			AUDIO_STREAM_CATEGORY Category,
+			out bool pbOffloadCapable
+		);
+
+		void SetClientProperties(ref AudioClientProperties pProperties);
+
+		void GetBufferSizeLimits(
+			ref WAVEFORMATEX pFormat,
+			bool bEventDriven,
+			out Int64 phnsMinBufferDuration,
+			out Int64 phnsMaxBufferDuration
 		);
 	}
 

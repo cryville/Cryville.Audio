@@ -117,9 +117,9 @@ namespace Cryville.Audio.AAudio {
 		}
 
 		/// <inheritdoc />
-		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
-			Helpers.SetWaveFormatAndShareMode(builder, format, shareMode);
+			Helpers.SetWaveFormatUsageAndShareMode(builder, format, usage, shareMode);
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
 			suggestion = Helpers.FromInternalWaveFormat(stream);
@@ -128,9 +128,9 @@ namespace Cryville.Audio.AAudio {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
-			Helpers.SetWaveFormatAndShareMode(builder, format, shareMode);
+			Helpers.SetWaveFormatUsageAndShareMode(builder, format, usage, shareMode);
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
 			if (bufferSize > 0) {

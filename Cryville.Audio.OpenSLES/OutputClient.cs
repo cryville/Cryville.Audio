@@ -3,7 +3,6 @@ using Cryville.Interop.Mono;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace Cryville.Audio.OpenSLES {
 	/// <summary>
@@ -43,9 +42,20 @@ namespace Cryville.Audio.OpenSLES {
 			var hSnkLoc = GCHandle.Alloc(snkLoc, GCHandleType.Pinned); _handles.Add(hSnkLoc);
 			var snk = new SLDataSink(hSnkLoc.AddrOfPinnedObject(), IntPtr.Zero);
 			Guid IID_SLBufferQueueItf = typeof(SLBufferQueueItf).GUID; ids[0] = new(&IID_SLBufferQueueItf); req[0] = true;
-			Helpers.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 1, ref ids, req), "ObjEngine.CreateAudioPlayer");
-			Helpers.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 1, ids, req), "ObjEngine.CreateAudioPlayer");
+			Guid IID_SLAndroidConfigurationItf = typeof(SLAndroidConfigurationItf).GUID; ids[1] = new(&IID_SLAndroidConfigurationItf); req[1] = false;
+			Helpers.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 2, ids, req), "ObjEngine.CreateAudioPlayer");
 			_objPlayer = new SLItfWrapper<SLObjectItf>(pObjPlayer);
+
+			var getConfigResult = _objPlayer.Obj.GetInterface(_objPlayer, typeof(SLAndroidConfigurationItf).GUID, out var pConfig);
+			if (getConfigResult == SLResult.SUCCESS) {
+				var config = new SLItfWrapper<SLAndroidConfigurationItf>(pConfig);
+				var streamType = Helpers.ToInternalStreamType(usage);
+				Helpers.SLR(config.Obj.SetConfiguration(config, "androidPlaybackStreamType", new(&streamType), sizeof(SL_ANDROID_STREAM)), "ObjAndroidConfiguration.SetConfiguration");
+			}
+			else if (getConfigResult != SLResult.FEATURE_UNSUPPORTED) {
+				Helpers.SLR(getConfigResult, "ObjPlayer.GetInterface(AndroidConfiguration)");
+			}
+
 			Helpers.SLR(_objPlayer.Obj.Realize(_objPlayer, false), "ObjPlayer.Realize");
 
 			Helpers.SLR(_objPlayer.Obj.GetInterface(_objPlayer, typeof(SLBufferQueueItf).GUID, out var pbq), "ObjPlayer.GetInterface(BufferQueue)");
@@ -170,7 +180,7 @@ namespace Cryville.Audio.OpenSLES {
 				if (_freeBufferCount >= BUFFER_COUNT) return;
 				_freeBufferCount++;
 				int length = BufferSize * m_format.FrameSize;
-				if (Source == null || Muted) Array.Clear(_buf[_bufIndex], 0, length);
+				if (Source == null) AudioStream.SilentBuffer(Format, ref _buf[_bufIndex][0], BufferSize);
 				else Source.ReadFrames(_buf[_bufIndex], 0, BufferSize);
 				Helpers.SLR(_bq.Obj.Enqueue(_bq, _hBuf[_bufIndex++].AddrOfPinnedObject(), (uint)length));
 				_bufIndex %= BUFFER_COUNT;
@@ -178,8 +188,7 @@ namespace Cryville.Audio.OpenSLES {
 			}
 		}
 
-		delegate void DataHandler(IntPtr caller, IntPtr pContext);
-		[MonoPInvokeCallback(typeof(DataHandler))]
+		[MonoPInvokeCallback(typeof(slBufferQueueCallback))]
 		static void Callback(IntPtr caller, IntPtr pContext) {
 			var i = _instances[pContext.ToInt32()];
 			i._freeBufferCount--;

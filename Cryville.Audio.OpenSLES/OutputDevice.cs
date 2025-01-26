@@ -108,14 +108,14 @@ namespace Cryville.Audio.OpenSLES {
 		}
 
 		/// <inheritdoc />
-		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			switch (format.Channels) {
 				case 1:
 				case 2:
 					break;
 				default:
 					format.Channels = 2;
-					IsFormatSupported(format, out suggestion, shareMode);
+					IsFormatSupported(format, out suggestion, usage, shareMode);
 					return false;
 			}
 			switch (format.SampleRate) {
@@ -139,7 +139,7 @@ namespace Cryville.Audio.OpenSLES {
 					else if (format.SampleRate < 32000) format.SampleRate = 32000;
 					else if (format.SampleRate < 44100) format.SampleRate = 44100;
 					else format.SampleRate = 48000;
-					IsFormatSupported(format, out suggestion, shareMode);
+					IsFormatSupported(format, out suggestion, usage, shareMode);
 					return false;
 			}
 			switch (format.SampleFormat) {
@@ -155,6 +155,7 @@ namespace Cryville.Audio.OpenSLES {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) => new OutputClient(_engine, this, format, bufferSize, shareMode);
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared)
+			=> new OutputClient(_engine, this, format, bufferSize, usage, shareMode);
 	}
 }

@@ -1,3 +1,4 @@
+using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.MMDevice;
 using Microsoft.Windows.Mme;
 using System;
@@ -40,6 +41,19 @@ namespace Cryville.Audio.Wasapi {
 			24 => SampleFormat.S24,
 			32 => SampleFormat.S32,
 			_ => throw new NotSupportedException(),
+		};
+		public static AUDIO_STREAM_CATEGORY ToInternalStreamCategory(AudioUsage usage) => usage switch {
+			AudioUsage.Media => AUDIO_STREAM_CATEGORY.Media,
+			AudioUsage.Communication => AUDIO_STREAM_CATEGORY.Communications,
+			AudioUsage.Alarm or
+			AudioUsage.Notification or
+			AudioUsage.NotificationRingtone or
+			AudioUsage.NotificationEvent => AUDIO_STREAM_CATEGORY.SoundEffects,
+			AudioUsage.AssistanceAccessibility or
+			AudioUsage.AssistanceNavigation or
+			AudioUsage.AssistanceSonification => AUDIO_STREAM_CATEGORY.Other,
+			AudioUsage.Game => AUDIO_STREAM_CATEGORY.GameMedia,
+			_ => AUDIO_STREAM_CATEGORY.Other,
 		};
 		public static int FromReferenceTime(uint sampleRate, long value) => (int)(value * sampleRate / 1e7 + 0.5);
 		public static long ToReferenceTime(uint sampleRate, int value) => (long)(1e7 / sampleRate * value + 0.5);

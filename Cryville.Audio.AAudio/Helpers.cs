@@ -1,4 +1,5 @@
 using Cryville.Audio.AAudio.Native;
+using Cryville.Interop.Java.Helper;
 using System;
 
 namespace Cryville.Audio.AAudio {
@@ -22,10 +23,16 @@ namespace Cryville.Audio.AAudio {
 			};
 		}
 
-		public static void SetWaveFormatAndShareMode(IntPtr builder, WaveFormat format, AudioShareMode shareMode) {
+		public static void SetWaveFormatUsageAndShareMode(IntPtr builder, WaveFormat format, AudioUsage usage, AudioShareMode shareMode) {
 			UnsafeNativeMethods.AAudioStreamBuilder_setChannelCount(builder, format.Channels);
 			UnsafeNativeMethods.AAudioStreamBuilder_setFormat(builder, ToInternalSampleFormat(format.SampleFormat));
 			UnsafeNativeMethods.AAudioStreamBuilder_setSampleRate(builder, (int)format.SampleRate);
+			if (AndroidHelper.DeviceApiLevel >= 28) {
+				try {
+					UnsafeNativeMethods.AAudioStreamBuilder_setUsage(builder, ToInternalUsage(usage));
+				}
+				catch (EntryPointNotFoundException) { }
+			}
 			UnsafeNativeMethods.AAudioStreamBuilder_setSharingMode(builder, ToInternalSharingMode(shareMode));
 		}
 
@@ -47,6 +54,20 @@ namespace Cryville.Audio.AAudio {
 			AudioShareMode.Shared => aaudio_sharing_mode_t.AAUDIO_SHARING_MODE_SHARED,
 			AudioShareMode.Exclusive => aaudio_sharing_mode_t.AAUDIO_SHARING_MODE_EXCLUSIVE,
 			_ => throw new ArgumentOutOfRangeException(nameof(shareMode)),
+		};
+
+		public static aaudio_usage_t ToInternalUsage(AudioUsage usage) => usage switch {
+			AudioUsage.Media => aaudio_usage_t.AAUDIO_USAGE_MEDIA,
+			AudioUsage.Communication => aaudio_usage_t.AAUDIO_USAGE_VOICE_COMMUNICATION,
+			AudioUsage.Alarm => aaudio_usage_t.AAUDIO_USAGE_ALARM,
+			AudioUsage.Notification => aaudio_usage_t.AAUDIO_USAGE_NOTIFICATION,
+			AudioUsage.NotificationRingtone => aaudio_usage_t.AAUDIO_USAGE_NOTIFICATION_RINGTONE,
+			AudioUsage.NotificationEvent => aaudio_usage_t.AAUDIO_USAGE_NOTIFICATION_EVENT,
+			AudioUsage.AssistanceAccessibility => aaudio_usage_t.AAUDIO_USAGE_ASSISTANCE_ACCESSIBILITY,
+			AudioUsage.AssistanceNavigation => aaudio_usage_t.AAUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+			AudioUsage.AssistanceSonification => aaudio_usage_t.AAUDIO_USAGE_ASSISTANCE_SONIFICATION,
+			AudioUsage.Game => aaudio_usage_t.AAUDIO_USAGE_GAME,
+			_ => aaudio_usage_t.AAUDIO_USAGE_MEDIA,
 		};
 	}
 }

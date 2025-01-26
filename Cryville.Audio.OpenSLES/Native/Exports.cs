@@ -56,4 +56,13 @@ namespace Cryville.Audio.OpenSLES.Native {
             ref Guid pInterfaceId
         );
     }
+
+	enum SL_ANDROID_STREAM : UInt32 {
+		VOICE        = 0,
+		SYSTEM       = 1,
+		RING         = 2,
+		MEDIA        = 3,
+		ALARM        = 4,
+		NOTIFICATION = 5,
+	}
 }

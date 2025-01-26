@@ -16,6 +16,7 @@ namespace Cryville.Audio.Wasapi {
 		bool _connected;
 		readonly IMMDevice _internal;
 		readonly IAudioClient? _client;
+		readonly IAudioClient2? _client2;
 
 		internal MMDeviceWrapper(IMMDevice obj) {
 			_internal = obj;
@@ -24,6 +25,11 @@ namespace Cryville.Audio.Wasapi {
 				_internal.Activate(typeof(IAudioClient).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
 				_client = (IAudioClient)client;
 				_client.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
+				try {
+					_internal.Activate(typeof(IAudioClient2).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client2);
+					_client2 = (IAudioClient2)client2;
+				}
+				catch (COMException) { }
 			}
 		}
 
@@ -101,7 +107,7 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		/// <inheritdoc />
-		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (_client == null) throw new InvalidOperationException("The device is not available.");
 			var iFormat = Helpers.ToInternalFormat(format);
 			int hr = _client.IsFormatSupported(ToInternalShareModeEnum(shareMode), ref iFormat, out var pResult);
@@ -125,10 +131,10 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (_client == null) throw new InvalidOperationException("The device is not available.");
 			_connected = true;
-			return new AudioClientWrapper(_client, this, format, bufferSize, shareMode);
+			return new AudioClientWrapper(_client, _client2, this, format, bufferSize, usage, shareMode);
 		}
 
 		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) => value switch {

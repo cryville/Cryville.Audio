@@ -211,6 +211,20 @@ namespace Cryville.Audio.OpenSLES.Native {
 		UInt32[] pOutputDeviceIDs
 	);
 	#endregion
+	#region SLAndroidConfiguration
+	delegate SLResult SLAndroidConfiguration_SetConfiguration(
+		IntPtr self,
+		[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUTF8StrMarshaler))] string configKey,
+		IntPtr pConfigValue,
+		UInt32 valueSize
+	);
+	delegate SLResult SLAndroidConfiguration_GetConfiguration(
+		IntPtr self,
+		[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUTF8StrMarshaler))] string configKey,
+		UInt32 pValueSize,
+		IntPtr pConfigValue
+	);
+	#endregion
 	#region SLPlayItf
 	internal delegate void slPlayCallback(
 		SLPlayItf caller,

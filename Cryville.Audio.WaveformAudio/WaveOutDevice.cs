@@ -56,7 +56,7 @@ namespace Cryville.Audio.WaveformAudio {
 		}
 
 		/// <inheritdoc />
-		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			ushort ch = format.Channels;
 			byte flagCH;
 			switch (ch) {
@@ -64,7 +64,7 @@ namespace Cryville.Audio.WaveformAudio {
 				case 2: flagCH = 1; break;
 				default:
 					format.Channels = 2;
-					IsFormatSupported(format, out suggestion, shareMode);
+					IsFormatSupported(format, out suggestion, usage, shareMode);
 					return false;
 			}
 			uint sr = format.SampleRate;
@@ -81,7 +81,7 @@ namespace Cryville.Audio.WaveformAudio {
 					else if (sr <= 44100) format.SampleRate = 44100;
 					else if (sr <= 48000) format.SampleRate = 48000;
 					else format.SampleRate = 96000;
-					IsFormatSupported(format, out suggestion, shareMode);
+					IsFormatSupported(format, out suggestion, usage, shareMode);
 					return false;
 			}
 			SampleFormat bits = format.SampleFormat;
@@ -91,7 +91,7 @@ namespace Cryville.Audio.WaveformAudio {
 				case SampleFormat.S16: flagBits = 1; break;
 				default:
 					format.SampleFormat = SampleFormat.S16;
-					IsFormatSupported(format, out suggestion, shareMode);
+					IsFormatSupported(format, out suggestion, usage, shareMode);
 					return false;
 			}
 			var iwf = 1 << (flagCH | (flagBits << 1) | (flagSR << 2));
@@ -156,7 +156,7 @@ namespace Cryville.Audio.WaveformAudio {
 		}
 
 		/// <inheritdoc />
-		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
+		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			return new WaveOutClient(this, format, bufferSize, shareMode);
 		}
 	}

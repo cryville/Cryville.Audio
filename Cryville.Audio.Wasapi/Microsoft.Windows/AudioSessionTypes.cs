@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Microsoft.Windows.AudioSessionTypes {
 	[Flags]
@@ -20,5 +20,22 @@ namespace Microsoft.Windows.AudioSessionTypes {
 		RATEADJUST          = 0x00100000,
 		SRC_DEFAULT_QUALITY = 0x08000000,
 		AUTOCONVERTPCM      = 0x80000000,
+	}
+	enum AUDIO_STREAM_CATEGORY {
+		Other = 0,
+		ForegroundOnlyMedia = 1,
+		BackgroundCapableMedia = 2,
+		Communications = 3,
+		Alerts = 4,
+		SoundEffects = 5,
+		GameEffects = 6,
+		GameMedia = 7,
+		GameChat = 8,
+		Speech = 9,
+		Movie = 10,
+		Media = 11,
+		FarFieldSpeech = 12,
+		UniformSpeech = 13,
+		VoiceTyping = 14,
 	}
 }
