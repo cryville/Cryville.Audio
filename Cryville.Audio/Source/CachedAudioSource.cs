@@ -31,29 +31,34 @@ namespace Cryville.Audio.Source {
 		/// <remarks>
 		/// Use with object pool is recommended.
 		/// </remarks>
-		public void Rewind() => _pos = 0;
+		public void Rewind() => FramePosition = 0;
 
 		sealed class Cache(AudioStream source, double duration) {
-			public int LoadPosition;
 			public readonly AudioStream Source = source;
 			public readonly double Duration = duration;
+			WaveFormat _format;
+			public long FrameLength = -1;
+			public int FramePosition;
 			public byte[]? Buffer;
 
 			public void SetFormat(WaveFormat format, int bufferSize) {
+				_format = format;
 				Source.SetFormat(format, bufferSize);
-				int len = (int)format.Align(Duration * format.BytesPerSecond);
-				Buffer = new byte[len];
+				FrameLength = (long)(Duration * format.SampleRate);
+				Buffer = new byte[FrameLength * format.FrameSize];
 			}
-			public void FillBufferTo(int pos) {
-				Source.Read(Buffer!, LoadPosition, pos - LoadPosition);
-				LoadPosition = pos;
+			public void FillBufferTo(int frameOffset) {
+				_ = Source.ReadFrames(ref Buffer![FramePosition * _format.FrameSize], frameOffset - FramePosition);
+				FramePosition = frameOffset;
 			}
 		}
 		readonly Cache _cache = new(source, duration);
-		int _pos;
 
 		/// <inheritdoc />
-		public override bool EndOfData => _pos >= (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
+		public override bool EndOfData => Position >= (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
+
+		/// <inheritdoc />
+		public override long FrameLength => (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length / Format.FrameSize;
 
 		/// <summary>
 		/// Whether this audio stream has been disposed.
@@ -78,21 +83,19 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
-		protected override unsafe int ReadInternal(byte[] buffer, int offset, int count) {
+		protected override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			count = (int)Format.Align(count, true);
-			int loadTo = Math.Min(_cache.Buffer!.Length, _pos + count);
-			if (loadTo > _cache.LoadPosition) _cache.FillBufferTo(loadTo);
-			int rem = _cache.Buffer.Length - _pos;
-			int len = Math.Min(rem, count);
-			if (len > 0) {
-				fixed (byte* sptr = _cache.Buffer, dptr = buffer) {
-					Unsafe.CopyBlock(dptr + offset, sptr + _pos, (uint)len);
+			int frameOffsetToLoad = (int)Math.Min(_cache.Buffer!.Length, FramePosition + frameCount);
+			if (frameOffsetToLoad > _cache.FramePosition) _cache.FillBufferTo(frameOffsetToLoad);
+			long rem = _cache.FrameLength - FramePosition;
+			int frames = (int)Math.Min(rem, frameCount);
+			if (frames > 0) {
+				fixed (byte* sptr = _cache.Buffer, dptr = &buffer) {
+					Unsafe.CopyBlock(dptr, sptr + Position, (uint)(frames * Format.FrameSize));
 				}
-				_pos += len;
 			}
-			SilentBuffer(Format, buffer, offset + len, count - len);
-			return len;
+			SilentBuffer(Format, ref Unsafe.Add(ref buffer, frames * Format.FrameSize), frameCount - frames);
+			return frames;
 		}
 
 		/// <inheritdoc />
@@ -111,8 +114,6 @@ namespace Cryville.Audio.Source {
 		public override bool CanWrite => false;
 		/// <inheritdoc />
 		public override long Length => (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
-		/// <inheritdoc />
-		public override long Position { get => _pos; set => throw new NotSupportedException(); }
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />

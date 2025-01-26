@@ -77,126 +77,135 @@ namespace Cryville.Audio.Source {
 				m_playing = value;
 			}
 		}
-		double _time;
 		readonly object _lock = new();
 		readonly List<AudioStream> _sources;
 		readonly List<AudioStream> _rmsources;
 		double[]? _pribuf;
 		byte[]? _secbuf;
 		/// <inheritdoc />
-		protected override unsafe int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
-			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+		protected override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			if (Session == null) throw new InvalidOperationException("No session is active.");
-			var count = frameCount * Format.FrameSize;
-			if (!m_playing) {
-				SilentBuffer(Format, buffer, offset, count);
-				return 0;
+			if (!m_playing || Session == null) {
+				SilentBuffer(Format, ref buffer, frameCount);
+				return frameCount;
 			}
-			Array.Clear(_pribuf, 0, frameCount * Format.Channels);
+			var sampleCount = frameCount * Format.Channels;
+			Array.Clear(_pribuf, 0, sampleCount);
 			lock (_lock) {
 				_rmsources.Clear();
 				foreach (var source in _sources) {
-					FillBufferInternal(source, 0, count);
+					FillBufferInternal(source, 0, frameCount);
 					if (source.EndOfData) _rmsources.Add(source);
 				}
 				foreach (var source in _rmsources)
 					_sources.Remove(source);
 				lock (Session._lock) {
 					var seq = Session._seq;
-					_time += (double)frameCount / Format.SampleRate;
-					while (seq.Count > 0 && seq[0].Time < _time) {
+					Session.FramePosition += frameCount;
+					while (seq.Count > 0 && seq[0].Time < Session.TimePosition) {
 						var item = seq[0];
 						seq.RemoveAt(0);
 						if (_sources.Count >= MaxPolyphony) continue;
 						var source = item.Source;
 						_sources.Add(source);
-						int len = (int)Math.Min(count, Format.Align((_time - item.Time) * Format.BytesPerSecond, true));
-						FillBufferInternal(source, count - len, len);
+						int secFrameCount = Math.Min(frameCount, (int)((Session.TimePosition - item.Time) * Format.SampleRate));
+						FillBufferInternal(source, frameCount - secFrameCount, secFrameCount);
 					}
 				}
 			}
 			switch (Format.SampleFormat) {
 				case SampleFormat.U8:
-					for (int i = offset; i < count + offset; i++) {
-						buffer[i] = SampleClipping.ToByte(_pribuf![i]);
+					fixed (byte* rptr = &buffer) {
+						byte* ptr = rptr;
+						for (int i = 0; i < sampleCount; i++) {
+							*ptr++ = SampleClipping.ToByte(_pribuf![i]);
+						}
 					}
 					break;
 				case SampleFormat.S16:
-					fixed (byte* rptr = buffer) {
-						short* ptr = (short*)(rptr + offset);
-						for (int i = 0; i < count / sizeof(short); i++, ptr++) {
-							*ptr = SampleClipping.ToInt16(_pribuf![i]);
+					fixed (byte* rptr = &buffer) {
+						short* ptr = (short*)rptr;
+						for (int i = 0; i < sampleCount; i++) {
+							*ptr++ = SampleClipping.ToInt16(_pribuf![i]);
 						}
 					}
 					break;
 				case SampleFormat.S32:
-					fixed (byte* rptr = buffer) {
-						int* ptr = (int*)(rptr + offset);
-						for (int i = 0; i < count / sizeof(int); i++, ptr++) {
-							*ptr = SampleClipping.ToInt32(_pribuf![i]);
+					fixed (byte* rptr = &buffer) {
+						int* ptr = (int*)rptr;
+						for (int i = 0; i < sampleCount; i++) {
+							*ptr++ = SampleClipping.ToInt32(_pribuf![i]);
 						}
 					}
 					break;
 				case SampleFormat.F32:
-					fixed (byte* rptr = buffer) {
-						float* ptr = (float*)(rptr + offset);
-						for (int i = 0; i < count / sizeof(float); i++, ptr++) {
-							*ptr = (float)_pribuf![i];
+					fixed (byte* rptr = &buffer) {
+						float* ptr = (float*)rptr;
+						for (int i = 0; i < sampleCount; i++) {
+							*ptr++ = (float)_pribuf![i];
 						}
 					}
 					break;
 				case SampleFormat.F64:
-					fixed (byte* rptr = buffer) {
-						double* ptr = (double*)(rptr + offset);
-						for (int i = 0; i < count / sizeof(double); i++, ptr++) {
-							*ptr = _pribuf![i];
+					fixed (byte* rptr = &buffer) {
+						double* ptr = (double*)rptr;
+						for (int i = 0; i < sampleCount; i++) {
+							*ptr++ = _pribuf![i];
 						}
 					}
 					break;
 			}
-			return count;
+			return frameCount;
 		}
-		unsafe void FillBufferInternal(AudioStream source, int offset, int count) {
-			count = source.Read(_secbuf!, offset, count);
-			switch (Format.SampleFormat) {
-				case SampleFormat.U8:
-					for (int i = offset; i < count; i++) {
-						_pribuf![i] += _secbuf![i] / (double)0x80 - 1;
-					}
-					break;
-				case SampleFormat.S16:
-					fixed (byte* rptr = _secbuf) {
-						short* ptr = (short*)rptr;
-						for (int i = offset / sizeof(short); i < count / sizeof(short); i++, ptr++) {
-							_pribuf![i] += *ptr / (double)0x8000;
+		unsafe void FillBufferInternal(AudioStream source, int frameOffset, int frameCount) {
+			if (frameCount == 0) return;
+			frameCount = source.ReadFrames(_secbuf!, 0, frameCount);
+			var sampleOffset = frameOffset * Format.Channels;
+			var sampleCount = frameCount * Format.Channels;
+			fixed (double* rpptr = &_pribuf![sampleOffset]) {
+				var pptr = rpptr;
+				switch (Format.SampleFormat) {
+					case SampleFormat.U8:
+						fixed (byte* rptr = _secbuf) {
+							byte* ptr = rptr;
+							for (int i = 0; i < sampleCount; i++) {
+								*pptr++ += *ptr++ / (double)0x80 - 1;
+							}
 						}
-					}
-					break;
-				case SampleFormat.S32:
-					fixed (byte* rptr = _secbuf) {
-						int* ptr = (int*)rptr;
-						for (int i = offset / sizeof(int); i < count / sizeof(int); i++, ptr++) {
-							_pribuf![i] += *ptr / (double)0x80000000;
+						break;
+					case SampleFormat.S16:
+						fixed (byte* rptr = _secbuf) {
+							short* ptr = (short*)rptr;
+							for (int i = 0; i < sampleCount; i++) {
+								*pptr++ += *ptr++ / (double)0x8000;
+							}
 						}
-					}
-					break;
-				case SampleFormat.F32:
-					fixed (byte* rptr = _secbuf) {
-						float* ptr = (float*)rptr;
-						for (int i = offset / sizeof(float); i < count / sizeof(float); i++, ptr++) {
-							_pribuf![i] += *ptr;
+						break;
+					case SampleFormat.S32:
+						fixed (byte* rptr = _secbuf) {
+							int* ptr = (int*)rptr;
+							for (int i = 0; i < sampleCount; i++) {
+								*pptr++ += *ptr++ / (double)0x80000000;
+							}
 						}
-					}
-					break;
-				case SampleFormat.F64:
-					fixed (byte* rptr = _secbuf) {
-						double* ptr = (double*)rptr;
-						for (int i = offset / sizeof(double); i < count / sizeof(double); i++, ptr++) {
-							_pribuf![i] += *ptr;
+						break;
+					case SampleFormat.F32:
+						fixed (byte* rptr = _secbuf) {
+							float* ptr = (float*)rptr;
+							for (int i = 0; i < sampleCount; i++) {
+								*pptr++ += *ptr++;
+							}
 						}
-					}
-					break;
+						break;
+					case SampleFormat.F64:
+						fixed (byte* rptr = _secbuf) {
+							double* ptr = (double*)rptr;
+							for (int i = 0; i < sampleCount; i++) {
+								*pptr++ += *ptr++;
+							}
+						}
+						break;
+				}
 			}
 		}
 
@@ -298,6 +307,14 @@ namespace Cryville.Audio.Source {
 		internal List<Schedule> _seq = [];
 		readonly WaveFormat _format;
 		readonly int _bufferSize;
+		/// <summary>
+		/// The time in frames within the current session.
+		/// </summary>
+		public long FramePosition { get; internal set; }
+		/// <summary>
+		/// The time in seconds within the current session.
+		/// </summary>
+		public double TimePosition => (double)FramePosition / _format.SampleRate;
 		internal SimpleSequencerSession(WaveFormat format, int bufferSize) {
 			_format = format;
 			_bufferSize = bufferSize;

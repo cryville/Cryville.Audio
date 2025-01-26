@@ -53,9 +53,9 @@ namespace Cryville.Audio.Source {
 		};
 
 		/// <inheritdoc />
-		protected sealed override unsafe int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
+		protected sealed override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			fixed (byte* fptr = buffer) {
+			fixed (byte* fptr = &buffer) {
 				byte* ptr = fptr;
 				for (int i = 0; i < frameCount; i++) {
 					for (int j = 0; j < Format.Channels; j++) {

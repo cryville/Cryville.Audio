@@ -10,7 +10,6 @@ namespace Cryville.Audio {
 		/// The wave format.
 		/// </summary>
 		protected WaveFormat Format { get; private set; }
-
 		/// <summary>
 		/// The buffer size in frames.
 		/// </summary>
@@ -73,17 +72,26 @@ namespace Cryville.Audio {
 		/// </summary>
 		public virtual double Duration => (double)Length / Format.BytesPerSecond;
 
-		long m_position;
+		long m_framePosition;
+
 		/// <inheritdoc />
-		public override long Position {
-			get => m_position;
-			set => m_position = Seek(value, SeekOrigin.Begin);
+		public sealed override long Position {
+			get => m_framePosition * Format.FrameSize;
+			set => Seek(value, SeekOrigin.Begin);
+		}
+
+		/// <summary>
+		/// The time in frames within the current audio stream.
+		/// </summary>
+		public long FramePosition {
+			get => m_framePosition;
+			set => SeekFrame(value, SeekOrigin.Begin);
 		}
 
 		/// <summary>
 		/// The time in seconds within the current audio stream.
 		/// </summary>
-		public virtual double Time => (double)Position / Format.BytesPerSecond;
+		public virtual double TimePosition => (double)FramePosition / Format.SampleRate;
 
 		void CheckParams(byte[] buffer, int offset, int count) {
 			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -94,13 +102,7 @@ namespace Cryville.Audio {
 		}
 
 		/// <inheritdoc />
-		public override sealed int Read(byte[] buffer, int offset, int count) {
-			CheckParams(buffer, offset, count);
-			count = (int)Format.Align(count, true);
-			count = ReadInternal(buffer, offset, count);
-			m_position += count;
-			return count;
-		}
+		public sealed override int Read(byte[] buffer, int offset, int count) => ReadFrames(buffer, offset, count / Format.FrameSize);
 
 		/// <summary>
 		/// Reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
@@ -111,77 +113,72 @@ namespace Cryville.Audio {
 		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
 		public int ReadFrames(byte[] buffer, int offset, int frameCount) {
 			CheckParams(buffer, offset, frameCount * Format.FrameSize);
-			frameCount = ReadFramesInternal(buffer, offset, frameCount);
-			m_position += frameCount * Format.FrameSize;
+			frameCount = ReadFramesInternal(ref buffer[offset], frameCount);
+			m_framePosition += frameCount;
 			return frameCount;
 		}
 
 		/// <summary>
-		/// When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+		/// Reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
 		/// </summary>
-		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the bytes read from the current audio source.</param>
-		/// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
-		/// <param name="count">The maximum number of bytes to be read from the current audio stream.</param>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if <paramref name="count" /> is 0 or the end of the stream has been reached.</returns>
-		protected virtual int ReadInternal(byte[] buffer, int offset, int count) {
-			count = (int)Format.Align(count, true);
-			count = ReadFramesInternal(buffer, offset, count / Format.FrameSize) * Format.FrameSize;
-			m_position += count;
-			return count;
+		/// <param name="buffer">A reference to the buffer. When this method returns, the buffer contains the specified data replaced by the frames read from the current audio source.</param>
+		/// <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
+		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
+		public int ReadFrames(ref byte buffer, int frameCount) {
+			frameCount = ReadFramesInternal(ref buffer, frameCount);
+			m_framePosition += frameCount;
+			return frameCount;
 		}
 
 		/// <summary>
 		/// When overridden in a derived class, reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
 		/// </summary>
-		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values started from <paramref name="offset" /> replaced by the frames read from the current audio source.</param>
-		/// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current audio stream.</param>
+		/// <param name="buffer">A reference to the buffer. When this method returns, the buffer contains the specified data replaced by the frames read from the current audio source.</param>
 		/// <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
 		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
-		protected abstract int ReadFramesInternal(byte[] buffer, int offset, int frameCount);
+		protected abstract int ReadFramesInternal(ref byte buffer, int frameCount);
 
 		/// <summary>
 		/// Fills the buffer with silence.
 		/// </summary>
 		/// <param name="format">The wave format.</param>
 		/// <param name="buffer">The buffer to be filled.</param>
-		/// <param name="offset">The offset in bytes from the start of the <paramref name="buffer" /> to start filling.</param>
-		/// <param name="count">The length in bytes to be filled.</param>
-		public static unsafe int SilentBuffer(WaveFormat format, byte[] buffer, int offset, int count) {
-			if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-			count = (int)format.Align(count, true);
-			fixed (byte* rptr = buffer) {
+		/// <param name="frameCount">The length in frames to be filled.</param>
+		public static unsafe void SilentBuffer(WaveFormat format, ref byte buffer, int frameCount) {
+			int sampleCount = frameCount * format.Channels;
+			fixed (byte* rptr = &buffer) {
 				switch (format.SampleFormat) {
 					case SampleFormat.U8:
-						for (int i = 0; i < count; i++) {
+						for (int i = 0; i < sampleCount; i++) {
 							*(rptr + i) = 0x80;
 						}
 						break;
 					case SampleFormat.S16:
 						var ptr16 = (short*)rptr;
-						for (int i = 0; i < count / 2; i++) {
+						for (int i = 0; i < sampleCount; i++) {
 							*(ptr16 + i) = 0;
 						}
 						break;
 					case SampleFormat.S24:
-						for (int i = 0; i < count; i++) {
+						for (int i = 0; i < sampleCount * 3; i++) {
 							*(rptr + i) = 0;
 						}
 						break;
 					case SampleFormat.S32:
 						var ptr32 = (int*)rptr;
-						for (int i = 0; i < count / 4; i++) {
+						for (int i = 0; i < sampleCount; i++) {
 							*(ptr32 + i) = 0;
 						}
 						break;
 					case SampleFormat.F32:
 						var ptrf32 = (float*)rptr;
-						for (int i = 0; i < count / 4; i++) {
+						for (int i = 0; i < sampleCount; i++) {
 							*(ptrf32 + i) = 0;
 						}
 						break;
 					case SampleFormat.F64:
 						var ptrf64 = (double*)rptr;
-						for (int i = 0; i < count / 8; i++) {
+						for (int i = 0; i < sampleCount; i++) {
 							*(ptrf64 + i) = 0;
 						}
 						break;
@@ -189,7 +186,6 @@ namespace Cryville.Audio {
 						throw new NotSupportedException();
 				}
 			}
-			return count;
 		}
 	}
 }
