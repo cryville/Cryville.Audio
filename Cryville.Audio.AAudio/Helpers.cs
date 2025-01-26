@@ -1,8 +1,8 @@
-using Android.AAudio.Native;
+using Cryville.Audio.AAudio.Native;
 using System;
 
 namespace Cryville.Audio.AAudio {
-	internal static class Util {
+	internal static class Helpers {
 		public static SampleFormat FromInternalSampleFormat(aaudio_format_t sampleFormat) => sampleFormat switch {
 			aaudio_format_t.AAUDIO_FORMAT_PCM_I16 => SampleFormat.S16,
 			aaudio_format_t.AAUDIO_FORMAT_PCM_FLOAT => SampleFormat.F32,

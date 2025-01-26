@@ -1,4 +1,4 @@
-using Android.AAudio.Native;
+using Cryville.Audio.AAudio.Native;
 using Cryville.Interop.Mono;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Cryville.Audio.AAudio {
 		internal AAudioStream(AAudioStreamBuilder builder, IntPtr stream) {
 			_builder = builder;
 			_stream = stream;
-			m_format = Util.FromInternalWaveFormat(stream);
+			m_format = Helpers.FromInternalWaveFormat(stream);
 			_buffer = new byte[BufferSize * m_format.FrameSize];
 			_instances.Add(_stream, this);
 		}

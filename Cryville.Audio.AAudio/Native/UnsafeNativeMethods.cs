@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE1006
-namespace Android.AAudio.Native {
+namespace Cryville.Audio.AAudio.Native {
 	internal static class UnsafeNativeMethods {
 		private const string LibraryName = "aaudio";
 

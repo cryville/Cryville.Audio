@@ -1,4 +1,4 @@
-using Android.AAudio.Native;
+using Cryville.Audio.AAudio.Native;
 using Cryville.Interop.Java;
 using Cryville.Interop.Java.Helper;
 using System;
@@ -31,9 +31,9 @@ namespace Cryville.Audio.AAudio {
 			_id = env.CallIntMethod(deviceInfo, m_id, _args0);
 			var cs = env.CallObjectMethod(deviceInfo, m_name, _args0);
 			var str = env.CallObjectMethod(cs, m_toString, _args0);
-			var pstr = env.GetStringChars(str, out _);
-			Name = new string(pstr, 0, env.GetStringLength(str));
-			env.ReleaseStringChars(str, pstr);
+			var pStr = env.GetStringChars(str, out _);
+			Name = new string(pStr, 0, env.GetStringLength(str));
+			env.ReleaseStringChars(str, pStr);
 			if (env.CallBooleanMethod(deviceInfo, m_sink, _args0)) DataFlow = DataFlow.Out;
 			if (env.CallBooleanMethod(deviceInfo, m_source, _args0)) DataFlow = DataFlow.In;
 		}
@@ -81,7 +81,7 @@ namespace Cryville.Audio.AAudio {
 			var builder = CreateStreamBuilder();
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
-			m_defaultFormat = Util.FromInternalWaveFormat(stream);
+			m_defaultFormat = Helpers.FromInternalWaveFormat(stream);
 			m_defaultBufferSize = UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream);
 			m_burstSize = UnsafeNativeMethods.AAudioStream_getFramesPerBurst(stream);
 			UnsafeNativeMethods.AAudioStream_close(stream);
@@ -119,10 +119,10 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
-			Util.SetWaveFormatAndShareMode(builder, format, shareMode);
+			Helpers.SetWaveFormatAndShareMode(builder, format, shareMode);
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
-			suggestion = Util.FromInternalWaveFormat(stream);
+			suggestion = Helpers.FromInternalWaveFormat(stream);
 			UnsafeNativeMethods.AAudioStream_close(stream);
 			return format == suggestion;
 		}
@@ -130,7 +130,7 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
-			Util.SetWaveFormatAndShareMode(builder, format, shareMode);
+			Helpers.SetWaveFormatAndShareMode(builder, format, shareMode);
 			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
 			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
 			if (bufferSize > 0) {
@@ -144,7 +144,7 @@ namespace Cryville.Audio.AAudio {
 			UnsafeNativeMethods.AAudio_createStreamBuilder(out var builder);
 			UnsafeNativeMethods.AAudioStreamBuilder_setDataCallback(builder, AAudioStream.DataCallback, IntPtr.Zero);
 			UnsafeNativeMethods.AAudioStreamBuilder_setDeviceId(builder, _id);
-			UnsafeNativeMethods.AAudioStreamBuilder_setDirection(builder, Util.ToInternalDataFlow(DataFlow));
+			UnsafeNativeMethods.AAudioStreamBuilder_setDirection(builder, Helpers.ToInternalDataFlow(DataFlow));
 			UnsafeNativeMethods.AAudioStreamBuilder_setPerformanceMode(builder, aaudio_performance_mode_t.AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
 			if (AndroidHelper.DeviceApiLevel >= 28)
 				UnsafeNativeMethods.AAudioStreamBuilder_setUsage(builder, aaudio_usage_t.AAUDIO_USAGE_GAME);
