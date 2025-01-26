@@ -186,7 +186,7 @@ namespace Cryville.Audio.WaveformAudio {
 					var b = _buffers[i];
 					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
 						if (Source == null) {
-							Array.Clear(b.Buffer, 0, b.Buffer.Length);
+							AudioStream.SilentBuffer(Format, ref b.Buffer[0], BufferSize);
 						}
 						else {
 							Source.ReadFrames(b.Buffer, 0, BufferSize);

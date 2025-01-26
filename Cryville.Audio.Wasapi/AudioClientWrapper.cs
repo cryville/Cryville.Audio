@@ -205,7 +205,6 @@ namespace Cryville.Audio.Wasapi {
 		bool _threadAbortFlag;
 		void ThreadLogic() {
 			_threadAbortFlag = false;
-			var buffer = new byte[BufferSize * m_format.nBlockAlign];
 			while (true) {
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
 					throw new InvalidOperationException("Error while pending for event.");
@@ -216,9 +215,8 @@ namespace Cryville.Audio.Wasapi {
 					_renderClient.SilentBuffer(frames);
 				}
 				else {
-					var length = frames * m_format.nBlockAlign;
-					Source.ReadFrames(buffer, 0, (int)frames);
-					_renderClient.FillBuffer(buffer, frames, length);
+					ref byte buffer = ref _renderClient.GetBuffer(frames);
+					Source.ReadFrames(ref buffer, (int)frames);
 					_renderClient.ReleaseBuffer(frames);
 				}
 				m_bufferPosition += (double)frames / m_format.nSamplesPerSec;

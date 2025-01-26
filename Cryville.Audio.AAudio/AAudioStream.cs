@@ -3,7 +3,7 @@ using Cryville.Interop.Mono;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+using UnsafeIL;
 
 namespace Cryville.Audio.AAudio {
 	/// <summary>
@@ -21,7 +21,6 @@ namespace Cryville.Audio.AAudio {
 			_builder = builder;
 			_stream = stream;
 			m_format = Helpers.FromInternalWaveFormat(stream);
-			_buffer = new byte[BufferSize * m_format.FrameSize];
 			_instances.Add(_stream, this);
 		}
 
@@ -108,12 +107,10 @@ namespace Cryville.Audio.AAudio {
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
-		readonly byte[] _buffer;
 		unsafe void FillBuffer(IntPtr ptr, int frames) {
-			var len = frames * Format.FrameSize;
-			if (Source == null) Array.Clear(_buffer, 0, len);
-			else Source.ReadFrames(_buffer, 0, frames);
-			Marshal.Copy(_buffer, 0, ptr, len);
+			ref byte buffer = ref Unsafe.AsRef<byte>((void*)ptr);
+			if (Source == null) AudioStream.SilentBuffer(Format, ref buffer, frames);
+			else Source.ReadFrames(ref buffer, frames);
 			m_bufferPosition += (double)frames / Format.SampleRate;
 		}
 
