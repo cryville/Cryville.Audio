@@ -20,7 +20,6 @@ namespace Cryville.Audio.Source.Libav {
 			AVPacket* packet;
 			AVFrame* frame;
 			readonly SwrContext* swrContext;
-			byte* _buffer;
 
 			public readonly int BestStreamIndex;
 			public readonly ReadOnlyCollection<int> Streams;
@@ -31,6 +30,7 @@ namespace Cryville.Audio.Source.Libav {
 			int frameSize;
 			public bool EOF;
 			public Internal(string file) {
+				if (!File.Exists(file)) throw new FileNotFoundException();
 				formatCtx = ffmpeg.avformat_alloc_context();
 				fixed (AVFormatContext** formatCtxPtr = &formatCtx) {
 					HR(ffmpeg.avformat_open_input(formatCtxPtr, file, null, null));
@@ -92,7 +92,6 @@ namespace Cryville.Audio.Source.Libav {
 				ffmpeg.av_channel_layout_default(&outLayout, outFormat.Channels);
 
 				frame = ffmpeg.av_frame_alloc();
-				_buffer = (byte*)Marshal.AllocHGlobal(BufferSize * format.FrameSize).ToPointer();
 
 				fixed (SwrContext** pSwrContext = &swrContext)
 					HR(ffmpeg.swr_alloc_set_opts2(
@@ -105,12 +104,14 @@ namespace Cryville.Audio.Source.Libav {
 				HR(ffmpeg.swr_init(swrContext));
 			}
 
-			public int FillBuffer(byte[] buffer, int offset, int frameCount) {
+			public int FillBuffer(ref byte buffer, int frameCount) {
 				if (swrContext == null) throw new ObjectDisposedException(null);
-				int decoded = 0;
-				if (!EOF) {
+				if (EOF) return 0;
+				fixed (byte* rptr = &buffer) {
+					byte* ptr = rptr;
+					int decoded = 0;
 					while (decoded < frameCount) {
-						int frame_size;
+						int frame_count;
 						int out_samples = HR(ffmpeg.swr_get_out_samples(swrContext, 0));
 						if (out_samples < frameCount) {
 							// Samples in the buffer are not sufficient. Read and decode a new frame.
@@ -133,26 +134,20 @@ namespace Cryville.Audio.Source.Libav {
 								ffmpeg.av_packet_unref(packet);
 								continue;
 							}
-							fixed (byte** ptr = &_buffer) {
-								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, frameCount - decoded, frame->extended_data, frame->nb_samples));
-							}
+							frame_count = HR(ffmpeg.swr_convert(swrContext, &ptr, frameCount - decoded, frame->extended_data, frame->nb_samples));
 							ffmpeg.av_frame_unref(frame);
 						}
 						else {
 							// Samples in the buffer are sufficient. Flush them.
-							fixed (byte** ptr = &_buffer) {
-								frame_size = HR(ffmpeg.swr_convert(swrContext, ptr, frameCount - decoded, null, 0));
-							}
-							if (frame_size == 0) goto eof; // Don't know why this happens but dumb fix anyway
+							frame_count = HR(ffmpeg.swr_convert(swrContext, &ptr, frameCount - decoded, null, 0));
+							if (frame_count == 0) goto eof; // Don't know why this happens but dumb fix anyway
 						}
-						Marshal.Copy(new IntPtr(_buffer), buffer, decoded * frameSize + offset, frame_size * frameSize);
-						decoded += frame_size;
+						ptr += frame_count * frameSize;
+						decoded += frame_count;
 					}
+				eof:
+					return decoded;
 				}
-			eof:
-				int len = decoded * frameSize;
-				SilentBuffer(OutFormat!.Value, buffer, offset + len, frameCount * frameSize - len);
-				return len;
 			}
 
 			public void Seek(double time) {
@@ -196,10 +191,6 @@ namespace Cryville.Audio.Source.Libav {
 			}
 
 			public void Close() {
-				if (_buffer != null) {
-					Marshal.FreeHGlobal(new IntPtr(_buffer));
-					_buffer = null;
-				}
 				if (swrContext != null) {
 					fixed (SwrContext** swrContextPtr = &swrContext) {
 						ffmpeg.swr_free(swrContextPtr);
@@ -259,6 +250,19 @@ namespace Cryville.Audio.Source.Libav {
 		/// <inheritdoc />
 		public override bool EndOfData => _internal.EOF;
 
+		/// <inheritdoc />
+		/// <remarks>
+		/// <para>This property may be inaccurate.</para>
+		/// </remarks>
+		public override long FrameLength => (long)(TimeLength * Format.SampleRate);
+		/// <inheritdoc />
+		/// <remarks>
+		/// <para>This property may be inaccurate.</para>
+		/// </remarks>
+		public override double TimeLength => GetStreamDuration(_internal.SelectedStream);
+		/// <inheritdoc />
+		public override double TimePosition => _time;
+
 		/// <summary>
 		/// The index to the best audio stream.
 		/// </summary>
@@ -305,35 +309,31 @@ namespace Cryville.Audio.Source.Libav {
 		/// <inheritdoc />
 		protected override void OnSetFormat() => _internal.SetFormat(Format, BufferSize);
 
-		long _pos;
 		double _time;
 		/// <inheritdoc />
-		protected override int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
+		protected override int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			var readCount = _internal.FillBuffer(buffer, offset, frameCount);
+			frameCount = _internal.FillBuffer(ref buffer, frameCount);
 			_time = _internal.GetPresentationTimestamp();
-			return readCount;
+			return frameCount;
 		}
 
 		/// <inheritdoc />
-		public override long Seek(long offset, SeekOrigin origin) {
-			SeekTime((double)Format.Align(offset) / Format.BytesPerSecond, origin);
-			return Position;
-		}
+		protected override long SeekFrameInternal(long frameOffset, SeekOrigin origin)
+			=> (long)(SeekTimeInternal((double)frameOffset / Format.SampleRate, origin) * Format.SampleRate);
 		/// <inheritdoc />
-		public override double SeekTime(double offset, SeekOrigin origin) {
+		protected override double SeekTimeInternal(double timeOffset, SeekOrigin origin) {
 			if (Disposed) throw new ObjectDisposedException(null);
 			var newTime = origin switch {
-				SeekOrigin.Begin => offset,
-				SeekOrigin.Current => _time + offset,
-				SeekOrigin.End => Duration + offset,
+				SeekOrigin.Begin => timeOffset,
+				SeekOrigin.Current => _time + timeOffset,
+				SeekOrigin.End => TimeLength + timeOffset,
 				_ => throw new ArgumentException("Invalid SeekOrigin.", nameof(origin)),
 			};
 			if (newTime < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
 			_internal.Seek(newTime);
 			_time = _internal.GetPresentationTimestamp();
-			_pos = Format.Align(_time * Format.BytesPerSecond);
-			return Time;
+			return _time;
 		}
 
 		/// <inheritdoc />
@@ -342,23 +342,6 @@ namespace Cryville.Audio.Source.Libav {
 		public override bool CanSeek => !Disposed;
 		/// <inheritdoc />
 		public override bool CanWrite => false;
-		/// <inheritdoc />
-		/// <remarks>
-		/// <para>This property may be inaccurate.</para>
-		/// </remarks>
-		public override long Length => Format.Align(Duration * Format.BytesPerSecond);
-		/// <inheritdoc />
-		/// <remarks>
-		/// <para>This property may be inaccurate.</para>
-		/// </remarks>
-		public override double Duration => GetStreamDuration(_internal.SelectedStream);
-		/// <inheritdoc />
-		public override double Time => _time;
-		/// <inheritdoc />
-		/// <remarks>
-		/// <para>This property may become inaccurate after <see cref="Seek(long, SeekOrigin)" /> is called.</para>
-		/// </remarks>
-		public override long Position { get => _pos; set => Seek(value, SeekOrigin.Begin); }
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />
