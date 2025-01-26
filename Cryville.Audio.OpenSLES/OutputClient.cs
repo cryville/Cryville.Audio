@@ -13,7 +13,7 @@ namespace Cryville.Audio.OpenSLES {
 		static readonly List<OutputClient> _instances = [];
 		readonly int _id;
 
-		internal OutputClient(Engine engine, OutputDevice device, WaveFormat format, int bufferSize, AudioShareMode shareMode) {
+		internal unsafe OutputClient(Engine engine, OutputDevice device, WaveFormat format, int bufferSize, AudioUsage usage, AudioShareMode shareMode) {
 			_id = _instances.Count;
 			_instances.Add(this);
 
@@ -25,8 +25,8 @@ namespace Cryville.Audio.OpenSLES {
 			if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
 			m_format = format;
 
-			Guid[] ids = new Guid[4];
-			bool[] req = new bool[4];
+			IntPtr[] ids = new IntPtr[2];
+			bool[] req = new bool[2];
 
 			Helpers.SLR(_objEngine.ObjEngine.Obj.GetInterface(_objEngine.ObjEngine, typeof(SLEngineItf).GUID, out var pEngine), "ObjEngine.GetInterface");
 			_engine = new SLItfWrapper<SLEngineItf>(pEngine);
@@ -42,8 +42,9 @@ namespace Cryville.Audio.OpenSLES {
 			var snkLoc = new SLDataLocator_OutputMix(_objMix);
 			var hSnkLoc = GCHandle.Alloc(snkLoc, GCHandleType.Pinned); _handles.Add(hSnkLoc);
 			var snk = new SLDataSink(hSnkLoc.AddrOfPinnedObject(), IntPtr.Zero);
-			ids[0] = typeof(SLBufferQueueItf).GUID; req[0] = true;
+			Guid IID_SLBufferQueueItf = typeof(SLBufferQueueItf).GUID; ids[0] = new(&IID_SLBufferQueueItf); req[0] = true;
 			Helpers.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 1, ref ids, req), "ObjEngine.CreateAudioPlayer");
+			Helpers.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 1, ids, req), "ObjEngine.CreateAudioPlayer");
 			_objPlayer = new SLItfWrapper<SLObjectItf>(pObjPlayer);
 			Helpers.SLR(_objPlayer.Obj.Realize(_objPlayer, false), "ObjPlayer.Realize");
 

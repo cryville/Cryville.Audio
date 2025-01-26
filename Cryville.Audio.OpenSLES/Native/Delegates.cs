@@ -32,16 +32,16 @@ namespace Cryville.Audio.OpenSLES.Native {
 		out IntPtr pDevice,
 		UInt32 deviceID,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 3)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateVibraDevice(
 		IntPtr self,
 		out IntPtr pDevice,
 		UInt32 deviceID,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 3)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateAudioPlayer(
 		IntPtr self,
@@ -49,8 +49,8 @@ namespace Cryville.Audio.OpenSLES.Native {
 		ref SLDataSource pAudioSrc,
 		ref SLDataSink pAudioSnk,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 4)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 4)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateAudioRecorder(
 		IntPtr self,
@@ -58,8 +58,8 @@ namespace Cryville.Audio.OpenSLES.Native {
 		ref SLDataSource pAudioSrc,
 		ref SLDataSink pAudioSnk,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 4)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 4)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateMidiPlayer(
 		IntPtr self,
@@ -70,37 +70,37 @@ namespace Cryville.Audio.OpenSLES.Native {
 		ref SLDataSink pVibra,
 		ref SLDataSink pLEDArray,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 7)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 7)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateListener(
 		IntPtr self,
 		out IntPtr pListener,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 2)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_Create3DGroup(
 		IntPtr self,
 		out IntPtr pGroup,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 2)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateOutputMix(
 		IntPtr self,
 		out IntPtr pMix,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 2)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateMetadataExtractor(
 		IntPtr self,
 		out IntPtr pMetadataExtractor,
 		ref SLDataSource pDataSource,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 3)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_CreateExtensionObject(
 		IntPtr self,
@@ -108,8 +108,8 @@ namespace Cryville.Audio.OpenSLES.Native {
 		IntPtr pParameters,
 		UInt32 objectID,
 		UInt32 numInterfaces,
-		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
-		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
+		[MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 4)] IntPtr[] pInterfaceIds,
+		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool, SizeParamIndex = 4)] bool[] pInterfaceRequired
 	);
 	internal delegate SLResult SLEngineItf_QueryNumSupportedInterfaces(
 		IntPtr self,
@@ -120,7 +120,7 @@ namespace Cryville.Audio.OpenSLES.Native {
 		IntPtr self,
 		UInt32 objectID,
 		UInt32 index,
-		out Guid pInterfaceId
+		out IntPtr pInterfaceId
 	);
 	internal delegate SLResult SLEngineItf_QueryNumSupportedExtensions(
 		IntPtr self,
