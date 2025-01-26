@@ -1,7 +1,6 @@
-using System;
 using System.Runtime.InteropServices;
 
-namespace OpenSLES.Native {
+namespace Cryville.Audio.OpenSLES.Native {
 	[Guid("8d97c260-ddd4-11db-8f95-0002a5d5c51b")]
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct SLEngineItf {

@@ -1,21 +1,7 @@
-using OpenSLES.Native;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace Cryville.Audio.OpenSLES {
-	internal static class Util {
-		public static void SLR(SLresult result, string? desc = null) {
-			if (result == SLresult.SUCCESS) return;
-			var msg = result.ToString();
-			if (desc != null) msg = desc + ": " + msg;
-			throw new OpenSLException(msg);
-		}
-
-		public static SLDataFormat_PCM ToInternalFormat(WaveFormat value) {
-			return new SLDataFormat_PCM(value.Channels, value.SampleRate * 1000, value.BitsPerSample, value.BitsPerSample, ~(0xffffffff << value.Channels), (UInt32)SL_BYTEORDER.LITTLEENDIAN);
-		}
-	}
-
 	/// <summary>
 	/// Exception occurring in OpenSL ES.
 	/// </summary>

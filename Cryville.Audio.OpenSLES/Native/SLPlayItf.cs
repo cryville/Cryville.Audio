@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace OpenSLES.Native {
+namespace Cryville.Audio.OpenSLES.Native {
 	internal enum SL_PLAYSTATE : UInt32 {
 		STOPPED = 0x00000001,
 		PAUSED  = 0x00000002,

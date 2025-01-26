@@ -1,4 +1,4 @@
-using OpenSLES.Native;
+using Cryville.Audio.OpenSLES.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -15,9 +15,9 @@ namespace Cryville.Audio.OpenSLES {
 		/// Creates an instance of the <see cref="Engine" /> class.
 		/// </summary>
 		public Engine() {
-			Util.SLR(Exports.slCreateEngine(out var pObjEngine, 0, null, 0, IntPtr.Zero, IntPtr.Zero), "slCreateEngine");
+			Helpers.SLR(Exports.slCreateEngine(out var pObjEngine, 0, null, 0, IntPtr.Zero, IntPtr.Zero), "slCreateEngine");
 			ObjEngine = new SLItfWrapper<SLObjectItf>(pObjEngine);
-			Util.SLR(ObjEngine.Obj.Realize(ObjEngine, false), "ObjEngine.Realize");
+			Helpers.SLR(ObjEngine.Obj.Realize(ObjEngine, false), "ObjEngine.Realize");
 		}
 
 		int _disposed;

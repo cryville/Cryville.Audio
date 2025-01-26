@@ -1,5 +1,5 @@
+using Cryville.Audio.OpenSLES.Native;
 using Cryville.Interop.Mono;
-using OpenSLES.Native;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -28,37 +28,37 @@ namespace Cryville.Audio.OpenSLES {
 			Guid[] ids = new Guid[4];
 			bool[] req = new bool[4];
 
-			Util.SLR(_objEngine.ObjEngine.Obj.GetInterface(_objEngine.ObjEngine, typeof(SLEngineItf).GUID, out var pEngine));
+			Helpers.SLR(_objEngine.ObjEngine.Obj.GetInterface(_objEngine.ObjEngine, typeof(SLEngineItf).GUID, out var pEngine), "ObjEngine.GetInterface");
 			_engine = new SLItfWrapper<SLEngineItf>(pEngine);
-			Util.SLR(_engine.Obj.CreateOutputMix(_engine, out var pObjMix, 0, ref ids, req));
+			Helpers.SLR(_engine.Obj.CreateOutputMix(_engine, out var pObjMix, 0, ids, req), "ObjEngine.CreateOutputMix");
 			_objMix = new SLItfWrapper<SLObjectItf>(pObjMix);
-			Util.SLR(_objMix.Obj.Realize(_objMix, false));
+			Helpers.SLR(_objMix.Obj.Realize(_objMix, false), "ObjMix.Realize");
 
-			var srcloc = new SLDataLocator_BufferQueue(2);
-			var hsrcloc = GCHandle.Alloc(srcloc, GCHandleType.Pinned); _handles.Add(hsrcloc);
-			var srcfmt = Util.ToInternalFormat(format);
-			var hsrcfmt = GCHandle.Alloc(srcfmt, GCHandleType.Pinned); _handles.Add(hsrcfmt);
-			var src = new SLDataSource(hsrcloc.AddrOfPinnedObject(), hsrcfmt.AddrOfPinnedObject());
-			var snkloc = new SLDataLocator_OutputMix(_objMix);
-			var hsnkloc = GCHandle.Alloc(snkloc, GCHandleType.Pinned); _handles.Add(hsnkloc);
-			var snk = new SLDataSink(hsnkloc.AddrOfPinnedObject(), IntPtr.Zero);
+			var srcLoc = new SLDataLocator_BufferQueue(2);
+			var hSrcLoc = GCHandle.Alloc(srcLoc, GCHandleType.Pinned); _handles.Add(hSrcLoc);
+			var srcFmt = Helpers.ToInternalFormat(format);
+			var hSrcFmt = GCHandle.Alloc(srcFmt, GCHandleType.Pinned); _handles.Add(hSrcFmt);
+			var src = new SLDataSource(hSrcLoc.AddrOfPinnedObject(), hSrcFmt.AddrOfPinnedObject());
+			var snkLoc = new SLDataLocator_OutputMix(_objMix);
+			var hSnkLoc = GCHandle.Alloc(snkLoc, GCHandleType.Pinned); _handles.Add(hSnkLoc);
+			var snk = new SLDataSink(hSnkLoc.AddrOfPinnedObject(), IntPtr.Zero);
 			ids[0] = typeof(SLBufferQueueItf).GUID; req[0] = true;
-			Util.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 1, ref ids, req));
+			Helpers.SLR(_engine.Obj.CreateAudioPlayer(_engine, out var pObjPlayer, ref src, ref snk, 1, ref ids, req), "ObjEngine.CreateAudioPlayer");
 			_objPlayer = new SLItfWrapper<SLObjectItf>(pObjPlayer);
-			Util.SLR(_objPlayer.Obj.Realize(_objPlayer, false));
+			Helpers.SLR(_objPlayer.Obj.Realize(_objPlayer, false), "ObjPlayer.Realize");
 
-			Util.SLR(_objPlayer.Obj.GetInterface(_objPlayer, typeof(SLBufferQueueItf).GUID, out var pbq));
+			Helpers.SLR(_objPlayer.Obj.GetInterface(_objPlayer, typeof(SLBufferQueueItf).GUID, out var pbq), "ObjPlayer.GetInterface(BufferQueue)");
 			_bq = new SLItfWrapper<SLBufferQueueItf>(pbq);
-			Util.SLR(_objPlayer.Obj.GetInterface(_objPlayer, typeof(SLPlayItf).GUID, out var pPlay));
+			Helpers.SLR(_objPlayer.Obj.GetInterface(_objPlayer, typeof(SLPlayItf).GUID, out var pPlay), "ObjPlayer.GetInterface(Play)");
 			_play = new SLItfWrapper<SLPlayItf>(pPlay);
 
 			m_bufferSize = bufferSize;
 			for (int i = 0; i < BUFFER_COUNT; i++) {
 				_buf[i] = new byte[m_bufferSize * m_format.FrameSize];
-				_hbuf[i] = GCHandle.Alloc(_buf[i], GCHandleType.Pinned);
+				_hBuf[i] = GCHandle.Alloc(_buf[i], GCHandleType.Pinned);
 			}
 
-			Util.SLR(_bq.Obj.RegisterCallback(_bq, Callback, new IntPtr(_id)));
+			Helpers.SLR(_bq.Obj.RegisterCallback(_bq, Callback, new IntPtr(_id)), "ObjBufferQueue.RegisterCallback");
 		}
 
 		readonly List<GCHandle> _handles = [];
@@ -92,8 +92,8 @@ namespace Cryville.Audio.OpenSLES {
 		/// <inheritdoc />
 		public override double Position {
 			get {
-				Util.SLR(_play.Obj.GetPosition(_play, out uint msec));
-				return msec / 1000d;
+				Helpers.SLR(_play.Obj.GetPosition(_play, out uint mSec));
+				return mSec / 1000d;
 			}
 		}
 
@@ -102,9 +102,9 @@ namespace Cryville.Audio.OpenSLES {
 		public override double BufferPosition => m_bufferPosition;
 
 		const int BUFFER_COUNT = 2;
-		int _bufi;
+		int _bufIndex;
 		readonly byte[][] _buf = new byte[BUFFER_COUNT][];
-		readonly GCHandle[] _hbuf = new GCHandle[BUFFER_COUNT];
+		readonly GCHandle[] _hBuf = new GCHandle[BUFFER_COUNT];
 
 		/// <inheritdoc />
 		public override void Start() {
@@ -156,23 +156,23 @@ namespace Cryville.Audio.OpenSLES {
 			}
 			_objPlayer?.Obj.Destroy(_objPlayer);
 			_objMix?.Obj.Destroy(_objMix);
-			foreach (var h in _hbuf) h.Free();
+			foreach (var h in _hBuf) h.Free();
 			foreach (var h in _handles) h.Free();
 			_instances.Remove(this);
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
-		readonly object _enqlock = new();
-		int _bufc;
+		readonly object _enqLock = new();
+		int _freeBufferCount;
 		void Enqueue() {
-			lock (_enqlock) {
-				if (_bufc >= BUFFER_COUNT) return;
-				_bufc++;
+			lock (_enqLock) {
+				if (_freeBufferCount >= BUFFER_COUNT) return;
+				_freeBufferCount++;
 				int length = BufferSize * m_format.FrameSize;
-				if (Source == null || Muted) Array.Clear(_buf[_bufi], 0, length);
-				else Source.ReadFrames(_buf[_bufi], 0, BufferSize);
-				Util.SLR(_bq.Obj.Enqueue(_bq, _hbuf[_bufi++].AddrOfPinnedObject(), (uint)length));
-				_bufi %= BUFFER_COUNT;
+				if (Source == null || Muted) Array.Clear(_buf[_bufIndex], 0, length);
+				else Source.ReadFrames(_buf[_bufIndex], 0, BufferSize);
+				Helpers.SLR(_bq.Obj.Enqueue(_bq, _hBuf[_bufIndex++].AddrOfPinnedObject(), (uint)length));
+				_bufIndex %= BUFFER_COUNT;
 				m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 			}
 		}
@@ -181,7 +181,7 @@ namespace Cryville.Audio.OpenSLES {
 		[MonoPInvokeCallback(typeof(DataHandler))]
 		static void Callback(IntPtr caller, IntPtr pContext) {
 			var i = _instances[pContext.ToInt32()];
-			i._bufc--;
+			i._freeBufferCount--;
 			i.Enqueue();
 		}
 	}

@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace OpenSLES.Native {
+namespace Cryville.Audio.OpenSLES.Native {
 	internal enum SL_DATAFORMAT : UInt32 {
 		MIME = 0x00000001,
 		PCM = 0x00000002,

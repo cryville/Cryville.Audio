@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace OpenSLES.Native {
+namespace Cryville.Audio.OpenSLES.Native {
 	internal enum SL_DATALOCATOR : UInt32 {
 		NULL            = 0x00000000,
 		URI             = 0x00000001,

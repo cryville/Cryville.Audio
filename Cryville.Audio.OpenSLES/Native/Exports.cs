@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace OpenSLES.Native {
-	internal enum SLresult : UInt32 {
+namespace Cryville.Audio.OpenSLES.Native {
+	internal enum SLResult : uint {
 		SUCCESS                  = 0x00000000,
 		PRECONDITIONS_VIOLATED   = 0x00000001,
 		PARAMETER_INVALID        = 0x00000002,
@@ -30,7 +30,7 @@ namespace OpenSLES.Native {
 		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
 #endif
 		[DllImport("OpenSLES")]
-		public static extern SLresult slCreateEngine(
+		public static extern SLResult slCreateEngine(
 			out IntPtr pEngine,
 			UInt32 numOptions,
 			[MarshalAs(UnmanagedType.LPArray)] SLEngineOption[]? pEngineOptions,
@@ -43,7 +43,7 @@ namespace OpenSLES.Native {
 		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
 #endif
 		[DllImport("OpenSLES")]
-		public static extern SLresult slQueryNumSupportedEngineInterfaces(
+		public static extern SLResult slQueryNumSupportedEngineInterfaces(
             out UInt32 pNumSupportedInterfaces
         );
 
@@ -51,7 +51,7 @@ namespace OpenSLES.Native {
 		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
 #endif
 		[DllImport("OpenSLES")]
-		public static extern SLresult slQuerySupportedEngineInterfaces(
+		public static extern SLResult slQuerySupportedEngineInterfaces(
             UInt32 index,
             ref Guid pInterfaceId
         );

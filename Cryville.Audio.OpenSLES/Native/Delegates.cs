@@ -2,32 +2,32 @@ using Cryville.Common.Compat;
 using System;
 using System.Runtime.InteropServices;
 
-namespace OpenSLES.Native {
+namespace Cryville.Audio.OpenSLES.Native {
 	#region SLBufferQueueItf
 	internal delegate void slBufferQueueCallback(
 		IntPtr caller,
 		IntPtr pContext
 	);
-	internal delegate SLresult SLBufferQueueItf_Enqueue(
+	internal delegate SLResult SLBufferQueueItf_Enqueue(
 		IntPtr self,
 		IntPtr pBuffer,
 		UInt32 size
 	);
-	internal delegate SLresult SLBufferQueueItf_Clear(
+	internal delegate SLResult SLBufferQueueItf_Clear(
 		IntPtr self
 	);
-	internal delegate SLresult SLBufferQueueItf_GetState(
+	internal delegate SLResult SLBufferQueueItf_GetState(
 		IntPtr self,
 		out SLBufferQueueState pState
 	);
-	internal delegate SLresult SLBufferQueueItf_RegisterCallback(
+	internal delegate SLResult SLBufferQueueItf_RegisterCallback(
 		IntPtr self,
 		slBufferQueueCallback callback,
 		IntPtr pContext
 	);
 	#endregion
 	#region SLEngineItf
-	internal delegate SLresult SLEngineItf_CreateLEDDevice(
+	internal delegate SLResult SLEngineItf_CreateLEDDevice(
 		IntPtr self,
 		out IntPtr pDevice,
 		UInt32 deviceID,
@@ -35,7 +35,7 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateVibraDevice(
+	internal delegate SLResult SLEngineItf_CreateVibraDevice(
 		IntPtr self,
 		out IntPtr pDevice,
 		UInt32 deviceID,
@@ -43,7 +43,7 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateAudioPlayer(
+	internal delegate SLResult SLEngineItf_CreateAudioPlayer(
 		IntPtr self,
 		out IntPtr pPlayer,
 		ref SLDataSource pAudioSrc,
@@ -52,7 +52,7 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateAudioRecorder(
+	internal delegate SLResult SLEngineItf_CreateAudioRecorder(
 		IntPtr self,
 		out IntPtr pRecorder,
 		ref SLDataSource pAudioSrc,
@@ -61,7 +61,7 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateMidiPlayer(
+	internal delegate SLResult SLEngineItf_CreateMidiPlayer(
 		IntPtr self,
 		out IntPtr pPlayer,
 		ref SLDataSource pMIDISrc,
@@ -73,28 +73,28 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateListener(
+	internal delegate SLResult SLEngineItf_CreateListener(
 		IntPtr self,
 		out IntPtr pListener,
 		UInt32 numInterfaces,
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_Create3DGroup(
+	internal delegate SLResult SLEngineItf_Create3DGroup(
 		IntPtr self,
 		out IntPtr pGroup,
 		UInt32 numInterfaces,
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateOutputMix(
+	internal delegate SLResult SLEngineItf_CreateOutputMix(
 		IntPtr self,
 		out IntPtr pMix,
 		UInt32 numInterfaces,
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateMetadataExtractor(
+	internal delegate SLResult SLEngineItf_CreateMetadataExtractor(
 		IntPtr self,
 		out IntPtr pMetadataExtractor,
 		ref SLDataSource pDataSource,
@@ -102,7 +102,7 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_CreateExtensionObject(
+	internal delegate SLResult SLEngineItf_CreateExtensionObject(
 		IntPtr self,
 		out IntPtr pObject,
 		IntPtr pParameters,
@@ -111,28 +111,28 @@ namespace OpenSLES.Native {
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIds,
 		[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Bool)] bool[] pInterfaceRequired
 	);
-	internal delegate SLresult SLEngineItf_QueryNumSupportedInterfaces(
+	internal delegate SLResult SLEngineItf_QueryNumSupportedInterfaces(
 		IntPtr self,
 		UInt32 objectID,
 		out UInt32 pNumSupportedInterfaces
 	);
-	internal delegate SLresult SLEngineItf_QuerySupportedInterfaces(
+	internal delegate SLResult SLEngineItf_QuerySupportedInterfaces(
 		IntPtr self,
 		UInt32 objectID,
 		UInt32 index,
 		out Guid pInterfaceId
 	);
-	internal delegate SLresult SLEngineItf_QueryNumSupportedExtensions(
+	internal delegate SLResult SLEngineItf_QueryNumSupportedExtensions(
 		IntPtr self,
 		out UInt32 pNumExtensions
 	);
-	internal delegate SLresult SLEngineItf_QuerySupportedExtension(
+	internal delegate SLResult SLEngineItf_QuerySupportedExtension(
 		IntPtr self,
 		UInt32 index,
 		[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUTF8StrMarshaler))] string pExtensionName,
 		ref UInt16 pNameLength
 	);
-	internal delegate SLresult SLEngineItf_IsExtensionSupported(
+	internal delegate SLResult SLEngineItf_IsExtensionSupported(
 		IntPtr self,
 		[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUTF8StrMarshaler))] string pExtensionName,
 		[MarshalAs(UnmanagedType.Bool)] out bool pSupported
@@ -143,28 +143,28 @@ namespace OpenSLES.Native {
 		IntPtr caller,
 		IntPtr pContext,
 		UInt32 @event,
-		SLresult result,
+		SLResult result,
 		UInt32 param,
 		IntPtr pInterface
 	);
-	internal delegate SLresult SLObjectItf_Realize(
+	internal delegate SLResult SLObjectItf_Realize(
 		IntPtr self,
 		[MarshalAs(UnmanagedType.Bool)] bool async
 	);
-	internal delegate SLresult SLObjectItf_Resume(
+	internal delegate SLResult SLObjectItf_Resume(
 		IntPtr self,
 		[MarshalAs(UnmanagedType.Bool)] bool async
 	);
-	internal delegate SLresult SLObjectItf_GetState(
+	internal delegate SLResult SLObjectItf_GetState(
 		IntPtr self,
 		out UInt32 pState
 	);
-	internal delegate SLresult SLObjectItf_GetInterface(
+	internal delegate SLResult SLObjectItf_GetInterface(
 		IntPtr self,
 		[MarshalAs(UnmanagedType.LPStruct)] Guid iid,
 		out IntPtr pInterface
 	);
-	internal delegate SLresult SLObjectItf_RegisterCallback(
+	internal delegate SLResult SLObjectItf_RegisterCallback(
 		IntPtr self,
 		[MarshalAs(UnmanagedType.FunctionPtr)] slObjectCallback callback,
 		IntPtr pContext
@@ -175,15 +175,15 @@ namespace OpenSLES.Native {
 	internal delegate void SLObjectItf_Destroy(
 		IntPtr self
 	);
-	internal delegate SLresult SLObjectItf_SetPriority(
+	internal delegate SLResult SLObjectItf_SetPriority(
 		IntPtr self,
 		UInt32 priority
 	);
-	internal delegate SLresult SLObjectItf_GetPriority(
+	internal delegate SLResult SLObjectItf_GetPriority(
 		IntPtr self,
 		out UInt32 pPriority
 	);
-	internal delegate SLresult SLObjectItf_SetLossOfControlInterfaces(
+	internal delegate SLResult SLObjectItf_SetLossOfControlInterfaces(
 		IntPtr self,
 		UInt16 numInterfaces,
 		[MarshalAs(UnmanagedType.LPArray)] ref Guid[] pInterfaceIDs,
@@ -195,17 +195,17 @@ namespace OpenSLES.Native {
 		SLOutputMixItf caller,
 		IntPtr pContext
 	);
-	internal delegate SLresult SLOutputMixItf_GetDestinationOutputDeviceIDs(
+	internal delegate SLResult SLOutputMixItf_GetDestinationOutputDeviceIDs(
 		IntPtr self,
 		ref int pNumDevices,
 		UInt32[] pDeviceIDs
 	);
-	internal delegate SLresult SLOutputMixItf_RegisterDeviceChangeCallback(
+	internal delegate SLResult SLOutputMixItf_RegisterDeviceChangeCallback(
 		IntPtr self,
 		slMixDeviceChangeCallback callback,
 		IntPtr pContext
 	);
-	internal delegate SLresult SLOutputMixItf_ReRoute(
+	internal delegate SLResult SLOutputMixItf_ReRoute(
 		IntPtr self,
 		Int32 numOutputDevices,
 		UInt32[] pOutputDeviceIDs
@@ -217,51 +217,51 @@ namespace OpenSLES.Native {
 		IntPtr pContext,
 		UInt32 @event
 	);
-	internal delegate SLresult SLPlayItf_SetPlayState(
+	internal delegate SLResult SLPlayItf_SetPlayState(
 		IntPtr self,
 		UInt32 state
 	);
-	internal delegate SLresult SLPlayItf_GetPlayState(
+	internal delegate SLResult SLPlayItf_GetPlayState(
 		IntPtr self,
 		out UInt32 pState
 	);
-	internal delegate SLresult SLPlayItf_GetDuration(
+	internal delegate SLResult SLPlayItf_GetDuration(
 		IntPtr self,
 		out UInt32 pMsec
 	);
-	internal delegate SLresult SLPlayItf_GetPosition(
+	internal delegate SLResult SLPlayItf_GetPosition(
 		IntPtr self,
 		out UInt32 pMsec
 	);
-	internal delegate SLresult SLPlayItf_RegisterCallback(
+	internal delegate SLResult SLPlayItf_RegisterCallback(
 		IntPtr self,
 		slPlayCallback callback,
 		IntPtr pContext
 	);
-	internal delegate SLresult SLPlayItf_SetCallbackEventsMask(
+	internal delegate SLResult SLPlayItf_SetCallbackEventsMask(
 		IntPtr self,
 		UInt32 eventFlags
 	);
-	internal delegate SLresult SLPlayItf_GetCallbackEventsMask(
+	internal delegate SLResult SLPlayItf_GetCallbackEventsMask(
 		IntPtr self,
 		out UInt32 pEventFlags
 	);
-	internal delegate SLresult SLPlayItf_SetMarkerPosition(
+	internal delegate SLResult SLPlayItf_SetMarkerPosition(
 		IntPtr self,
 		UInt32 msec
 	);
-	internal delegate SLresult SLPlayItf_ClearMarkerPosition(
+	internal delegate SLResult SLPlayItf_ClearMarkerPosition(
 		IntPtr self
 	);
-	internal delegate SLresult SLPlayItf_GetMarkerPosition(
+	internal delegate SLResult SLPlayItf_GetMarkerPosition(
 		IntPtr self,
 		out UInt32 pMsec
 	);
-	internal delegate SLresult SLPlayItf_SetPositionUpdatePeriod(
+	internal delegate SLResult SLPlayItf_SetPositionUpdatePeriod(
 		IntPtr self,
 		UInt32 msec
 	);
-	internal delegate SLresult SLPlayItf_GetPositionUpdatePeriod(
+	internal delegate SLResult SLPlayItf_GetPositionUpdatePeriod(
 		IntPtr self,
 		out UInt32 pMsec
 	);
