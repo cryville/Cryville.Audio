@@ -25,15 +25,6 @@ namespace Cryville.Audio.AAudio {
 		}
 
 		/// <inheritdoc />
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (Playing) Pause();
-				_instances.Remove(_stream);
-			}
-			UnsafeNativeMethods.AAudioStream_close(_stream);
-		}
-
-		/// <inheritdoc />
 		public override IAudioDevice Device => _builder;
 
 		readonly WaveFormat m_format;
@@ -45,6 +36,11 @@ namespace Cryville.Audio.AAudio {
 
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;
+
+		readonly object _statusLock = new();
+		volatile AudioClientStatus m_status;
+		/// <inheritdoc />
+		public override AudioClientStatus Status => m_status;
 
 		/// <inheritdoc />
 		public override double Position {
@@ -60,19 +56,55 @@ namespace Cryville.Audio.AAudio {
 
 		/// <inheritdoc />
 		public override void Start() {
-			if (!Playing) {
-				UnsafeNativeMethods.AAudioStream_requestStart(_stream);
-				base.Start();
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Playing:
+					case AudioClientStatus.Starting:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Starting;
 			}
+			UnsafeNativeMethods.AAudioStream_requestStart(_stream);
+			UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING, out var state, 2000000000);
+			if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED) throw new InvalidOperationException("Failed to start the audio client.");
+			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
 		/// <inheritdoc />
 		public override void Pause() {
-			if (Playing) {
-				UnsafeNativeMethods.AAudioStream_requestPause(_stream);
-				UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out _, 2000000000);
-				base.Pause();
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Idle:
+					case AudioClientStatus.Pausing:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Pausing;
 			}
+			UnsafeNativeMethods.AAudioStream_requestPause(_stream);
+			UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out var state, 2000000000);
+			if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED) throw new InvalidOperationException("Failed to pause the audio client.");
+			lock (_statusLock) m_status = AudioClientStatus.Idle;
+		}
+
+		/// <inheritdoc />
+		public override void Close() {
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						return;
+				}
+				m_status = AudioClientStatus.Closing;
+			}
+			_instances.Remove(_stream);
+			UnsafeNativeMethods.AAudioStream_close(_stream);
+			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
 		readonly byte[] _buffer;

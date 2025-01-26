@@ -61,24 +61,6 @@ namespace Cryville.Audio.OpenSLES {
 			Util.SLR(_bq.Obj.RegisterCallback(_bq, Callback, new IntPtr(_id)));
 		}
 
-		/// <inheritdoc />
-		~OutputClient() {
-			Dispose(false);
-		}
-
-		int _disposeCount;
-		/// <inheritdoc />
-		protected override void Dispose(bool disposing) {
-			if (Interlocked.Increment(ref _disposeCount) == 1) {
-				if (Playing) Pause();
-				_objPlayer?.Obj.Destroy(_objPlayer);
-				_objMix?.Obj.Destroy(_objMix);
-				foreach (var h in _hbuf) h.Free();
-				foreach (var h in _handles) h.Free();
-				_instances.Remove(this);
-			}
-		}
-
 		readonly List<GCHandle> _handles = [];
 		readonly Engine _objEngine;
 		readonly SLItfWrapper<SLEngineItf> _engine;
@@ -102,6 +84,11 @@ namespace Cryville.Audio.OpenSLES {
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;
 
+		readonly object _statusLock = new();
+		volatile AudioClientStatus m_status;
+		/// <inheritdoc />
+		public override AudioClientStatus Status => m_status;
+
 		/// <inheritdoc />
 		public override double Position {
 			get {
@@ -120,23 +107,59 @@ namespace Cryville.Audio.OpenSLES {
 		readonly GCHandle[] _hbuf = new GCHandle[BUFFER_COUNT];
 
 		/// <inheritdoc />
-		public override void Pause() {
-			if (Playing) {
-				lock (_enqlock) {
-					Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
-					base.Pause();
+		public override void Start() {
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Playing:
+					case AudioClientStatus.Starting:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
 				}
+				m_status = AudioClientStatus.Starting;
 			}
+			Helpers.SLR(_bq.Obj.GetState(_bq, out var state));
+			for (int i = 0; i < BUFFER_COUNT - state.count; i++) Enqueue();
+			Helpers.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PLAYING));
+			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
 		/// <inheritdoc />
-		public override void Start() {
-			if (!Playing) {
-				Util.SLR(_bq.Obj.GetState(_bq, out var state));
-				for (int i = 0; i < BUFFER_COUNT - state.count; i++) Enqueue();
-				Util.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PLAYING));
-				base.Start();
+		public override void Pause() {
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Idle:
+					case AudioClientStatus.Pausing:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Pausing;
 			}
+			lock (_enqLock) {
+				Helpers.SLR(_play.Obj.SetPlayState(_play, (UInt32)SL_PLAYSTATE.PAUSED));
+			}
+			lock (_statusLock) m_status = AudioClientStatus.Idle;
+		}
+
+		/// <inheritdoc />
+		public override void Close() {
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						return;
+				}
+				m_status = AudioClientStatus.Closing;
+			}
+			_objPlayer?.Obj.Destroy(_objPlayer);
+			_objMix?.Obj.Destroy(_objMix);
+			foreach (var h in _hbuf) h.Free();
+			foreach (var h in _handles) h.Free();
+			_instances.Remove(this);
+			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
 		readonly object _enqlock = new();

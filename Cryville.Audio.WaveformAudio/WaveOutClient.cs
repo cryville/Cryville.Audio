@@ -48,30 +48,10 @@ namespace Cryville.Audio.WaveformAudio {
 		~WaveOutClient() {
 			Dispose(false);
 		}
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		/// <param name="disposing">Whether the method is being called by user.</param>
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
-			if (disposing && Playing) Pause();
-			if (_waveOutHandle != IntPtr.Zero) {
-				MmSysComExports.MMR(MmeExports.waveOutReset(_waveOutHandle));
-				for (int i = 0; i < _buffers.Length; i++) {
-					_ = MmeExports.waveOutUnprepareHeader(
-						_waveOutHandle,
-						ref _buffers[i].Header,
-						SIZE_WAVEHDR
-					);
-					_buffers[i].Release();
-				}
-				MmSysComExports.MMR(MmeExports.waveOutClose(_waveOutHandle));
-				_waveOutHandle = IntPtr.Zero;
-			}
-			if (_eventHandle != IntPtr.Zero) {
-				Handle.CloseHandle(_eventHandle);
-				_eventHandle = IntPtr.Zero;
-			}
+			base.Dispose(disposing);
+			CloseNative();
 		}
 
 		IntPtr _waveOutHandle;
@@ -93,6 +73,11 @@ namespace Cryville.Audio.WaveformAudio {
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;
 
+		readonly object _statusLock = new();
+		volatile AudioClientStatus m_status;
+		/// <inheritdoc />
+		public override AudioClientStatus Status => m_status;
+
 		MMTIME _time = new() { wType = (uint)TIME_TYPE.BYTES };
 		/// <inheritdoc />
 		public override double Position {
@@ -108,27 +93,84 @@ namespace Cryville.Audio.WaveformAudio {
 
 		/// <inheritdoc />
 		public override void Start() {
-			if (!Playing) {
-				_thread = new Thread(new ThreadStart(ThreadLogic)) {
-					Priority = ThreadPriority.Highest,
-					IsBackground = true,
-				};
-				_thread.Start();
-				MmSysComExports.MMR(MmeExports.waveOutRestart(_waveOutHandle));
-				base.Start();
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Playing:
+					case AudioClientStatus.Starting:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Starting;
 			}
+			_thread = new Thread(new ThreadStart(ThreadLogic)) {
+				Priority = ThreadPriority.Highest,
+				IsBackground = true,
+			};
+			_thread.Start();
+			MmSysComExports.MMR(MmeExports.waveOutRestart(_waveOutHandle));
+			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
 		/// <inheritdoc />
 		public override void Pause() {
-			if (Playing) {
-				_threadAbortFlag = true;
-				if (_thread != null && !_thread.Join(1000))
-					throw new InvalidOperationException("Failed to pause audio client.");
-				_thread = null;
-				MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
-				base.Pause();
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Idle:
+					case AudioClientStatus.Pausing:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Pausing;
 			}
+			StopPlaybackThread();
+			MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
+			lock (_statusLock) m_status = AudioClientStatus.Idle;
+		}
+
+		/// <inheritdoc />
+		public override void Close() {
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						return;
+				}
+				m_status = AudioClientStatus.Closing;
+			}
+			StopPlaybackThread();
+			CloseNative();
+			lock (_statusLock) m_status = AudioClientStatus.Closed;
+		}
+
+		void CloseNative() {
+			IntPtr waveOutHandle = Interlocked.Exchange(ref _waveOutHandle, IntPtr.Zero);
+			if (waveOutHandle != IntPtr.Zero) {
+				MmSysComExports.MMR(MmeExports.waveOutReset(waveOutHandle));
+				for (int i = 0; i < _buffers.Length; i++) {
+					_ = MmeExports.waveOutUnprepareHeader(
+						waveOutHandle,
+						ref _buffers[i].Header,
+						SIZE_WAVEHDR
+					);
+					_buffers[i].Release();
+				}
+				MmSysComExports.MMR(MmeExports.waveOutClose(waveOutHandle));
+			}
+			IntPtr eventHandle = Interlocked.Exchange(ref _eventHandle, IntPtr.Zero);
+			if (eventHandle != IntPtr.Zero) {
+				Handle.CloseHandle(eventHandle);
+			}
+		}
+
+		void StopPlaybackThread() {
+			_threadAbortFlag = true;
+			if (_thread != null && !_thread.Join(1000))
+				throw new InvalidOperationException("Failed to pause audio client.");
+			_thread = null;
 		}
 
 		Thread? _thread;

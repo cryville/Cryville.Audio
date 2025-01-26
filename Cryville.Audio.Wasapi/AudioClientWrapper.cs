@@ -60,24 +60,10 @@ namespace Cryville.Audio.Wasapi {
 		~AudioClientWrapper() {
 			Dispose(false);
 		}
-
-		int _disposeCount;
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing) {
-			if (Interlocked.Increment(ref _disposeCount) == 1) {
-				if (Playing) Pause();
-				if (_eventHandle != IntPtr.Zero) {
-					Handle.CloseHandle(_eventHandle);
-					_eventHandle = IntPtr.Zero;
-				}
-				_renderClient?.Dispose();
-				if (_clock != null && disposing) {
-					Marshal.ReleaseComObject(_clock);
-				}
-				if (_internal != null && disposing) {
-					Marshal.ReleaseComObject(_internal);
-				}
-			}
+			base.Dispose(disposing);
+			CloseNative();
 		}
 
 		IntPtr _eventHandle;
@@ -116,6 +102,11 @@ namespace Cryville.Audio.Wasapi {
 			}
 		}
 
+		readonly object _statusLock = new();
+		volatile AudioClientStatus m_status;
+		/// <inheritdoc />
+		public override AudioClientStatus Status => m_status;
+
 		readonly ulong _clockFreq;
 		/// <inheritdoc />
 		public override double Position {
@@ -133,27 +124,74 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public override void Start() {
-			if (!Playing) {
-				_thread = new Thread(new ThreadStart(ThreadLogic)) {
-					Priority = ThreadPriority.Highest,
-					IsBackground = true,
-				};
-				_thread.Start();
-				_internal.Start();
-				base.Start();
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Playing:
+					case AudioClientStatus.Starting:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Starting;
 			}
+			_thread = new Thread(new ThreadStart(ThreadLogic)) {
+				Priority = ThreadPriority.Highest,
+				IsBackground = true,
+			};
+			_thread.Start();
+			_internal.Start();
+			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
 		/// <inheritdoc />
 		public override void Pause() {
-			if (Playing) {
-				_threadAbortFlag = true;
-				if (_thread != null && !_thread.Join(1000))
-					throw new InvalidOperationException("Failed to pause audio client.");
-				_thread = null;
-				_internal.Stop();
-				base.Pause();
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Idle:
+					case AudioClientStatus.Pausing:
+						return;
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						throw new ObjectDisposedException(null);
+				}
+				m_status = AudioClientStatus.Pausing;
 			}
+			StopPlaybackThread();
+			_internal.Stop();
+			lock (_statusLock) m_status = AudioClientStatus.Idle;
+		}
+
+		/// <inheritdoc />
+		public override void Close() {
+			lock (_statusLock) {
+				switch (m_status) {
+					case AudioClientStatus.Closing:
+					case AudioClientStatus.Closed:
+						return;
+				}
+				m_status = AudioClientStatus.Closing;
+			}
+			StopPlaybackThread();
+			CloseNative();
+			_renderClient?.Dispose();
+			if (_clock != null) Marshal.ReleaseComObject(_clock);
+			if (_internal != null) Marshal.ReleaseComObject(_internal);
+			lock (_statusLock) m_status = AudioClientStatus.Closed;
+		}
+
+		void CloseNative() {
+			IntPtr eventHandle = Interlocked.Exchange(ref _eventHandle, IntPtr.Zero);
+			if (eventHandle != IntPtr.Zero) {
+				Handle.CloseHandle(eventHandle);
+			}
+		}
+
+		void StopPlaybackThread() {
+			_threadAbortFlag = true;
+			if (_thread != null && !_thread.Join(1000))
+				throw new InvalidOperationException("Failed to pause audio client.");
+			_thread = null;
 		}
 
 		Thread? _thread;

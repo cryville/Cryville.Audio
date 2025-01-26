@@ -15,7 +15,9 @@ namespace Cryville.Audio {
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">Whether the method is being called by user.</param>
-		protected abstract void Dispose(bool disposing);
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) Close();
+		}
 
 		/// <summary>
 		/// The device of the client.
@@ -37,9 +39,9 @@ namespace Cryville.Audio {
 		/// </remarks>
 		public abstract float MaximumLatency { get; }
 		/// <summary>
-		/// Whether the client is playing.
+		/// The status of the connection.
 		/// </summary>
-		public bool Playing { get; private set; }
+		public abstract AudioClientStatus Status { get; }
 		/// <summary>
 		/// Whether the client is muted.
 		/// </summary>
@@ -73,13 +75,17 @@ namespace Cryville.Audio {
 		/// <remarks>
 		/// If <see cref="Source" /> is <see langword="null" /> while playing, the output will be silence.
 		/// </remarks>
-		public virtual void Start() { Playing = true; }
+		public abstract void Start();
 		/// <summary>
 		/// Pauses the wave data transmission.
 		/// </summary>
 		/// <remarks>
 		/// This method does not reset <see cref="Position" /> and <see cref="BufferPosition" />.
 		/// </remarks>
-		public virtual void Pause() { Playing = false; }
+		public abstract void Pause();
+		/// <summary>
+		/// Closes the connection.
+		/// </summary>
+		public abstract void Close();
 	}
 }
