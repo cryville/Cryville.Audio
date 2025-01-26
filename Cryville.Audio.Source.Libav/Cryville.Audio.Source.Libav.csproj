@@ -10,7 +10,7 @@
 
 	<PropertyGroup>
 		<Authors>Cryville</Authors>
-		<Copyright>Copyright (c) Cryville 2024</Copyright>
+		<Copyright>Copyright (c) Cryville 2024-2025</Copyright>
 		<Description>Libav source for Cryville.Audio.</Description>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -19,7 +19,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>audio</PackageTags>
 		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
-		<Version>4.0.0</Version>
+		<Version>6.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

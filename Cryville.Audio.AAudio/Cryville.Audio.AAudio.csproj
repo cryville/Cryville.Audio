@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<ProjectGuid>{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}</ProjectGuid>
 		<TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
@@ -10,7 +10,7 @@
 
 	<PropertyGroup>
 		<Authors>Cryville</Authors>
-		<Copyright>Copyright (c) Cryville 2024</Copyright>
+		<Copyright>Copyright (c) Cryville 2024-2025</Copyright>
 		<Description>AAudio engine adapter for Cryville.Audio.</Description>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -19,7 +19,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>audio, playback, android</PackageTags>
 		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
-		<Version>4.0.0</Version>
+		<Version>6.0.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
