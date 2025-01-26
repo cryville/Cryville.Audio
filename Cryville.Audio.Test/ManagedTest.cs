@@ -3,6 +3,7 @@ using Cryville.Audio.Source.Libav;
 using Cryville.Audio.Wasapi;
 using Cryville.Audio.WaveformAudio;
 using NUnit.Framework;
+using System;
 using System.IO;
 using System.Threading;
 
@@ -22,9 +23,10 @@ namespace Cryville.Audio.Test {
 
 	public class DefaultManagedTest : ManagedTest {
 		protected override IAudioDeviceManager CreateEngine() {
-			EngineBuilder.Engines.Add(typeof(MMDeviceEnumeratorWrapper));
-			EngineBuilder.Engines.Add(typeof(WaveDeviceManager));
-			return EngineBuilder.Create();
+			var builder = new EngineBuilder();
+			builder.Engines.Add(typeof(MMDeviceEnumeratorWrapper));
+			builder.Engines.Add(typeof(WaveDeviceManager));
+			return builder.Create();
 		}
 	}
 
@@ -42,13 +44,14 @@ namespace Cryville.Audio.Test {
 		AudioClient client;
 
 		protected abstract IAudioDeviceManager CreateEngine();
+		protected virtual AudioUsage Usage => AudioUsage.Media;
 
 		[OneTimeSetUp]
 		public void OneTimeSetUp() {
 			FFmpeg.AutoGen.ffmpeg.RootPath = "";
-			manager = CreateEngine();
+			manager = CreateEngine() ?? throw new InvalidOperationException("Cannot create engine.");
 			device = manager.GetDefaultDevice(DataFlow.Out);
-			client = device.Connect(device.DefaultFormat, device.BurstSize + device.MinimumBufferSize);
+			client = device.Connect(device.DefaultFormat, device.BurstSize + device.MinimumBufferSize, Usage);
 		}
 
 		[Test]
@@ -95,10 +98,10 @@ namespace Cryville.Audio.Test {
 			LogPosition("Square 440Hz");
 			Thread.Sleep(1000);
 
-			client.Muted = true;
+			client.Source = null;
 			LogPosition("Mute");
 			Thread.Sleep(1000);
-			client.Muted = false;
+			client.Source = source;
 			source.Frequency = 880f;
 
 			source.Type = ToneType.Sine;
@@ -142,7 +145,7 @@ namespace Cryville.Audio.Test {
 		[Test]
 		[TestCase(ManagedTestCaseResources.AudioFile)]
 		[TestCase(ManagedTestCaseResources.VideoFile)]
-		public virtual void PlaySeekedWithLibAV(string file) {
+		public virtual void PlaySoughtWithLibAV(string file) {
 			Log("API: {0}", manager.GetType().Namespace);
 			var source = new LibavFileAudioSource(file);
 			Log("Duration: {0}s", source.GetStreamDuration());
@@ -152,14 +155,14 @@ namespace Cryville.Audio.Test {
 			source.SeekTime(60, SeekOrigin.Begin);
 			client.Start();
 			for (int i = 0; i < 10; i++) {
-				LogPosition(string.Format("Source: {0}s", source.Time));
+				LogPosition(string.Format("Source: {0}s", source.TimePosition));
 				Thread.Sleep(1000);
 			}
 			client.Pause();
 			source.SeekTime(-30, SeekOrigin.Current);
 			client.Start();
 			for (int i = 0; i < 10; i++) {
-				LogPosition(string.Format("Source: {0}s", source.Time));
+				LogPosition(string.Format("Source: {0}s", source.TimePosition));
 				Thread.Sleep(1000);
 			}
 			client.Pause();
@@ -213,19 +216,22 @@ namespace Cryville.Audio.Test {
 			var source1 = new CachedAudioSource(rsource, 15);
 			session.Sequence(1, source1);
 
-			var source2 = source1.Clone();
-			session.Sequence(4, source2);
+			CachedAudioSource source2 = null;
 
 			client.Start();
 			source.Playing = true;
 
 			for (int i = 0; i < 20; i++) {
 				LogPosition(string.Format("Polyphony: {0}", source.Polyphony));
+				if (i == 3) {
+					source2 = source1.Clone();
+					session.Sequence(4, source2);
+				}
 				Thread.Sleep(1000);
 			}
 			client.Source = null;
 			client.Pause();
-			source2.Dispose();
+			source2?.Dispose();
 			source1.Dispose();
 			rsource.Dispose();
 			source.Dispose();

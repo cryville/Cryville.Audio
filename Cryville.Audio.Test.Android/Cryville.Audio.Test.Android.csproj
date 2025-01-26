@@ -1,16 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0-android</TargetFramework>
+		<SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+		<OutputType>Exe</OutputType>
 		<LangVersion>latest</LangVersion>
 		<AnalysisLevel>latest-all</AnalysisLevel>
 		<Nullable>enable</Nullable>
-		<SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
+		<ApplicationId>world.cryville.audio.test.android</ApplicationId>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<RuntimeIdentifiers>android-arm64;android-arm;android-x64;android-x86</RuntimeIdentifiers>
+		<PlatformTarget>ARM64</PlatformTarget>
+		<AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+		<IsTrimmable>True</IsTrimmable>
+		<IsAotCompatible>True</IsAotCompatible>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
-	  <PackageReference Include="Cryville.Interop.Java.Xamarin" Version="2.0.0" />
-	  <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.7" />
-	  <PackageReference Include="Xamarin.Essentials" Version="1.8.1" />
+		<PackageReference Include="Cryville.Interop.Java.Xamarin" Version="2.0.0" />
+		<PackageReference Include="Xamarin.AndroidX.Activity" Version="1.9.0.3" />
+		<PackageReference Include="Xamarin.Google.Android.Material" Version="1.11.0" />
 	</ItemGroup>
 
 	<ItemGroup>
