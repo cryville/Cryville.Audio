@@ -58,23 +58,23 @@ namespace Cryville.Audio.WaveformAudio {
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
 			ushort ch = format.Channels;
-			byte flagch;
+			byte flagCH;
 			switch (ch) {
-				case 1: flagch = 0; break;
-				case 2: flagch = 1; break;
+				case 1: flagCH = 0; break;
+				case 2: flagCH = 1; break;
 				default:
 					format.Channels = 2;
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
 			uint sr = format.SampleRate;
-			byte flagsr;
+			byte flagSR;
 			switch (sr) {
-				case 11025: flagsr = 0; break;
-				case 22050: flagsr = 1; break;
-				case 44100: flagsr = 2; break;
-				case 48000: flagsr = 3; break;
-				case 96000: flagsr = 4; break;
+				case 11025: flagSR = 0; break;
+				case 22050: flagSR = 1; break;
+				case 44100: flagSR = 2; break;
+				case 48000: flagSR = 3; break;
+				case 96000: flagSR = 4; break;
 				default:
 					if (sr <= 11025) format.SampleRate = 11025;
 					else if (sr <= 22050) format.SampleRate = 22050;
@@ -85,71 +85,71 @@ namespace Cryville.Audio.WaveformAudio {
 					return false;
 			}
 			SampleFormat bits = format.SampleFormat;
-			byte flagbits;
+			byte flagBits;
 			switch (bits) {
-				case SampleFormat.U8: flagbits = 0; break;
-				case SampleFormat.S16: flagbits = 1; break;
+				case SampleFormat.U8: flagBits = 0; break;
+				case SampleFormat.S16: flagBits = 1; break;
 				default:
 					format.SampleFormat = SampleFormat.S16;
 					IsFormatSupported(format, out suggestion, shareMode);
 					return false;
 			}
-			var iwf = 1 << (flagch | (flagbits << 1) | (flagsr << 2));
-			uint capfilter = _caps.dwFormats;
-			if ((capfilter & iwf) != 0) {
+			var iwf = 1 << (flagCH | (flagBits << 1) | (flagSR << 2));
+			uint capFilter = _caps.dwFormats;
+			if ((capFilter & iwf) != 0) {
 				suggestion = format;
 				return true;
 			}
 			else {
-				uint chfilter = 0x55555555U;
-				if (flagch == 1) chfilter = ~chfilter;
-				if ((capfilter & chfilter) != 0) capfilter &= chfilter;
-				else capfilter &= ~chfilter;
-				if (capfilter == 0) {
+				uint chFilter = 0x55555555U;
+				if (flagCH == 1) chFilter = ~chFilter;
+				if ((capFilter & chFilter) != 0) capFilter &= chFilter;
+				else capFilter &= ~chFilter;
+				if (capFilter == 0) {
 					suggestion = null;
 					return false;
 				}
-				bool srmatchflag = false;
-				for (byte iflagsr = flagsr; iflagsr < 8; iflagsr++) {
-					uint srfilter = 0x0000000fU << (iflagsr << 2);
-					if ((capfilter & srfilter) != 0) {
-						capfilter &= srfilter;
-						srmatchflag = true;
+				bool srMatchFlag = false;
+				for (byte iFlagSR = flagSR; iFlagSR < 8; iFlagSR++) {
+					uint srFilter = 0x0000000fU << (iFlagSR << 2);
+					if ((capFilter & srFilter) != 0) {
+						capFilter &= srFilter;
+						srMatchFlag = true;
 						break;
 					}
 				}
-				if (!srmatchflag && flagsr > 0)
-					for (byte iflagsr = (byte)(flagsr - 1); iflagsr >= 0; iflagsr--) {
-						uint srfilter = 0x0000000fU << (iflagsr << 2);
-						if ((capfilter & srfilter) != 0) {
-							capfilter &= srfilter;
-							srmatchflag = true;
+				if (!srMatchFlag && flagSR > 0)
+					for (byte iFlagSR = (byte)(flagSR - 1); iFlagSR >= 0; iFlagSR--) {
+						uint srFilter = 0x0000000fU << (iFlagSR << 2);
+						if ((capFilter & srFilter) != 0) {
+							capFilter &= srFilter;
+							srMatchFlag = true;
 							break;
 						}
 					}
-				if (!srmatchflag) {
+				if (!srMatchFlag) {
 					suggestion = null;
 					return false;
 				}
-				uint bitsfilter = 0x33333333U;
-				if (flagbits == 1) bitsfilter = ~bitsfilter;
-				if ((capfilter & flagbits) != 0) capfilter &= bitsfilter;
-				else capfilter &= ~bitsfilter;
-				if (capfilter == 0) {
+				uint bitsFilter = 0x33333333U;
+				if (flagBits == 1) bitsFilter = ~bitsFilter;
+				if ((capFilter & flagBits) != 0) capFilter &= bitsFilter;
+				else capFilter &= ~bitsFilter;
+				if (capFilter == 0) {
 					suggestion = null;
 					return false;
 				}
-				uint sugsr;
-				if ((capfilter & 0x0000000f) != 0) sugsr = 11025;
-				else if ((capfilter & 0x000000f0) != 0) sugsr = 22050;
-				else if ((capfilter & 0x00000f00) != 0) sugsr = 44100;
-				else if ((capfilter & 0x0000f000) != 0) sugsr = 48000;
-				else if ((capfilter & 0x000f0000) != 0) sugsr = 96000;
+				uint sugSR;
+				if ((capFilter & 0x0000000f) != 0) sugSR = 11025;
+				else if ((capFilter & 0x000000f0) != 0) sugSR = 22050;
+				else if ((capFilter & 0x00000f00) != 0) sugSR = 44100;
+				else if ((capFilter & 0x0000f000) != 0) sugSR = 48000;
+				else if ((capFilter & 0x000f0000) != 0) sugSR = 96000;
 				else throw new NotSupportedException("Theoretically unreachable");
 				suggestion = new WaveFormat {
-					Channels = (capfilter & 0x55555555) != 0 ? (ushort)1 : (ushort)2,
-					SampleRate = sugsr,
-					SampleFormat = (capfilter & 0x33333333) != 0 ? SampleFormat.U8 : SampleFormat.S16,
+					Channels = (capFilter & 0x55555555) != 0 ? (ushort)1 : (ushort)2,
+					SampleRate = sugSR,
+					SampleFormat = (capFilter & 0x33333333) != 0 ? SampleFormat.U8 : SampleFormat.S16,
 				};
 				return false;
 			}

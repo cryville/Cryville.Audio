@@ -3,7 +3,7 @@ using System;
 using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
 namespace Cryville.Audio.WaveformAudio {
-	internal static class Util {
+	internal static class Helpers {
 		public static WAVEFORMATEX ToInternalFormat(WaveFormat value) {
 			ushort blockAlign = (ushort)value.FrameSize;
 			return new WAVEFORMATEX {

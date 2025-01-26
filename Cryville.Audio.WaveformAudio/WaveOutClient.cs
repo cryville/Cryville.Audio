@@ -21,14 +21,14 @@ namespace Cryville.Audio.WaveformAudio {
 			if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
 
 			m_format = format;
-			var iformat = Util.ToInternalFormat(format);
+			var iFormat = Helpers.ToInternalFormat(format);
 
 			_eventHandle = Synch.CreateEventW(IntPtr.Zero, false, false, null);
 			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
 
 			MmSysComExports.MMR(MmeExports.waveOutOpen(
 				ref _waveOutHandle, m_device.Index,
-				ref iformat, _eventHandle, IntPtr.Zero,
+				ref iFormat, _eventHandle, IntPtr.Zero,
 				(uint)CALLBACK_TYPE.CALLBACK_EVENT
 			));
 
