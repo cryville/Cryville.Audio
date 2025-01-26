@@ -82,6 +82,16 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
+		public virtual void PlayDummy() {
+			client.Start();
+			for (int i = 0; i < 10; i++) {
+				LogPosition("");
+				Thread.Sleep(1000);
+			}
+			client.Pause();
+		}
+
+		[Test]
 		public virtual void PlaySingleTone() {
 			var source = new SingleToneAudioSource { Type = ToneType.Sine, Frequency = 440, Amplitude = 1f };
 			client.Source = source;
