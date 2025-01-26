@@ -14,7 +14,10 @@ namespace Cryville.Audio.Wasapi {
 		/// <summary>
 		/// Creates an instance of the <see cref="MMDeviceEnumeratorWrapper" /> class.
 		/// </summary>
-		public MMDeviceEnumeratorWrapper() { }
+		public MMDeviceEnumeratorWrapper() {
+			if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+				throw new PlatformNotSupportedException();
+		}
 
 		/// <inheritdoc />
 		public void Dispose() {

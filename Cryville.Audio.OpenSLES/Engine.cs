@@ -15,9 +15,14 @@ namespace Cryville.Audio.OpenSLES {
 		/// Creates an instance of the <see cref="Engine" /> class.
 		/// </summary>
 		public Engine() {
-			Helpers.SLR(Exports.slCreateEngine(out var pObjEngine, 0, null, 0, IntPtr.Zero, IntPtr.Zero), "slCreateEngine");
-			ObjEngine = new SLItfWrapper<SLObjectItf>(pObjEngine);
-			Helpers.SLR(ObjEngine.Obj.Realize(ObjEngine, false), "ObjEngine.Realize");
+			try {
+				Helpers.SLR(Exports.slCreateEngine(out var pObjEngine, 0, null, 0, IntPtr.Zero, IntPtr.Zero), "slCreateEngine");
+				ObjEngine = new SLItfWrapper<SLObjectItf>(pObjEngine);
+				Helpers.SLR(ObjEngine.Obj.Realize(ObjEngine, false), "ObjEngine.Realize");
+			}
+			catch (EntryPointNotFoundException ex) {
+				throw new PlatformNotSupportedException("OpenSL ES entry point not found.", ex);
+			}
 		}
 
 		int _disposed;

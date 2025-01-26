@@ -16,6 +16,7 @@ namespace Cryville.Audio.AAudio {
 		/// <exception cref="InvalidOperationException">No Java VM is registered.</exception>
 		/// <exception cref="PlatformNotSupportedException">AAudio is not supported on the current platform.</exception>
 		public AAudioManager() {
+			if (Environment.OSVersion.Platform != PlatformID.Unix) throw new PlatformNotSupportedException();
 			if (JavaVMManager.CurrentVM == null) throw new InvalidOperationException("Java VM not registered.");
 			var env = JavaVMManager.CurrentEnv;
 			if (AndroidHelper.DeviceApiLevel < 26) throw new PlatformNotSupportedException("AAudio is not available below API level 26.");

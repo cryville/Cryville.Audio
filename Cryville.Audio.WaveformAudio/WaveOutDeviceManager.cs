@@ -12,6 +12,8 @@ namespace Cryville.Audio.WaveformAudio {
 		/// Creates an instance of the <see cref="WaveDeviceManager" /> class.
 		/// </summary>
 		public WaveDeviceManager() {
+			if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+				throw new PlatformNotSupportedException();
 			if (MmeExports.waveOutGetNumDevs() == 0)
 				throw new NotSupportedException();
 		}
