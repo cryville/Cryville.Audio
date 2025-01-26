@@ -99,12 +99,12 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
-		protected override int ReadFramesInternal(byte[] buffer, int offset, int frameCount) {
-			return ReadInternal(buffer, offset, frameCount * Format.FrameSize) / Format.FrameSize;
-		}
-
-		/// <inheritdoc />
-		public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+		protected override long SeekFrameInternal(long frameOffset, SeekOrigin origin) => origin switch {
+			SeekOrigin.Begin => frameOffset,
+			SeekOrigin.Current => FramePosition + frameOffset,
+			SeekOrigin.End => FrameLength + frameOffset,
+			_ => throw new ArgumentException("Invalid SeekOrigin.", nameof(origin)),
+		};
 
 		/// <inheritdoc />
 		public override bool CanRead => !Disposed;
@@ -112,8 +112,6 @@ namespace Cryville.Audio.Source {
 		public override bool CanSeek => false;
 		/// <inheritdoc />
 		public override bool CanWrite => false;
-		/// <inheritdoc />
-		public override long Length => (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />

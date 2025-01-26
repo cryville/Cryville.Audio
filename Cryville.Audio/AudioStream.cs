@@ -49,28 +49,64 @@ namespace Cryville.Audio {
 		/// <param name="format">The wave format.</param>
 		protected internal abstract bool IsFormatSupported(WaveFormat format);
 
-		/// <summary>
-		/// Sets the time within the current audio stream.
-		/// </summary>
-		/// <param name="offset">An offset in seconds relative to the <paramref name="origin" /> parameter.</param>
-		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
-		/// <returns>The new time in seconds within the current audio stream.</returns>
-		public virtual double SeekTime(double offset, SeekOrigin origin) {
-			Seek(Format.Align(offset * Format.BytesPerSecond), origin);
-			return Time;
+		/// <inheritdoc />
+		public sealed override long Seek(long offset, SeekOrigin origin) {
+			return m_framePosition = SeekFrameInternal(offset / Format.FrameSize, origin);
 		}
 
 		/// <summary>
-		/// Sets the duration of the current audio stream.
+		/// Sets the time in frames within the current audio stream.
 		/// </summary>
-		/// <param name="value">The duration in seconds.</param>
-		public virtual void SetDuration(double value)
-			=> SetLength(Format.Align(value * Format.BytesPerSecond));
+		/// <param name="frameOffset">An offset in frames relative to the <paramref name="origin" /> parameter.</param>
+		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
+		/// <returns>The new time in frames within the current audio stream.</returns>
+		public double SeekFrame(long frameOffset, SeekOrigin origin) {
+			m_framePosition = SeekFrameInternal(frameOffset, origin);
+			return m_framePosition;
+		}
 
 		/// <summary>
-		/// The duration in seconds of the audio stream.
+		/// Sets the time in seconds within the current audio stream.
 		/// </summary>
-		public virtual double Duration => (double)Length / Format.BytesPerSecond;
+		/// <param name="timeOffset">An offset in seconds relative to the <paramref name="origin" /> parameter.</param>
+		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
+		/// <returns>The new time in seconds within the current audio stream.</returns>
+		public double SeekTime(double timeOffset, SeekOrigin origin) {
+			var time = SeekTimeInternal(timeOffset, origin);
+			m_framePosition = (long)(time * Format.SampleRate);
+			return time;
+		}
+
+		/// <summary>
+		/// When overridden in a derived class, sets the time in seconds within the current audio stream.
+		/// </summary>
+		/// <param name="timeOffset">An offset in seconds relative to the <paramref name="origin" /> parameter.</param>
+		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
+		/// <returns>The new time in seconds within the current audio stream.</returns>
+		protected virtual double SeekTimeInternal(double timeOffset, SeekOrigin origin) {
+			return (double)SeekFrameInternal((long)(timeOffset * Format.SampleRate), origin) / Format.SampleRate;
+		}
+
+		/// <summary>
+		/// When overridden in a derived class, sets the time in frames within the current audio stream.
+		/// </summary>
+		/// <param name="frameOffset">An offset in frames relative to the <paramref name="origin" /> parameter.</param>
+		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
+		/// <returns>The new time in frames within the current audio stream.</returns>
+		protected abstract long SeekFrameInternal(long frameOffset, SeekOrigin origin);
+
+		/// <inheritdoc />
+		public sealed override long Length => FrameLength * Format.FrameSize;
+
+		/// <summary>
+		/// The length of the audio stream in frames.
+		/// </summary>
+		public abstract long FrameLength { get; }
+
+		/// <summary>
+		/// The length of the audio stream in seconds.
+		/// </summary>
+		public virtual double TimeLength => (double)FrameLength / Format.SampleRate;
 
 		long m_framePosition;
 

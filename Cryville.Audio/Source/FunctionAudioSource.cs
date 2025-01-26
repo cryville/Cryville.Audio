@@ -17,6 +17,9 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		public override bool EndOfData => false;
 
+		/// <inheritdoc />
+		public override long FrameLength => long.MaxValue;
+
 		/// <summary>
 		/// Whether this audio stream has been disposed.
 		/// </summary>
@@ -108,16 +111,16 @@ namespace Cryville.Audio.Source {
 		protected abstract float Func(double time, int channel);
 
 		/// <inheritdoc />
-		public override long Seek(long offset, SeekOrigin origin) {
+		protected override long SeekFrameInternal(long frameOffset, SeekOrigin origin) {
 			if (Disposed) throw new ObjectDisposedException(null);
 			var newPos = origin switch {
-				SeekOrigin.Begin => offset,
-				SeekOrigin.Current => Position + offset,
-				SeekOrigin.End => Length + offset,
+				SeekOrigin.Begin => frameOffset,
+				SeekOrigin.Current => FramePosition + frameOffset,
+				SeekOrigin.End => FrameLength + frameOffset,
 				_ => throw new ArgumentException("Invalid SeekOrigin.", nameof(origin)),
 			};
 			if (newPos < 0) throw new ArgumentException("Seeking is attempted before the beginning of the stream.");
-			_time = newPos / Format.BytesPerSecond;
+			_time = newPos / Format.SampleRate;
 			return newPos;
 		}
 
@@ -127,8 +130,6 @@ namespace Cryville.Audio.Source {
 		public override bool CanSeek => !Disposed;
 		/// <inheritdoc />
 		public override bool CanWrite => false;
-		/// <inheritdoc />
-		public override long Length => long.MaxValue;
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />

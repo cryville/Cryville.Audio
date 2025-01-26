@@ -47,6 +47,9 @@ namespace Cryville.Audio.Source {
 		public override bool EndOfData => false;
 
 		/// <inheritdoc />
+		public override long FrameLength => long.MaxValue;
+
+		/// <inheritdoc />
 		protected override void OnSetFormat() {
 			_pribuf = new double[BufferSize * Format.Channels];
 			_secbuf = new byte[BufferSize * Format.FrameSize];
@@ -210,54 +213,51 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
-		/// <param name="offset">A byte offset relative to the current position.</param>
+		/// <param name="frameOffset">A byte offset relative to the current position.</param>
 		/// <param name="origin">Must be <see cref="SeekOrigin.Current" />.</param>
 		/// <remarks>
-		/// <para>This stream can only be seeked from the current position, and forward only. Thus, <paramref name="offset" /> must be non-negative, and <paramref name="origin" /> must be <see cref="SeekOrigin.Current" />.</para>
+		/// <para>This stream can only be sought from the current position, and forward only. Thus, <paramref name="frameOffset" /> must be non-negative, and <paramref name="origin" /> must be <see cref="SeekOrigin.Current" />.</para>
 		/// </remarks>
-		public override long Seek(long offset, SeekOrigin origin) {
+		protected override long SeekFrameInternal(long frameOffset, SeekOrigin origin) {
 			if (origin != SeekOrigin.Current) throw new ArgumentException("Must seek from current position.", nameof(origin));
-			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (frameOffset < 0) throw new ArgumentOutOfRangeException(nameof(frameOffset));
 			if (Disposed) throw new ObjectDisposedException(null);
 			if (Session == null) throw new InvalidOperationException("No session is active.");
-			offset = Format.Align(offset, true);
 			lock (_lock) {
 				_rmsources.Clear();
 				foreach (var source in _sources) {
 					if (!source.CanSeek) continue;
-					source.Seek(offset, origin);
+					source.SeekFrame(frameOffset, origin);
 					if (source.EndOfData) _rmsources.Add(source);
 				}
 				foreach (var source in _rmsources)
 					_sources.Remove(source);
-				_time += (double)offset / Format.BytesPerSecond;
+				Session.FramePosition += frameOffset;
 				lock (Session._lock) {
 					var seq = Session._seq;
-					while (seq.Count > 0 && seq[0].Time < _time) {
+					while (seq.Count > 0 && seq[0].Time < Session.TimePosition) {
 						var item = seq[0];
 						seq.RemoveAt(0);
 						var source = item.Source;
 						if (!source.CanSeek) continue;
-						var len = Format.Align((_time - item.Time) * Format.BytesPerSecond, true);
-						source.Seek(len, origin);
+						long frameCount = (long)((Session.TimePosition - item.Time) * Format.SampleRate);
+						source.SeekFrame(frameCount, origin);
 						if (!source.EndOfData) _sources.Add(source);
 					}
 				}
 			}
-			return Position + offset;
+			return FramePosition + frameOffset;
 		}
 
 		/// <inheritdoc />
 		public override bool CanRead => true;
 		/// <inheritdoc />
 		/// <remarks>
-		/// <para>This stream can only be seeked from the current position, and forward only. See <see cref="Seek(long, SeekOrigin)" />.</para>
+		/// <para>This stream can only be sought from the current position, and forward only. See <see cref="SeekFrameInternal(long, SeekOrigin)" />.</para>
 		/// </remarks>
 		public override bool CanSeek => true;
 		/// <inheritdoc />
 		public override bool CanWrite => false;
-		/// <inheritdoc />
-		public override long Length => long.MaxValue;
 		/// <inheritdoc />
 		public override void Flush() { }
 		/// <inheritdoc />
@@ -288,7 +288,6 @@ namespace Cryville.Audio.Source {
 			if (Disposed) throw new ObjectDisposedException(null);
 			m_playing = false;
 			lock (_lock) _sources.Clear();
-			_time = 0;
 			return Session = new SimpleSequencerSession(Format, BufferSize);
 		}
 	}
