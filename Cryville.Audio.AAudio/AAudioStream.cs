@@ -110,7 +110,7 @@ namespace Cryville.Audio.AAudio {
 		readonly byte[] _buffer;
 		unsafe void FillBuffer(IntPtr ptr, int frames) {
 			var len = frames * Format.FrameSize;
-			if (Source == null || Muted) Array.Clear(_buffer, 0, len);
+			if (Source == null) Array.Clear(_buffer, 0, len);
 			else Source.ReadFrames(_buffer, 0, frames);
 			Marshal.Copy(_buffer, 0, ptr, len);
 			m_bufferPosition += (double)frames / Format.SampleRate;

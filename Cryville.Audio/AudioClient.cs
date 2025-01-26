@@ -43,10 +43,6 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract AudioClientStatus Status { get; }
 		/// <summary>
-		/// Whether the client is muted.
-		/// </summary>
-		public bool Muted { get; set; }
-		/// <summary>
 		/// The current position of the device stream in seconds.
 		/// </summary>
 		public abstract double Position { get; }

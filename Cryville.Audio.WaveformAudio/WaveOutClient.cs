@@ -181,7 +181,7 @@ namespace Cryville.Audio.WaveformAudio {
 				for (int i = 0; i < BUFFER_COUNT; i++) {
 					var b = _buffers[i];
 					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
-						if (Source == null || Muted) {
+						if (Source == null) {
 							Array.Clear(b.Buffer, 0, b.Buffer.Length);
 						}
 						else {

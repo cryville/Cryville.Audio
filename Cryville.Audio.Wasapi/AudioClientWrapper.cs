@@ -212,7 +212,7 @@ namespace Cryville.Audio.Wasapi {
 				_internal.GetCurrentPadding(out var padding);
 				var frames = m_bufferFrames - padding;
 				if (frames == 0) continue;
-				if (Source == null || Muted) {
+				if (Source == null) {
 					_renderClient.SilentBuffer(frames);
 				}
 				else {
