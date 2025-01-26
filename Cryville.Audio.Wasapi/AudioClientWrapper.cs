@@ -77,7 +77,7 @@ namespace Cryville.Audio.Wasapi {
 		readonly AudioRenderClientWrapper _renderClient;
 		readonly IAudioClock _clock;
 
-		readonly IAudioDevice m_device;
+		readonly MMDeviceWrapper m_device;
 		/// <inheritdoc />
 		public override IAudioDevice Device => m_device;
 

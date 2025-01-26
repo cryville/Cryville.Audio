@@ -48,6 +48,7 @@ namespace Cryville.Audio.OpenSLES {
 		public IAudioDevice GetDefaultDevice(DataFlow dataFlow) => new OutputDevice(this);
 
 		/// <inheritdoc />
+		[SuppressMessage("Reliability", "IDE0079", Justification = "False report")]
 		[SuppressMessage("Reliability", "CA2000")]
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) => dataFlow switch {
 			DataFlow.Out => [new OutputDevice(this)],

@@ -9,7 +9,8 @@ namespace Cryville.Audio.AAudio {
 	/// <summary>
 	/// An <see cref="AudioClient" /> that interacts with AAudio.
 	/// </summary>
-	[SuppressMessage("Naming", "CA1711")]
+	[SuppressMessage("CodeQuality", "IDE0079", Justification = "False report")]
+	[SuppressMessage("Naming", "CA1711", Justification = "[sic]")]
 	public class AAudioStream : AudioClient {
 		static readonly Dictionary<IntPtr, AAudioStream> _instances = [];
 
@@ -116,8 +117,7 @@ namespace Cryville.Audio.AAudio {
 			m_bufferPosition += (double)frames / Format.SampleRate;
 		}
 
-		delegate aaudio_data_callback_result_t DataHandler(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames);
-		[MonoPInvokeCallback(typeof(DataHandler))]
+		[MonoPInvokeCallback(typeof(AAudioStream_dataCallback))]
 		internal static unsafe aaudio_data_callback_result_t DataCallback(IntPtr stream, IntPtr _, IntPtr audioData, int numFrames) {
 			if (!_instances.TryGetValue(stream, out var instance))
 				return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_STOP;
