@@ -47,32 +47,6 @@ namespace Cryville.Audio {
 			Channels = 2, SampleRate = 48000, SampleFormat = SampleFormat.S16
 		};
 
-		/// <summary>
-		/// Gets the aligned buffer size.
-		/// </summary>
-		/// <param name="size">The prefered buffer size in bytes.</param>
-		/// <param name="floored">Whether the result is floored or ceiled.</param>
-		/// <returns>The aligned buffer size in bytes.</returns>
-		public readonly long Align(long size, bool floored = false) {
-			if (size % FrameSize == 0) return size;
-			size /= FrameSize;
-			if (!floored) size++;
-			return size * FrameSize;
-		}
-
-		/// <summary>
-		/// Gets the aligned buffer size.
-		/// </summary>
-		/// <param name="size">The prefered buffer size in bytes.</param>
-		/// <param name="floored">Whether the result is floored or ceiled.</param>
-		/// <returns>The aligned buffer size in bytes.</returns>
-		public readonly long Align(double size, bool floored = false) {
-			if (size < 0 || size > long.MaxValue) throw new ArgumentOutOfRangeException(nameof(size));
-			size /= FrameSize;
-			long blockNum = (long)(floored ? Math.Floor(size) : Math.Ceiling(size));
-			return blockNum * FrameSize;
-		}
-
 		/// <inheritdoc />
 		public override readonly string ToString() {
 			return string.Format(CultureInfo.InvariantCulture, "{0}ch * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample);
