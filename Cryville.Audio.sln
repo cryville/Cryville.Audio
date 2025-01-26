@@ -7,19 +7,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio", "Cryville.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.Test", "Cryville.Audio.Test\Cryville.Audio.Test.csproj", "{2E9B7AE9-D822-4B46-8046-469C87E545F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.Test.Android", "Cryville.Audio.Test.Android\Cryville.Audio.Test.Android.csproj", "{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.Test.Android", "Cryville.Audio.Test.Android\Cryville.Audio.Test.Android.csproj", "{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFmpeg.AutoGen", "FFmpeg.AutoGen\FFmpeg.AutoGen.csproj", "{5D7ACD9A-CA0B-4B44-A1AB-C85659010931}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.Wasapi", "Cryville.Audio.Wasapi\Cryville.Audio.Wasapi.csproj", "{1C6BB641-5FA5-4FD5-81E5-8300BEAD7631}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.Wasapi", "Cryville.Audio.Wasapi\Cryville.Audio.Wasapi.csproj", "{1C6BB641-5FA5-4FD5-81E5-8300BEAD7631}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.WaveformAudio", "Cryville.Audio.WaveformAudio\Cryville.Audio.WaveformAudio.csproj", "{CD725929-854B-472B-BF83-6BD2F67FA5E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.WaveformAudio", "Cryville.Audio.WaveformAudio\Cryville.Audio.WaveformAudio.csproj", "{CD725929-854B-472B-BF83-6BD2F67FA5E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.OpenSLES", "Cryville.Audio.OpenSLES\Cryville.Audio.OpenSLES.csproj", "{59B41727-0B40-460F-A145-B7B92EA62A9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.OpenSLES", "Cryville.Audio.OpenSLES\Cryville.Audio.OpenSLES.csproj", "{59B41727-0B40-460F-A145-B7B92EA62A9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.AAudio", "Cryville.Audio.AAudio\Cryville.Audio.AAudio.csproj", "{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.AAudio", "Cryville.Audio.AAudio\Cryville.Audio.AAudio.csproj", "{503656B1-3C6F-475F-9C10-C9DFC21ECFE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cryville.Audio.Source.Libav", "Cryville.Audio.Source.Libav\Cryville.Audio.Source.Libav.csproj", "{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryville.Audio.Source.Libav", "Cryville.Audio.Source.Libav\Cryville.Audio.Source.Libav.csproj", "{AE3D0DCC-57A6-4F7F-8FB0-BE0E604870FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +68,7 @@ Global
 		{48B40913-AEDD-4493-94DD-1435ED5FECBA}.Release|x86.ActiveCfg = Release|Any CPU
 		{48B40913-AEDD-4493-94DD-1435ED5FECBA}.Release|x86.Build.0 = Release|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|ARM.ActiveCfg = Debug|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|ARM64.ActiveCfg = Debug|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -75,6 +76,7 @@ Global
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|ARM.ActiveCfg = Release|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|iPhone.ActiveCfg = Release|Any CPU
@@ -82,6 +84,8 @@ Global
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|x64.ActiveCfg = Release|Any CPU
 		{2E9B7AE9-D822-4B46-8046-469C87E545F6}.Release|x86.ActiveCfg = Release|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|ARM.ActiveCfg = Debug|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|ARM64.ActiveCfg = Debug|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -89,6 +93,8 @@ Global
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Release|ARM.ActiveCfg = Release|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{C9203C6D-7AE6-40F8-9C32-A99C9E0D8E50}.Release|iPhone.ActiveCfg = Release|Any CPU
