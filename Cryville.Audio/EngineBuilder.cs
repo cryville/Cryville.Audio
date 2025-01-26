@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Cryville.Audio {
 	/// <summary>
@@ -19,14 +18,13 @@ namespace Cryville.Audio {
 		/// <remarks>
 		/// <para>Add engines to <see cref="Engines" /> before calling this method.</para>
 		/// </remarks>
-		[SuppressMessage("Design", "CA1031")]
 		public IAudioDeviceManager? Create() {
 			foreach (var type in Engines) {
 				if (!typeof(IAudioDeviceManager).IsAssignableFrom(type)) continue;
 				try {
 					return (IAudioDeviceManager)Activator.CreateInstance(type);
 				}
-				catch (Exception) { }
+				catch (NotSupportedException) { }
 			}
 			return null;
 		}
