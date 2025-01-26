@@ -67,11 +67,11 @@ namespace Cryville.Audio.Wasapi {
 					Marshal.QueryInterface(
 						Marshal.GetIUnknownForObject(_internal),
 						ref GUID_MM_ENDPOINT,
-						out var pendpoint
+						out var pEndpoint
 					);
-					var endpoint = (IMMEndpoint)Marshal.GetObjectForIUnknown(pendpoint);
-					endpoint.GetDataFlow(out var presult);
-					m_dataFlow = Util.FromInternalDataFlowEnum(presult);
+					var endpoint = (IMMEndpoint)Marshal.GetObjectForIUnknown(pEndpoint);
+					endpoint.GetDataFlow(out var pResult);
+					m_dataFlow = Helpers.FromInternalDataFlowEnum(pResult);
 					Marshal.ReleaseComObject(endpoint);
 				}
 				return m_dataFlow.Value;
@@ -84,40 +84,40 @@ namespace Cryville.Audio.Wasapi {
 
 		private readonly long m_minimumBufferDuration;
 		/// <inheritdoc />
-		public int MinimumBufferSize => Util.FromReferenceTime(DefaultFormat.SampleRate, m_minimumBufferDuration);
+		public int MinimumBufferSize => Helpers.FromReferenceTime(DefaultFormat.SampleRate, m_minimumBufferDuration);
 
 		private readonly long m_defaultBufferDuration;
 		/// <inheritdoc />
-		public int DefaultBufferSize => Util.FromReferenceTime(DefaultFormat.SampleRate, m_defaultBufferDuration);
+		public int DefaultBufferSize => Helpers.FromReferenceTime(DefaultFormat.SampleRate, m_defaultBufferDuration);
 
 		/// <inheritdoc />
 		public WaveFormat DefaultFormat {
 			get {
 				if (_client == null) throw new InvalidOperationException("The device is not available.");
-				_client.GetMixFormat(out var presult);
-				var result = (WAVEFORMATEX)Marshal.PtrToStructure(presult, typeof(WAVEFORMATEX));
-				return Util.FromInternalFormat(result);
+				_client.GetMixFormat(out var pResult);
+				var result = (WAVEFORMATEX)Marshal.PtrToStructure(pResult, typeof(WAVEFORMATEX));
+				return Helpers.FromInternalFormat(result);
 			}
 		}
 
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (_client == null) throw new InvalidOperationException("The device is not available.");
-			var iformat = Util.ToInternalFormat(format);
-			int hr = _client.IsFormatSupported(ToInternalShareModeEnum(shareMode), ref iformat, out var presult);
+			var iFormat = Helpers.ToInternalFormat(format);
+			int hr = _client.IsFormatSupported(ToInternalShareModeEnum(shareMode), ref iFormat, out var pResult);
 			if (hr == 0) { // S_OK
 				suggestion = format;
-				if (presult != IntPtr.Zero) Marshal.FreeCoTaskMem(presult);
+				if (pResult != IntPtr.Zero) Marshal.FreeCoTaskMem(pResult);
 				return true;
 			}
 			else if (hr == 1) { // S_FALSE
-				suggestion = Util.FromInternalFormat((WAVEFORMATEX)Marshal.PtrToStructure(presult, typeof(WAVEFORMATEX)));
-				if (presult != IntPtr.Zero) Marshal.FreeCoTaskMem(presult);
+				suggestion = Helpers.FromInternalFormat((WAVEFORMATEX)Marshal.PtrToStructure(pResult, typeof(WAVEFORMATEX)));
+				if (pResult != IntPtr.Zero) Marshal.FreeCoTaskMem(pResult);
 				return false;
 			}
 			else if ((hr & 0x7fffffff) == 0x08890008) { // AUDCLNT_E_UNSUPPORTED_FORMAT
 				suggestion = null;
-				if (presult != IntPtr.Zero) Marshal.FreeCoTaskMem(presult);
+				if (pResult != IntPtr.Zero) Marshal.FreeCoTaskMem(pResult);
 				return false;
 			}
 			else Marshal.ThrowExceptionForHR(hr);

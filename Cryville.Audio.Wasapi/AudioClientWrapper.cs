@@ -19,9 +19,9 @@ namespace Cryville.Audio.Wasapi {
 
 			if (shareMode == AudioShareMode.Shared) bufferSize = 0;
 			else if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
-			m_format = Util.ToInternalFormat(format);
+			m_format = Helpers.ToInternalFormat(format);
 
-			var bufferDuration = Util.ToReferenceTime(format.SampleRate, bufferSize);
+			var bufferDuration = Helpers.ToReferenceTime(format.SampleRate, bufferSize);
 			bool retryFlag = false;
 		retry:
 			try {
@@ -80,7 +80,7 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (_eventHandle == IntPtr.Zero)
 					throw new InvalidOperationException("Connection not initialized.");
-				return Util.FromInternalFormat(m_format);
+				return Helpers.FromInternalFormat(m_format);
 			}
 		}
 

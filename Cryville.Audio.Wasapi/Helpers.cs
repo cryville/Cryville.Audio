@@ -4,7 +4,7 @@ using System;
 using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
 namespace Cryville.Audio.Wasapi {
-	internal static class Util {
+	internal static class Helpers {
 		public static DataFlow FromInternalDataFlowEnum(EDataFlow value) => value switch {
 			EDataFlow.eRender => DataFlow.Out,
 			EDataFlow.eCapture => DataFlow.In,
