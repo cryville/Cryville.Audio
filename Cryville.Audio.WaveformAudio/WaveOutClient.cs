@@ -195,9 +195,9 @@ namespace Cryville.Audio.WaveformAudio {
 						m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 					}
 				}
-				if (_threadAbortFlag) break;
 				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
 					throw new InvalidOperationException("Error while pending for event.");
+				if (_threadAbortFlag) break;
 			}
 		}
 	}
