@@ -77,7 +77,7 @@ namespace Microsoft.Windows.AudioClient {
 	[ComImport]
 	[Guid("726778CD-F60A-4eda-82DE-E47610CD78AA")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	interface IAudioClient2 {
+	interface IAudioClient2 : IAudioClient {
 		void IsOffloadCapable(
 			AUDIO_STREAM_CATEGORY Category,
 			out bool pbOffloadCapable

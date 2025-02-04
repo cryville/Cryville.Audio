@@ -12,21 +12,14 @@ namespace Cryville.Audio.Wasapi {
 	/// </summary>
 	public class AudioClientWrapper : AudioClient {
 		readonly IAudioClient _internal;
-		readonly IAudioClient2? _internal2;
 
-		internal AudioClientWrapper(IAudioClient obj, IAudioClient2? obj2, MMDeviceWrapper device, WaveFormat format, int bufferSize, AudioUsage usage, AudioShareMode shareMode) {
+		internal AudioClientWrapper(IAudioClient obj, MMDeviceWrapper device, WaveFormat format, int bufferSize, AudioUsage usage, AudioShareMode shareMode) {
 			m_device = device;
 			_internal = obj;
-			_internal2 = obj2;
 
 			if (shareMode == AudioShareMode.Shared) bufferSize = 0;
 			else if (bufferSize == 0) bufferSize = device.DefaultBufferSize;
 			m_format = Helpers.ToInternalFormat(format);
-
-			if (_internal2 != null) {
-				var props = new AudioClientProperties() { eCategory = Helpers.ToInternalStreamCategory(usage) };
-				_internal2.SetClientProperties(ref props);
-			}
 
 			var bufferDuration = Helpers.ToReferenceTime(format.SampleRate, bufferSize);
 			bool retryFlag = false;
@@ -46,6 +39,12 @@ namespace Cryville.Audio.Wasapi {
 				bufferDuration = (long)(1e7 / m_format.nSamplesPerSec * nFrames + 0.5);
 				goto retry;
 			}
+
+			if (_internal is IAudioClient2 client2) {
+				var props = new AudioClientProperties() { eCategory = Helpers.ToInternalStreamCategory(usage) };
+				client2.SetClientProperties(ref props);
+			}
+
 			_eventHandle = Synch.CreateEventW(IntPtr.Zero, false, false, null);
 			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
 			_internal.SetEventHandle(_eventHandle);

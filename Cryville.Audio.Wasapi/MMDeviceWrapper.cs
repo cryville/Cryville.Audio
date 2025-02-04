@@ -16,21 +16,22 @@ namespace Cryville.Audio.Wasapi {
 		bool _connected;
 		readonly IMMDevice _internal;
 		readonly IAudioClient? _client;
-		readonly IAudioClient2? _client2;
 
 		internal MMDeviceWrapper(IMMDevice obj) {
 			_internal = obj;
 			_internal.GetState(out var state);
-			if (state == (uint)DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE) {
+			if (state != (uint)DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE) {
+				return;
+			}
+			try {
+				_internal.Activate(typeof(IAudioClient2).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
+				_client = (IAudioClient2)client;
+			}
+			catch (InvalidCastException) {
 				_internal.Activate(typeof(IAudioClient).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
 				_client = (IAudioClient)client;
-				_client.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
-				try {
-					_internal.Activate(typeof(IAudioClient2).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client2);
-					_client2 = (IAudioClient2)client2;
-				}
-				catch (COMException) { }
 			}
+			_client.GetDevicePeriod(out m_defaultBufferDuration, out m_minimumBufferDuration);
 		}
 
 		/// <inheritdoc />
@@ -142,7 +143,7 @@ namespace Cryville.Audio.Wasapi {
 		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			if (_client == null) throw new InvalidOperationException("The device is not available.");
 			_connected = true;
-			return new AudioClientWrapper(_client, _client2, this, format, bufferSize, usage, shareMode);
+			return new AudioClientWrapper(_client, this, format, bufferSize, usage, shareMode);
 		}
 
 		static AUDCLNT_SHAREMODE ToInternalShareModeEnum(AudioShareMode value) => value switch {
