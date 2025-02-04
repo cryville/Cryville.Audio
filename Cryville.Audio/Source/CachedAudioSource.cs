@@ -38,7 +38,7 @@ namespace Cryville.Audio.Source {
 			public readonly double Duration = duration;
 			WaveFormat _format;
 			public long FrameLength = -1;
-			public int FramePosition;
+			public long FramePosition;
 			public byte[]? Buffer;
 
 			public void SetFormat(WaveFormat format, int bufferSize) {
@@ -47,8 +47,9 @@ namespace Cryville.Audio.Source {
 				FrameLength = (long)(Duration * format.SampleRate);
 				Buffer = new byte[FrameLength * format.FrameSize];
 			}
-			public void FillBufferTo(int frameOffset) {
-				_ = Source.ReadFrames(ref Buffer![FramePosition * _format.FrameSize], frameOffset - FramePosition);
+			public void FillBufferTo(long frameOffset) {
+				if (frameOffset <= FramePosition) return;
+				_ = Source.ReadFrames(ref Buffer![FramePosition * _format.FrameSize], (int)(frameOffset - FramePosition));
 				FramePosition = frameOffset;
 			}
 		}
@@ -85,8 +86,8 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		protected override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			int frameOffsetToLoad = (int)Math.Min(_cache.Buffer!.Length, FramePosition + frameCount);
-			if (frameOffsetToLoad > _cache.FramePosition) _cache.FillBufferTo(frameOffsetToLoad);
+			long frameOffsetToLoad = Math.Min(_cache.FrameLength, FramePosition + frameCount);
+			_cache.FillBufferTo(frameOffsetToLoad);
 			long rem = _cache.FrameLength - FramePosition;
 			int frames = (int)Math.Min(rem, frameCount);
 			if (frames > 0) {
