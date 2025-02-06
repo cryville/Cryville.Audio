@@ -154,13 +154,13 @@ namespace Cryville.Audio.WaveformAudio {
 			IntPtr waveOutHandle = Interlocked.Exchange(ref _waveOutHandle, IntPtr.Zero);
 			if (waveOutHandle != IntPtr.Zero) {
 				MmSysComExports.MMR(MmeExports.waveOutReset(waveOutHandle));
-				for (int i = 0; i < _buffers.Length; i++) {
+				foreach (var b in _buffers) {
 					_ = MmeExports.waveOutUnprepareHeader(
 						waveOutHandle,
-						ref _buffers[i].Header,
+						ref b.Header,
 						SIZE_WAVEHDR
 					);
-					_buffers[i].Release();
+					b.Release();
 				}
 				MmSysComExports.MMR(MmeExports.waveOutClose(waveOutHandle));
 			}
@@ -182,8 +182,7 @@ namespace Cryville.Audio.WaveformAudio {
 		void ThreadLogic() {
 			_threadAbortFlag = false;
 			while (true) {
-				for (int i = 0; i < BUFFER_COUNT; i++) {
-					var b = _buffers[i];
+				foreach (var b in _buffers) {
 					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
 						if (Source == null) {
 							AudioStream.SilentBuffer(Format, ref b.Buffer[0], BufferSize);
