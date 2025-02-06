@@ -60,9 +60,10 @@ namespace Cryville.Audio.Source {
 			_sampleReader = SampleConvert.GetSampleReader(Format.SampleFormat);
 			_sampleWriter = SampleConvert.GetSampleWriter(Format.SampleFormat);
 		}
-
 		/// <inheritdoc />
-		protected internal override bool IsFormatSupported(WaveFormat format) {
+		public override WaveFormat DefaultFormat => WaveFormat.Default;
+		/// <inheritdoc />
+		public override bool IsFormatSupported(WaveFormat format) {
 			return format.SampleFormat == SampleFormat.U8
 				|| format.SampleFormat == SampleFormat.S16
 				|| format.SampleFormat == SampleFormat.S24

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace Cryville.Audio.Source.Libav {
@@ -26,6 +25,7 @@ namespace Cryville.Audio.Source.Libav {
 			public int SelectedStream;
 			long _pts;
 			WaveFormat? OutFormat;
+			WaveFormat? InFormat;
 			int BufferSize;
 			int frameSize;
 			public bool EOF;
@@ -75,8 +75,19 @@ namespace Cryville.Audio.Source.Libav {
 				codecCtx = ffmpeg.avcodec_alloc_context3(codec);
 				ffmpeg.avcodec_parameters_to_context(codecCtx, param);
 				HR(ffmpeg.avcodec_open2(codecCtx, codec, null));
+				InFormat = new() {
+					Channels = (ushort)codecCtx->ch_layout.nb_channels,
+					SampleFormat = FromInternalSampleFormat(codecCtx->sample_fmt),
+					SampleRate = (uint)codecCtx->sample_rate,
+				};
 
 				packet = ffmpeg.av_packet_alloc();
+			}
+
+			public WaveFormat GetInFormat() {
+				if (formatCtx == null) throw new ObjectDisposedException(null);
+				if (codecCtx == null) OpenStream(BestStreamIndex);
+				return InFormat!.Value;
 			}
 
 			public void SetFormat(WaveFormat format, int bufferSize) {
@@ -96,7 +107,7 @@ namespace Cryville.Audio.Source.Libav {
 				fixed (SwrContext** pSwrContext = &swrContext)
 					HR(ffmpeg.swr_alloc_set_opts2(
 						pSwrContext,
-						&outLayout, ToInternalFormat(outFormat), (int)outFormat.SampleRate,
+						&outLayout, ToInternalSampleFormat(outFormat.SampleFormat), (int)outFormat.SampleRate,
 						&codecCtx->ch_layout, codecCtx->sample_fmt, codecCtx->sample_rate,
 						0, null
 					));
@@ -224,7 +235,15 @@ namespace Cryville.Audio.Source.Libav {
 				return value;
 			}
 
-			static AVSampleFormat ToInternalFormat(WaveFormat value) => value.SampleFormat switch {
+			static SampleFormat FromInternalSampleFormat(AVSampleFormat value) => value switch {
+				AVSampleFormat.AV_SAMPLE_FMT_U8 or AVSampleFormat.AV_SAMPLE_FMT_U8P => SampleFormat.U8,
+				AVSampleFormat.AV_SAMPLE_FMT_S16 or AVSampleFormat.AV_SAMPLE_FMT_S16P => SampleFormat.S16,
+				AVSampleFormat.AV_SAMPLE_FMT_S32 or AVSampleFormat.AV_SAMPLE_FMT_S32P => SampleFormat.S32,
+				AVSampleFormat.AV_SAMPLE_FMT_FLT or AVSampleFormat.AV_SAMPLE_FMT_FLTP => SampleFormat.F32,
+				AVSampleFormat.AV_SAMPLE_FMT_DBL or AVSampleFormat.AV_SAMPLE_FMT_DBLP => SampleFormat.F64,
+				_ => throw new NotSupportedException(),
+			};
+			static AVSampleFormat ToInternalSampleFormat(SampleFormat value) => value switch {
 				SampleFormat.U8 => AVSampleFormat.AV_SAMPLE_FMT_U8,
 				SampleFormat.S16 => AVSampleFormat.AV_SAMPLE_FMT_S16,
 				SampleFormat.S32 => AVSampleFormat.AV_SAMPLE_FMT_S32,
@@ -297,9 +316,10 @@ namespace Cryville.Audio.Source.Libav {
 		/// <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
 		/// <returns>The duration in seconds.</returns>
 		public double GetStreamDuration(int streamId = -1) => _internal.GetDuration(streamId);
-
 		/// <inheritdoc />
-		protected override bool IsFormatSupported(WaveFormat format)
+		public override WaveFormat DefaultFormat => _internal.GetInFormat();
+		/// <inheritdoc />
+		public override bool IsFormatSupported(WaveFormat format)
 			=> format.SampleFormat == SampleFormat.U8
 			|| format.SampleFormat == SampleFormat.S16
 			|| format.SampleFormat == SampleFormat.S32

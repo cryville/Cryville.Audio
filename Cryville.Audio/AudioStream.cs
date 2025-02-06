@@ -42,12 +42,15 @@ namespace Cryville.Audio {
 		/// Called when the wave format and the buffer size is determined.
 		/// </summary>
 		protected abstract void OnSetFormat();
-
+		/// <summary>
+		/// The default wave format of the stream.
+		/// </summary>
+		public abstract WaveFormat DefaultFormat { get; }
 		/// <summary>
 		/// Gets whether <paramref name="format" /> is supported by the audio stream.
 		/// </summary>
 		/// <param name="format">The wave format.</param>
-		protected internal abstract bool IsFormatSupported(WaveFormat format);
+		public virtual bool IsFormatSupported(WaveFormat format) => format == DefaultFormat;
 
 		/// <inheritdoc />
 		public sealed override long Seek(long offset, SeekOrigin origin) {

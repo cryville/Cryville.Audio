@@ -30,9 +30,10 @@ namespace Cryville.Audio.Source {
 			base.Dispose(disposing);
 			Disposed = true;
 		}
-
 		/// <inheritdoc />
-		protected internal sealed override bool IsFormatSupported(WaveFormat format) {
+		public override WaveFormat DefaultFormat => WaveFormat.Default;
+		/// <inheritdoc />
+		public sealed override bool IsFormatSupported(WaveFormat format) {
 			return format.SampleFormat == SampleFormat.U8
 				|| format.SampleFormat == SampleFormat.S16
 				|| format.SampleFormat == SampleFormat.S24

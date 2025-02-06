@@ -73,9 +73,9 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
-		protected internal override bool IsFormatSupported(WaveFormat format) {
-			return _cache.Source.IsFormatSupported(format);
-		}
+		public override WaveFormat DefaultFormat => _cache.Source.DefaultFormat;
+		/// <inheritdoc />
+		public override bool IsFormatSupported(WaveFormat format) => _cache.Source.IsFormatSupported(format);
 
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
