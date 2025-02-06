@@ -6,11 +6,13 @@ namespace Cryville.Audio.Source.Resample {
 	/// An <see cref="AudioStream" /> that resamples another <see cref="AudioStream" />.
 	/// </summary>
 	/// <param name="source">The source <see cref="AudioStream" />.</param>
+	/// <param name="sourceFormat">The wave format set to the source. The <see cref="WaveFormat.Channels" /> property of this parameter is ignored and is always set to the channel count of the destination format.</param>
 	/// <param name="highQuality">Whether to resample with high quality.</param>
 	/// <remarks>
-	/// <para>Call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on a <see cref="ResampledAudioSource" /> to set the destination format. The format of the source <see cref="AudioStream" /> will be set to its <see cref="AudioStream.DefaultFormat" /> upon calling that method. Do not call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on the source <see cref="AudioStream" />.</para>
+	/// <para>Call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on a <see cref="ResampledAudioSource" /> to set the destination format. The format of the source <see cref="AudioStream" /> will be set to <paramref name="sourceFormat" /> (or its <see cref="AudioStream.DefaultFormat" /> if <paramref name="sourceFormat" /> is <see langword="null" />) upon calling that method. Do not call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on the source <see cref="AudioStream" />.</para>
+	/// <para><paramref name="sourceFormat" />, if set, must be set to a supported wave format of the source audio stream.</para>
 	/// </remarks>
-	public class ResampledAudioSource(AudioStream source, bool highQuality = true) : AudioStream {
+	public class ResampledAudioSource(AudioStream source, WaveFormat? sourceFormat = null, bool highQuality = true) : AudioStream {
 		/// <inheritdoc />
 		public override bool EndOfData => source.EndOfData;
 
@@ -23,8 +25,9 @@ namespace Cryville.Audio.Source.Resample {
 		public override bool IsFormatSupported(WaveFormat format) => format.Channels == source.DefaultFormat.Channels;
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
-			_internal = new(source.DefaultFormat, Format, BufferSize, highQuality);
-			source.SetFormat(source.DefaultFormat, _internal._inBufferFrameLength);
+			var inFormat = (sourceFormat ?? source.DefaultFormat) with { Channels = Format.Channels };
+			_internal = new(inFormat, Format, BufferSize, highQuality);
+			source.SetFormat(inFormat, _internal._inBufferFrameLength);
 		}
 
 		sealed class Internal {
