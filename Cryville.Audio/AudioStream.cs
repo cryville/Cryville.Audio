@@ -149,6 +149,7 @@ namespace Cryville.Audio {
 		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
 		public int ReadFrames(byte[] buffer, int offset, int frameCount) {
 			CheckParams(buffer, offset, frameCount * Format.FrameSize);
+			if (frameCount == 0) return 0;
 			frameCount = ReadFramesInternal(ref buffer[offset], frameCount);
 			m_framePosition += frameCount;
 			return frameCount;
