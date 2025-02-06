@@ -49,17 +49,23 @@ namespace Cryville.Audio.Source {
 		/// <inheritdoc />
 		public override long FrameLength => long.MaxValue;
 
+		SampleReader? _sampleReader;
+		SampleWriter? _sampleWriter;
+
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
 			_pribuf = new double[BufferSize * Format.Channels];
 			_secbuf = new byte[BufferSize * Format.FrameSize];
 			if (BufferSize == 0) Playing = false;
+			_sampleReader = SampleConvert.GetSampleReader(Format.SampleFormat);
+			_sampleWriter = SampleConvert.GetSampleWriter(Format.SampleFormat);
 		}
 
 		/// <inheritdoc />
 		protected internal override bool IsFormatSupported(WaveFormat format) {
 			return format.SampleFormat == SampleFormat.U8
 				|| format.SampleFormat == SampleFormat.S16
+				|| format.SampleFormat == SampleFormat.S24
 				|| format.SampleFormat == SampleFormat.S32
 				|| format.SampleFormat == SampleFormat.F32
 				|| format.SampleFormat == SampleFormat.F64;
@@ -116,47 +122,11 @@ namespace Cryville.Audio.Source {
 					}
 				}
 			}
-			switch (Format.SampleFormat) {
-				case SampleFormat.U8:
-					fixed (byte* rptr = &buffer) {
-						byte* ptr = rptr;
-						for (int i = 0; i < sampleCount; i++) {
-							*ptr++ = SampleClipping.ToByte(_pribuf![i]);
-						}
-					}
-					break;
-				case SampleFormat.S16:
-					fixed (byte* rptr = &buffer) {
-						short* ptr = (short*)rptr;
-						for (int i = 0; i < sampleCount; i++) {
-							*ptr++ = SampleClipping.ToInt16(_pribuf![i]);
-						}
-					}
-					break;
-				case SampleFormat.S32:
-					fixed (byte* rptr = &buffer) {
-						int* ptr = (int*)rptr;
-						for (int i = 0; i < sampleCount; i++) {
-							*ptr++ = SampleClipping.ToInt32(_pribuf![i]);
-						}
-					}
-					break;
-				case SampleFormat.F32:
-					fixed (byte* rptr = &buffer) {
-						float* ptr = (float*)rptr;
-						for (int i = 0; i < sampleCount; i++) {
-							*ptr++ = (float)_pribuf![i];
-						}
-					}
-					break;
-				case SampleFormat.F64:
-					fixed (byte* rptr = &buffer) {
-						double* ptr = (double*)rptr;
-						for (int i = 0; i < sampleCount; i++) {
-							*ptr++ = _pribuf![i];
-						}
-					}
-					break;
+			fixed (byte* rptr = &buffer) {
+				byte* ptr = rptr;
+				for (int i = 0; i < sampleCount; i++) {
+					_sampleWriter!(ref ptr, _pribuf![i]);
+				}
 			}
 			return frameCount;
 		}
@@ -167,47 +137,11 @@ namespace Cryville.Audio.Source {
 			var sampleCount = frameCount * Format.Channels;
 			fixed (double* rpptr = &_pribuf![sampleOffset]) {
 				var pptr = rpptr;
-				switch (Format.SampleFormat) {
-					case SampleFormat.U8:
-						fixed (byte* rptr = _secbuf) {
-							byte* ptr = rptr;
-							for (int i = 0; i < sampleCount; i++) {
-								*pptr++ += *ptr++ / (double)0x80 - 1;
-							}
-						}
-						break;
-					case SampleFormat.S16:
-						fixed (byte* rptr = _secbuf) {
-							short* ptr = (short*)rptr;
-							for (int i = 0; i < sampleCount; i++) {
-								*pptr++ += *ptr++ / (double)0x8000;
-							}
-						}
-						break;
-					case SampleFormat.S32:
-						fixed (byte* rptr = _secbuf) {
-							int* ptr = (int*)rptr;
-							for (int i = 0; i < sampleCount; i++) {
-								*pptr++ += *ptr++ / (double)0x80000000;
-							}
-						}
-						break;
-					case SampleFormat.F32:
-						fixed (byte* rptr = _secbuf) {
-							float* ptr = (float*)rptr;
-							for (int i = 0; i < sampleCount; i++) {
-								*pptr++ += *ptr++;
-							}
-						}
-						break;
-					case SampleFormat.F64:
-						fixed (byte* rptr = _secbuf) {
-							double* ptr = (double*)rptr;
-							for (int i = 0; i < sampleCount; i++) {
-								*pptr++ += *ptr++;
-							}
-						}
-						break;
+				fixed (byte* rptr = _secbuf) {
+					byte* ptr = rptr;
+					for (int i = 0; i < sampleCount; i++) {
+						*pptr++ += _sampleReader!(ref ptr);
+					}
 				}
 			}
 		}

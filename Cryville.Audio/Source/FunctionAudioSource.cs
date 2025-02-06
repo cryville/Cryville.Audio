@@ -41,19 +41,10 @@ namespace Cryville.Audio.Source {
 				|| format.SampleFormat == SampleFormat.F64;
 		}
 
-		unsafe delegate void SampleHandler(ref byte* ptr, double v);
-		SampleHandler? _sampleHandler;
+		SampleWriter? _sampleHandler;
 
 		/// <inheritdoc />
-		protected override unsafe void OnSetFormat() => _sampleHandler = Format.SampleFormat switch {
-			SampleFormat.U8 => WriteU8,
-			SampleFormat.S16 => WriteS16,
-			SampleFormat.S24 => WriteS24,
-			SampleFormat.S32 => WriteS32,
-			SampleFormat.F32 => WriteF32,
-			SampleFormat.F64 => WriteF64,
-			_ => throw new NotSupportedException(),
-		};
+		protected override unsafe void OnSetFormat() => _sampleHandler = SampleConvert.GetSampleWriter(Format.SampleFormat);
 
 		/// <inheritdoc />
 		protected sealed override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
@@ -69,38 +60,6 @@ namespace Cryville.Audio.Source {
 				}
 			}
 			return frameCount;
-		}
-
-		static unsafe void WriteU8(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, SampleClipping.ToByte(v));
-			ptr += sizeof(byte);
-		}
-
-		static unsafe void WriteS16(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, SampleClipping.ToInt16(v));
-			ptr += sizeof(short);
-		}
-
-		static unsafe void WriteS24(ref byte* ptr, double v) {
-			int d = SampleClipping.ToInt24(v);
-			*ptr++ = (byte)d;
-			*ptr++ = (byte)(d >> 8);
-			*ptr++ = (byte)(d >> 16);
-		}
-
-		static unsafe void WriteS32(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, SampleClipping.ToInt32(v));
-			ptr += sizeof(int);
-		}
-
-		static unsafe void WriteF32(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, (float)v);
-			ptr += sizeof(float);
-		}
-
-		static unsafe void WriteF64(ref byte* ptr, double v) {
-			Unsafe.Write(ptr, v);
-			ptr += sizeof(double);
 		}
 
 		/// <summary>
