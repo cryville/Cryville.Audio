@@ -19,7 +19,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>audio</PackageTags>
 		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
-		<Version>6.0.0-rc.1</Version>
+		<Version>6.0.0-rc.3</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
