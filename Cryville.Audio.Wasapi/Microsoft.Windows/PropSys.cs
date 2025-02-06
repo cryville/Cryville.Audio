@@ -74,8 +74,10 @@ namespace Microsoft.Windows.PropSys {
 	[Guid("1f9fc1d0-c39b-4b26-817f-011967d3440e")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	internal interface IPropertyDescriptionList {
+		[PreserveSig]
 		int GetCount(out UInt32 pcElem);
 
+		[PreserveSig]
 		int GetAt(
 			UInt32 iElem,
 			ref Guid riid,

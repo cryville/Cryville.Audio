@@ -45,6 +45,7 @@ namespace Microsoft.Windows.AudioClient {
 			out UInt32 pNumPaddingFrames
 		);
 
+		[PreserveSig]
 		int IsFormatSupported(
 			AUDCLNT_SHAREMODE ShareMode,
 			ref WAVEFORMATEX pFormat,
