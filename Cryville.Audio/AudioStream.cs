@@ -138,7 +138,7 @@ namespace Cryville.Audio {
 		}
 
 		/// <inheritdoc />
-		public sealed override int Read(byte[] buffer, int offset, int count) => ReadFrames(buffer, offset, count / Format.FrameSize);
+		public sealed override int Read(byte[] buffer, int offset, int count) => ReadFrames(buffer, offset, count / Format.FrameSize) * Format.FrameSize;
 
 		/// <summary>
 		/// Reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
