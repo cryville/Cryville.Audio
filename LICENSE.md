@@ -3,6 +3,7 @@ The following projects are licensed under [MIT](LICENSE-MIT.txt):
 - Cryville.Audio
 - Cryville.Audio.AAudio
 - Cryville.Audio.OpenSLES
+- Cryville.Audio.Source.Resample
 - Cryville.Audio.Wasapi
 - Cryville.Audio.WaveformAudio
 

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netframework35;netstandard2.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Cryville</Authors>
+		<Copyright>Copyright (c) Cryville 2025</Copyright>
+		<Description></Description>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://www.cryville.world/Projects/A012</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>audio</PackageTags>
+		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
+		<Version>6.0.0-rc.3</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="True" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
+	</ItemGroup>
+	
+</Project>
