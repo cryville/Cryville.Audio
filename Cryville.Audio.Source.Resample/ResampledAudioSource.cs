@@ -2,6 +2,14 @@ using System;
 using System.IO;
 
 namespace Cryville.Audio.Source.Resample {
+	/// <summary>
+	/// An <see cref="AudioStream" /> that resamples another <see cref="AudioStream" />.
+	/// </summary>
+	/// <param name="source">The source <see cref="AudioStream" />.</param>
+	/// <param name="highQuality">Whether to resample with high quality.</param>
+	/// <remarks>
+	/// <para>Call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on a <see cref="ResampledAudioSource" /> to set the destination format. The format of the source <see cref="AudioStream" /> will be set to its <see cref="AudioStream.DefaultFormat" /> upon calling that method. Do not call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on the source <see cref="AudioStream" />.</para>
+	/// </remarks>
 	public class ResampledAudioSource(AudioStream source, bool highQuality = true) : AudioStream {
 		/// <inheritdoc />
 		public override bool EndOfData => source.EndOfData;
