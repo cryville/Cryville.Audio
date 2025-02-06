@@ -1,4 +1,4 @@
-﻿namespace Cryville.Audio {
+namespace Cryville.Audio {
 	/// <summary>
 	/// Status of the <see cref="AudioClient" />.
 	/// </summary>

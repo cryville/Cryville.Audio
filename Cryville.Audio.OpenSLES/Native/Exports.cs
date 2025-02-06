@@ -44,18 +44,18 @@ namespace Cryville.Audio.OpenSLES.Native {
 #endif
 		[DllImport("OpenSLES")]
 		public static extern SLResult slQueryNumSupportedEngineInterfaces(
-            out UInt32 pNumSupportedInterfaces
-        );
+			out UInt32 pNumSupportedInterfaces
+		);
 
 #if USE_SAFE_DLL_IMPORT
 		[DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
 #endif
 		[DllImport("OpenSLES")]
 		public static extern SLResult slQuerySupportedEngineInterfaces(
-            UInt32 index,
-            ref Guid pInterfaceId
-        );
-    }
+			UInt32 index,
+			ref Guid pInterfaceId
+		);
+	}
 
 	enum SL_ANDROID_STREAM : UInt32 {
 		VOICE        = 0,

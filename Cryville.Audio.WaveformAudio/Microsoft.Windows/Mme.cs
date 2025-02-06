@@ -26,7 +26,7 @@ namespace Microsoft.Windows.Mme {
 		public IntPtr lpNext;          /* reserved for driver */
 		public IntPtr reserved;        /* reserved for driver */
 	}
-	
+
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 	internal struct WAVEOUTCAPSW {
 		public UInt16 wMid;           /* manufacturer ID */

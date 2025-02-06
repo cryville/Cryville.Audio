@@ -2,7 +2,7 @@ using System;
 using UnsafeIL;
 
 namespace Cryville.Audio.Source.Resample {
-	unsafe sealed class Resampler {
+	sealed unsafe class Resampler {
 		readonly int Npc;
 
 		readonly double[] Imp, ImpD;
@@ -22,11 +22,11 @@ namespace Cryville.Audio.Source.Resample {
 		readonly FilterKit _filterKit;
 
 		public Resampler(bool highQuality, double minFactor, double maxFactor, int Npc = 4096) {
-			if (minFactor <= 0.0) 
+			if (minFactor <= 0.0)
 				throw new ArgumentOutOfRangeException(nameof(minFactor));
-			if (maxFactor <= 0.0) 
+			if (maxFactor <= 0.0)
 				throw new ArgumentOutOfRangeException(nameof(maxFactor));
-			if (maxFactor < minFactor) 
+			if (maxFactor < minFactor)
 				throw new ArgumentException("maxFactor is less than minFactor.");
 
 			this.Npc = Npc;

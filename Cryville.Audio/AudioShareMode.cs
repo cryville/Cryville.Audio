@@ -1,4 +1,4 @@
-﻿namespace Cryville.Audio {
+namespace Cryville.Audio {
 	/// <summary>
 	/// The share mode of an audio connection.
 	/// </summary>

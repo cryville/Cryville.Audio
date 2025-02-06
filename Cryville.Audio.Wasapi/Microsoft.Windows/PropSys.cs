@@ -74,14 +74,14 @@ namespace Microsoft.Windows.PropSys {
 	[Guid("1f9fc1d0-c39b-4b26-817f-011967d3440e")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	internal interface IPropertyDescriptionList {
-        int GetCount(out UInt32 pcElem);
-        
-        int GetAt(
+		int GetCount(out UInt32 pcElem);
+
+		int GetAt(
 			UInt32 iElem,
 			ref Guid riid,
 			[MarshalAs(UnmanagedType.IUnknown)] out object ppv
 		);
-    }
+	}
 
 	[ComImport]
 	[Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99")]

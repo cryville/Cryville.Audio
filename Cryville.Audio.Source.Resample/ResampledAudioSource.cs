@@ -23,7 +23,7 @@ namespace Cryville.Audio.Source.Resample {
 		public override bool IsFormatSupported(WaveFormat format) => format.Channels == source.DefaultFormat.Channels;
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
-			_internal = new(source.DefaultFormat, Format,  BufferSize, highQuality);
+			_internal = new(source.DefaultFormat, Format, BufferSize, highQuality);
 			source.SetFormat(source.DefaultFormat, _internal._inBufferFrameLength);
 		}
 
