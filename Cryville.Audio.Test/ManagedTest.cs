@@ -1,5 +1,6 @@
 using Cryville.Audio.Source;
 using Cryville.Audio.Source.Libav;
+using Cryville.Audio.Source.Resample;
 using Cryville.Audio.Wasapi;
 using Cryville.Audio.WaveformAudio;
 using NUnit.Framework;
@@ -149,6 +150,31 @@ namespace Cryville.Audio.Test {
 			}
 			client.Source = null;
 			client.Pause();
+			source.Dispose();
+		}
+
+		[Test]
+		[TestCase(ManagedTestCaseResources.AudioFile)]
+		[TestCase(ManagedTestCaseResources.VideoFile)]
+		public virtual void PlayResampledWithLibAV(string file) {
+			Log("API: {0}", manager.GetType().Namespace);
+			var source = new LibavFileAudioSource(file);
+			Log("Duration: {0}s", source.GetStreamDuration());
+			Log("Best stream index: {0}", source.BestStreamIndex);
+			Log("Best stream duration: {0}s", source.GetStreamDuration(source.BestStreamIndex));
+			source.SelectStream();
+			Log("Source wave format: {0}", source.DefaultFormat);
+			Log("Output wave format: {0}", client.Format);
+			var resampledSource = new ResampledAudioSource(source);
+			client.Source = resampledSource;
+			client.Start();
+			for (int i = 0; i < 10; i++) {
+				LogPosition("");
+				Thread.Sleep(1000);
+			}
+			client.Source = null;
+			client.Pause();
+			resampledSource.Dispose();
 			source.Dispose();
 		}
 

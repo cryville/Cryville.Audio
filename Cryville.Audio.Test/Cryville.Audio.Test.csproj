@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netframework35;net8.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="NUnit" Version="3.14.0" />
@@ -8,6 +9,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Cryville.Audio.Source.Libav\Cryville.Audio.Source.Libav.csproj" />
+		<ProjectReference Include="..\Cryville.Audio.Source.Resample\Cryville.Audio.Source.Resample.csproj" />
 		<ProjectReference Include="..\Cryville.Audio.Wasapi\Cryville.Audio.Wasapi.csproj" />
 		<ProjectReference Include="..\Cryville.Audio.WaveformAudio\Cryville.Audio.WaveformAudio.csproj" />
 		<ProjectReference Include="..\Cryville.Audio\Cryville.Audio.csproj" />
