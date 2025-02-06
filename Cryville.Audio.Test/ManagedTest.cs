@@ -83,6 +83,15 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
+		public virtual void IsFormatSupported() {
+			var testFormat = new WaveFormat() { Channels = 2, SampleFormat = SampleFormat.S16, SampleRate = 44100 };
+			Log("Test Format: {0}", testFormat);
+			bool isSupported = device.IsFormatSupported(testFormat, out var suggestedFormat);
+			Log("Supported: {0}", isSupported);
+			Log("Suggested Format: {0}", suggestedFormat);
+		}
+
+		[Test]
 		public virtual void PlayDummy() {
 			client.Start();
 			for (int i = 0; i < 10; i++) {
