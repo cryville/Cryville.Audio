@@ -172,7 +172,7 @@ namespace Cryville.Audio.WaveformAudio {
 
 		void StopPlaybackThread() {
 			_threadAbortFlag = true;
-			if (_thread != null && !_thread.Join(1000))
+			if (_thread != null && !_thread.Join(Math.Max(2000, BufferSize / (int)Format.SampleRate * 4000)))
 				throw new InvalidOperationException("Failed to pause audio client.");
 			_thread = null;
 		}
@@ -181,6 +181,7 @@ namespace Cryville.Audio.WaveformAudio {
 		bool _threadAbortFlag;
 		void ThreadLogic() {
 			_threadAbortFlag = false;
+			uint waitThreshold = Math.Max(1000, (uint)BufferSize / Format.SampleRate * 2000);
 			while (true) {
 				foreach (var b in _buffers) {
 					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
@@ -194,9 +195,13 @@ namespace Cryville.Audio.WaveformAudio {
 						m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 					}
 				}
-				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
+				if (Synch.WaitForSingleObject(_eventHandle, waitThreshold) != /* WAIT_OBJECT_0 */ 0)
 					throw new InvalidOperationException("Error while pending for event.");
-				if (_threadAbortFlag) break;
+				if (_threadAbortFlag) {
+					// Wait for all the buffers to be returned, to avoid dead buffers
+					_ = Synch.WaitForSingleObject(_eventHandle, waitThreshold);
+					break;
+				}
 			}
 		}
 	}
