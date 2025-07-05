@@ -108,11 +108,12 @@ namespace Cryville.Audio.WaveformAudio {
 				}
 				m_status = AudioClientStatus.Starting;
 			}
-			_thread = new Thread(new ThreadStart(ThreadLogic)) {
+			var thread = new Thread(new ThreadStart(ThreadLogic)) {
 				Priority = ThreadPriority.Highest,
 				IsBackground = true,
 			};
-			_thread.Start();
+			thread.Start();
+			_thread = thread;
 			MmSysComExports.MMR(MmeExports.waveOutRestart(_waveOutHandle));
 			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
@@ -172,9 +173,8 @@ namespace Cryville.Audio.WaveformAudio {
 
 		void StopPlaybackThread() {
 			_threadAbortFlag = true;
-			if (_thread != null && !_thread.Join(Math.Max(2000, BufferSize / (int)Format.SampleRate * 4000)))
+			if (!(_thread?.Join(Math.Max(2000, BufferSize / (int)Format.SampleRate * 4000)) ?? true))
 				throw new InvalidOperationException("Failed to pause audio client.");
-			_thread = null;
 		}
 
 		Thread? _thread;

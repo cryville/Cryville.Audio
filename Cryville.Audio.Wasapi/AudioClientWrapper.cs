@@ -220,9 +220,8 @@ namespace Cryville.Audio.Wasapi {
 
 		void StopPlaybackThread() {
 			_threadAbortFlag = true;
-			if (_thread != null && !_thread.Join(1000))
+			if (!(_thread?.Join(1000) ?? true))
 				throw new InvalidOperationException("Failed to pause audio client.");
-			_thread = null;
 		}
 
 		Thread? _thread;
