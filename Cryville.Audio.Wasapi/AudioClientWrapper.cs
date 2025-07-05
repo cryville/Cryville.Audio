@@ -156,6 +156,7 @@ namespace Cryville.Audio.Wasapi {
 			var thread = new Thread(new ThreadStart(ThreadLogic)) {
 				Priority = ThreadPriority.Highest,
 				IsBackground = true,
+				Name = "WASAPI audio rendering thread",
 			};
 			thread.Start();
 			_thread = thread;

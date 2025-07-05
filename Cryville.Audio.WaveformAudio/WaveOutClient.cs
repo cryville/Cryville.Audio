@@ -111,6 +111,7 @@ namespace Cryville.Audio.WaveformAudio {
 			var thread = new Thread(new ThreadStart(ThreadLogic)) {
 				Priority = ThreadPriority.Highest,
 				IsBackground = true,
+				Name = "WaveformAudio audio rendering thread",
 			};
 			thread.Start();
 			_thread = thread;
