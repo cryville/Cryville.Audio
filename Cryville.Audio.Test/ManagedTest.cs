@@ -341,9 +341,9 @@ namespace Cryville.Audio.Test {
 
 		[OneTimeTearDown]
 		public void OneTimeTearDown() {
-			client.Dispose();
-			device.Dispose();
-			manager.Dispose();
+			client?.Dispose();
+			device?.Dispose();
+			manager?.Dispose();
 		}
 	}
 }
