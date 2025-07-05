@@ -121,5 +121,18 @@ namespace Cryville.Audio.AAudio {
 			instance.FillBuffer(audioData, numFrames);
 			return aaudio_data_callback_result_t.AAUDIO_CALLBACK_RESULT_CONTINUE;
 		}
+
+		[MonoPInvokeCallback(typeof(AAudioStream_errorCallback))]
+		internal static void ErrorCallback(IntPtr stream, IntPtr _, aaudio_result_t _2) {
+			if (!_instances.TryGetValue(stream, out var instance)) {
+				// Launch a new thread to handle the disconnection in case of deadlock
+				lock (instance._statusLock) instance.m_status = AudioClientStatus.Disconnected;
+				var thread = new Thread(instance.OnPlaybackDisconnected) {
+					IsBackground = true,
+					Name = "AAudioStream disconnection handler",
+				};
+				thread.Start();
+			}
+		}
 	}
 }

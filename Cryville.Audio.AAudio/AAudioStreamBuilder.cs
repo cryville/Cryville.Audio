@@ -143,6 +143,7 @@ namespace Cryville.Audio.AAudio {
 			if (DataFlow != DataFlow.Out) throw new NotSupportedException();
 			UnsafeNativeMethods.AAudio_createStreamBuilder(out var builder);
 			UnsafeNativeMethods.AAudioStreamBuilder_setDataCallback(builder, AAudioStream.DataCallback, IntPtr.Zero);
+			UnsafeNativeMethods.AAudioStreamBuilder_setErrorCallback(builder, AAudioStream.ErrorCallback, IntPtr.Zero);
 			UnsafeNativeMethods.AAudioStreamBuilder_setDeviceId(builder, _id);
 			UnsafeNativeMethods.AAudioStreamBuilder_setDirection(builder, Helpers.ToInternalDataFlow(DataFlow));
 			UnsafeNativeMethods.AAudioStreamBuilder_setPerformanceMode(builder, aaudio_performance_mode_t.AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);

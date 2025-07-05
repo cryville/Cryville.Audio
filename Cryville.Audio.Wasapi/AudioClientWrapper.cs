@@ -204,22 +204,28 @@ namespace Cryville.Audio.Wasapi {
 		bool _threadAbortFlag;
 		void ThreadLogic() {
 			_threadAbortFlag = false;
-			while (true) {
-				if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
-					throw new InvalidOperationException("Error while pending for event.");
-				_internal.GetCurrentPadding(out var padding);
-				var frames = m_bufferFrames - padding;
-				if (frames == 0) continue;
-				if (Source == null) {
-					_renderClient.SilentBuffer(frames);
+			try {
+				while (true) {
+					if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
+						throw new InvalidOperationException("Error while pending for event.");
+					_internal.GetCurrentPadding(out var padding);
+					var frames = m_bufferFrames - padding;
+					if (frames == 0) continue;
+					if (Source == null) {
+						_renderClient.SilentBuffer(frames);
+					}
+					else {
+						ref byte buffer = ref _renderClient.GetBuffer(frames);
+						Source.ReadFrames(ref buffer, (int)frames);
+						_renderClient.ReleaseBuffer(frames);
+					}
+					m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
+					if (_threadAbortFlag) break;
 				}
-				else {
-					ref byte buffer = ref _renderClient.GetBuffer(frames);
-					Source.ReadFrames(ref buffer, (int)frames);
-					_renderClient.ReleaseBuffer(frames);
-				}
-				m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
-				if (_threadAbortFlag) break;
+			}
+			catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
+				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+				OnPlaybackDisconnected();
 			}
 		}
 

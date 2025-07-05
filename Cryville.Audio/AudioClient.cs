@@ -83,5 +83,16 @@ namespace Cryville.Audio {
 		/// Closes the connection.
 		/// </summary>
 		public abstract void Close();
+
+		/// <summary>
+		/// Raised when the audio client is disconnected during playback.
+		/// </summary>
+		public event EventHandler? PlaybackDisconnected;
+		/// <summary>
+		/// Called by a derived class when the audio client is disconnected during playback.
+		/// </summary>
+		protected void OnPlaybackDisconnected() {
+			PlaybackDisconnected?.Invoke(this, EventArgs.Empty);
+		}
 	}
 }

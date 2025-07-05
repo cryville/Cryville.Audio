@@ -27,5 +27,9 @@ namespace Cryville.Audio {
 		/// The <see cref="AudioClient" /> is closed.
 		/// </summary>
 		Closed,
+		/// <summary>
+		/// The <see cref="AudioClient" /> is disconnected.
+		/// </summary>
+		Disconnected,
 	}
 }
