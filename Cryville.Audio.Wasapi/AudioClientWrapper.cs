@@ -103,8 +103,14 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		public override float MaximumLatency {
 			get {
-				_internal.GetStreamLatency(out var result);
-				return result / 1e4f;
+				try {
+					_internal.GetStreamLatency(out var result);
+					return result / 1e4f;
+				}
+				catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
+					lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+					throw new AudioClientDisconnectedException(ex);
+				}
 			}
 		}
 
@@ -119,8 +125,14 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (_clockFreq == 0)
 					throw new InvalidOperationException("Connection not initialized.");
-				_clock.GetPosition(out var pos, out _);
-				return (double)pos / _clockFreq;
+				try {
+					_clock.GetPosition(out var pos, out _);
+					return (double)pos / _clockFreq;
+				}
+				catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
+					lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+					throw new AudioClientDisconnectedException(ex);
+				}
 			}
 		}
 
@@ -141,12 +153,19 @@ namespace Cryville.Audio.Wasapi {
 				}
 				m_status = AudioClientStatus.Starting;
 			}
-			_thread = new Thread(new ThreadStart(ThreadLogic)) {
+			var thread = new Thread(new ThreadStart(ThreadLogic)) {
 				Priority = ThreadPriority.Highest,
 				IsBackground = true,
 			};
-			_thread.Start();
-			_internal.Start();
+			thread.Start();
+			_thread = thread;
+			try {
+				_internal.Start();
+			}
+			catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
+				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+				throw new AudioClientDisconnectedException(ex);
+			}
 			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
@@ -164,7 +183,13 @@ namespace Cryville.Audio.Wasapi {
 				m_status = AudioClientStatus.Pausing;
 			}
 			StopPlaybackThread();
-			_internal.Stop();
+			try {
+				_internal.Stop();
+			}
+			catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
+				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+				throw new AudioClientDisconnectedException(ex);
+			}
 			lock (_statusLock) m_status = AudioClientStatus.Idle;
 		}
 

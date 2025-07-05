@@ -3,6 +3,8 @@ using Cryville.Interop.Mono;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Threading;
 using UnsafeIL;
 
 namespace Cryville.Audio.AAudio {
@@ -45,8 +47,14 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public override double Position {
 			get {
-				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_getTimestamp(_stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _));
-				return frames / (double)Format.SampleRate;
+				try {
+					Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_getTimestamp(_stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _));
+					return frames / (double)Format.SampleRate;
+				}
+				catch (AudioClientDisconnectedException) {
+					lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+					throw;
+				}
 			}
 		}
 
@@ -67,9 +75,16 @@ namespace Cryville.Audio.AAudio {
 				}
 				m_status = AudioClientStatus.Starting;
 			}
-			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestStart(_stream));
-			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING, out var state, 2000000000));
-			if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to start the audio client. State: {0}", state));
+			try {
+				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestStart(_stream));
+				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING, out var state, 2000000000));
+				if (state == aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED) throw new AudioClientDisconnectedException();
+				if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to start the audio client. State: {0}", state));
+			}
+			catch (AudioClientDisconnectedException) {
+				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+				throw;
+			}
 			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
@@ -86,9 +101,16 @@ namespace Cryville.Audio.AAudio {
 				}
 				m_status = AudioClientStatus.Pausing;
 			}
-			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestPause(_stream));
-			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out var state, 2000000000));
-			if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to pause the audio client. State: {0}", state));
+			try {
+				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestPause(_stream));
+				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out var state, 2000000000));
+				if (state == aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED) throw new AudioClientDisconnectedException();
+				if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to pause the audio client. State: {0}", state));
+			}
+			catch (AudioClientDisconnectedException) {
+				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
+				throw;
+			}
 			lock (_statusLock) m_status = AudioClientStatus.Idle;
 		}
 
