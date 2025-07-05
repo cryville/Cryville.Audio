@@ -208,7 +208,6 @@ namespace Cryville.Audio.Wasapi {
 			CloseNative();
 			_renderClient?.Dispose();
 			if (_clock != null) Marshal.ReleaseComObject(_clock);
-			if (_internal != null) Marshal.ReleaseComObject(_internal);
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
