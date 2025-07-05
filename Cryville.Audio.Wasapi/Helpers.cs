@@ -1,7 +1,9 @@
 using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.MMDevice;
 using Microsoft.Windows.Mme;
+using Microsoft.Windows.MmReg;
 using System;
+using System.Runtime.InteropServices;
 using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
 namespace Cryville.Audio.Wasapi {
@@ -18,9 +20,11 @@ namespace Cryville.Audio.Wasapi {
 			DataFlow.All => EDataFlow.eAll,
 			_ => throw new ArgumentOutOfRangeException(nameof(value)),
 		};
-		public static WAVEFORMATEX ToInternalFormat(WaveFormat value) {
+		static readonly Guid _pcmSubtypeGuid = new("00000001-0000-0010-8000-00aa00389b71");
+		static readonly Guid _floatSubtypeGuid = new("00000003-0000-0010-8000-00aa00389b71");
+		public static WAVEFORMATEXTENSIBLE ToInternalFormat(WaveFormat value) {
 			ushort blockAlign = (ushort)value.FrameSize;
-			return new WAVEFORMATEX {
+			var result = new WAVEFORMATEX {
 				wFormatTag = (ushort)WAVE_FORMAT.PCM,
 				nChannels = value.Channels,
 				nSamplesPerSec = value.SampleRate,
@@ -29,6 +33,34 @@ namespace Cryville.Audio.Wasapi {
 				wBitsPerSample = value.BitsPerSample,
 				cbSize = 0,
 			};
+			if (value.Channels <= 2) return new WAVEFORMATEXTENSIBLE { Format = result };
+			result.wFormatTag = (ushort)WAVE_FORMAT.EXTENSIBLE;
+			result.cbSize = 22;
+			return new WAVEFORMATEXTENSIBLE {
+				Format = result,
+				Samples = result.wBitsPerSample,
+				dwChannelMask = (int)value.ChannelMask & 0x2ffff,
+				SubFormat = value.SampleFormat is SampleFormat.F32 or SampleFormat.F64 ? _floatSubtypeGuid : _pcmSubtypeGuid,
+			};
+		}
+		static T PtrToStruct<T>(IntPtr ptr) {
+#if NET451_OR_GREATER || NETSTANDARD1_2_OR_GREATER || NETCOREAPP1_0_OR_GREATER
+			return Marshal.PtrToStructure<T>(ptr);
+#else
+			return (T)Marshal.PtrToStructure(ptr, typeof(T));
+#endif
+		}
+		public static WaveFormat FromInternalFormat(IntPtr ptr) {
+			var format = PtrToStruct<WAVEFORMATEX>(ptr);
+			return format.cbSize < 22 ? FromInternalFormat(format) : FromInternalFormat(PtrToStruct<WAVEFORMATEXTENSIBLE>(ptr));
+		}
+		public static WaveFormat FromInternalFormat(WAVEFORMATEXTENSIBLE value) {
+			var format = value.Format;
+			var result = FromInternalFormat(format);
+			if (format.cbSize < 22)
+				return result;
+			result.ChannelMask = (ChannelMask)(value.dwChannelMask & 0x2ffff);
+			return result;
 		}
 		public static WaveFormat FromInternalFormat(WAVEFORMATEX value) => new() {
 			Channels = value.nChannels,

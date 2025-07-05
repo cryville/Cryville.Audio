@@ -3,7 +3,6 @@ using Microsoft.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.MMDevice;
-using Microsoft.Windows.Mme;
 using Microsoft.Windows.PropSys;
 using System;
 using System.Runtime.InteropServices;
@@ -102,12 +101,9 @@ namespace Cryville.Audio.Wasapi {
 			get {
 				if (_client == null) throw new InvalidOperationException("The device is not available.");
 				_client.GetMixFormat(out var pResult);
-#if NET451_OR_GREATER || NETSTANDARD1_2_OR_GREATER || NETCOREAPP1_0_OR_GREATER
-				var result = Marshal.PtrToStructure<WAVEFORMATEX>(pResult);
-#else
-				var result = (WAVEFORMATEX)Marshal.PtrToStructure(pResult, typeof(WAVEFORMATEX));
-#endif
-				return Helpers.FromInternalFormat(result);
+				var result = Helpers.FromInternalFormat(pResult);
+				Marshal.FreeCoTaskMem(pResult);
+				return result;
 			}
 		}
 
@@ -122,11 +118,7 @@ namespace Cryville.Audio.Wasapi {
 				return true;
 			}
 			else if (hr == 1) { // S_FALSE
-#if NET451_OR_GREATER || NETSTANDARD1_2_OR_GREATER || NETCOREAPP1_0_OR_GREATER
-				suggestion = Helpers.FromInternalFormat(Marshal.PtrToStructure<WAVEFORMATEX>(pResult));
-#else
-				suggestion = Helpers.FromInternalFormat((WAVEFORMATEX)Marshal.PtrToStructure(pResult, typeof(WAVEFORMATEX)));
-#endif
+				suggestion = Helpers.FromInternalFormat(pResult);
 				if (pResult != IntPtr.Zero) Marshal.FreeCoTaskMem(pResult);
 				return false;
 			}
@@ -141,8 +133,12 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
-			if (_client == null) throw new InvalidOperationException("The device is not available.");
-			_connected = true;
+			if (format.ChannelMask == 0 && !format.AssignDefaultChannelMask())
+				throw new ArgumentException("Mo default channel mask defined.", nameof(format));
+			if (!format.IsChannelMaskValid())
+				throw new ArgumentException("Invalid channel mask.", nameof(format));
+			if (_client == null)
+				throw new InvalidOperationException("The device is not available.");
 			return new AudioClientWrapper(_client, this, format, bufferSize, usage, shareMode);
 		}
 

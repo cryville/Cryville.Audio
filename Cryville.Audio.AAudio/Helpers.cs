@@ -15,17 +15,34 @@ namespace Cryville.Audio.AAudio {
 
 		public static WaveFormat FromInternalWaveFormat(IntPtr stream) {
 			var ch = UnsafeNativeMethods.AAudioStream_getChannelCount(stream);
+			var cm = (ChannelMask)0;
+			if (AndroidHelper.DeviceApiLevel >= 32) {
+				try {
+					cm = (ChannelMask)((int)UnsafeNativeMethods.AAudioStream_getChannelMask(stream) & 0x02ffffff);
+				}
+				catch (EntryPointNotFoundException) { }
+			}
 			var fmt = UnsafeNativeMethods.AAudioStream_getFormat(stream);
 			var sr = UnsafeNativeMethods.AAudioStream_getSampleRate(stream);
 			return new WaveFormat {
 				Channels = (ushort)ch,
 				SampleFormat = FromInternalSampleFormat(fmt),
-				SampleRate = (uint)sr
+				SampleRate = (uint)sr,
+				ChannelMask = cm,
 			};
 		}
 
 		public static void SetWaveFormatUsageAndShareMode(IntPtr builder, WaveFormat format, AudioUsage usage, AudioShareMode shareMode) {
 			UnsafeNativeMethods.AAudioStreamBuilder_setChannelCount(builder, format.Channels);
+			if (AndroidHelper.DeviceApiLevel >= 32) {
+				if (format.ChannelMask != 0) {
+					if (!format.IsChannelMaskValid()) throw new ArgumentException("Invalid channel mask.", nameof(format));
+					try {
+						UnsafeNativeMethods.AAudioStreamBuilder_setChannelMask(builder, (aaudio_channel_mask_t)((int)format.ChannelMask & 0x02ffffff));
+					}
+					catch (EntryPointNotFoundException) { }
+				}
+			}
 			UnsafeNativeMethods.AAudioStreamBuilder_setFormat(builder, ToInternalSampleFormat(format.SampleFormat));
 			UnsafeNativeMethods.AAudioStreamBuilder_setSampleRate(builder, (int)format.SampleRate);
 			if (AndroidHelper.DeviceApiLevel >= 28) {

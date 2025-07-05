@@ -29,6 +29,41 @@ namespace Cryville.Audio {
 			SampleFormat.F64 => 64,
 			_ => throw new InvalidOperationException(), // Unreachable
 		};
+		/// <summary>
+		/// The channel layout.
+		/// </summary>
+		public ChannelMask ChannelMask { get; set; }
+		/// <summary>
+		/// Determines whether the number of bits set in <see cref="ChannelMask" /> equals to <see cref="Channels" />.
+		/// </summary>
+		/// <returns>Whether the number of bits set in <see cref="ChannelMask" /> equals to <see cref="Channels" />.</returns>
+		public readonly bool IsChannelMaskValid() {
+			int mask = (int)ChannelMask;
+			int count = 0;
+			while (mask != 0) {
+				count++;
+				mask &= mask - 1;
+			}
+			return count == Channels;
+		}
+		/// <summary>
+		/// Assigns the default channel mask for the given channel count.
+		/// </summary>
+		/// <returns>Whether a default channel mask is found.</returns>
+		public bool AssignDefaultChannelMask() {
+			ChannelMask = Channels switch {
+				1 => ChannelMask.Mono,
+				2 => ChannelMask.Stereo,
+				3 => ChannelMask.Tri,
+				4 => ChannelMask.Quad,
+				5 => ChannelMask.FiveBack,
+				6 => ChannelMask.FiveBack | ChannelMask.LFPoint1,
+				7 => ChannelMask.SixBack | ChannelMask.LFPoint1,
+				8 => ChannelMask.Seven | ChannelMask.LFPoint1,
+				_ => 0,
+			};
+			return ChannelMask != 0;
+		}
 
 		/// <summary>
 		/// Bytes per frame.
@@ -44,12 +79,15 @@ namespace Cryville.Audio {
 		/// The default wave format.
 		/// </summary>
 		public static readonly WaveFormat Default = new() {
-			Channels = 2, SampleRate = 48000, SampleFormat = SampleFormat.S16
+			Channels = 2,
+			SampleRate = 48000,
+			SampleFormat = SampleFormat.S16,
+			ChannelMask = ChannelMask.Stereo
 		};
 
 		/// <inheritdoc />
 		public override readonly string ToString() {
-			return string.Format(CultureInfo.InvariantCulture, "{0}ch * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample);
+			return string.Format(CultureInfo.InvariantCulture, "{0}ch ({3}) * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample, ChannelMask);
 		}
 
 		/// <inheritdoc />
@@ -57,6 +95,7 @@ namespace Cryville.Audio {
 			if (Channels != other.Channels) return false;
 			if (SampleRate != other.SampleRate) return false;
 			if (SampleFormat != other.SampleFormat) return false;
+			if (ChannelMask != other.ChannelMask) return false;
 			return true;
 		}
 
@@ -69,7 +108,7 @@ namespace Cryville.Audio {
 
 		/// <inheritdoc />
 		public override readonly int GetHashCode() {
-			return Channels ^ (int)SampleRate ^ ((int)SampleFormat << 16);
+			return Channels ^ (int)SampleRate ^ ((int)SampleFormat << 16) ^ (int)ChannelMask;
 		}
 
 		/// <inheritdoc />

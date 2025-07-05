@@ -1,5 +1,6 @@
 using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.Mme;
+using Microsoft.Windows.MmReg;
 using System;
 using System.Runtime.InteropServices;
 
@@ -29,7 +30,7 @@ namespace Microsoft.Windows.AudioClient {
 			UInt32 StreamFlags,
 			Int64 hnsBufferDuration,
 			Int64 hnsPeriodicity,
-			ref WAVEFORMATEX pFormat,
+			ref WAVEFORMATEXTENSIBLE pFormat,
 			/* ref Guid */ IntPtr AudioSessionGuid
 		);
 
@@ -48,7 +49,7 @@ namespace Microsoft.Windows.AudioClient {
 		[PreserveSig]
 		int IsFormatSupported(
 			AUDCLNT_SHAREMODE ShareMode,
-			ref WAVEFORMATEX pFormat,
+			ref WAVEFORMATEXTENSIBLE pFormat,
 			/* out *WAVEFORMATEX */ out IntPtr ppClosestMatch
 		);
 

@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Windows.Mme {
-	[StructLayout(LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Sequential, Pack = 2)]
 	internal struct WAVEFORMATEX {
 		public UInt16 wFormatTag;      /* format type */
 		public UInt16 nChannels;       /* number of channels (i.e. mono, stereo...) */

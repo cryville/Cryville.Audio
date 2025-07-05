@@ -1,7 +1,7 @@
 using Microsoft.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.AudioSessionTypes;
-using Microsoft.Windows.Mme;
+using Microsoft.Windows.MmReg;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -36,7 +36,7 @@ namespace Cryville.Audio.Wasapi {
 				if (retryFlag) throw;
 				retryFlag = true;
 				_internal.GetBufferSize(out uint nFrames);
-				bufferDuration = (long)(1e7 / m_format.nSamplesPerSec * nFrames + 0.5);
+				bufferDuration = (long)(1e7 / m_format.Format.nSamplesPerSec * nFrames + 0.5);
 				goto retry;
 			}
 
@@ -80,7 +80,7 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		public override IAudioDevice Device => m_device;
 
-		private WAVEFORMATEX m_format;
+		private WAVEFORMATEXTENSIBLE m_format;
 		/// <inheritdoc />
 		public override WaveFormat Format {
 			get {
@@ -218,7 +218,7 @@ namespace Cryville.Audio.Wasapi {
 					Source.ReadFrames(ref buffer, (int)frames);
 					_renderClient.ReleaseBuffer(frames);
 				}
-				m_bufferPosition += (double)frames / m_format.nSamplesPerSec;
+				m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
 				if (_threadAbortFlag) break;
 			}
 		}
