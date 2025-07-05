@@ -79,12 +79,12 @@ namespace Cryville.Audio.AAudio {
 		void GetDefaultParameters() {
 			if (m_defaultBufferSize != 0) return;
 			var builder = CreateStreamBuilder();
-			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
-			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream));
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_delete(builder));
 			m_defaultFormat = Helpers.FromInternalWaveFormat(stream);
 			m_defaultBufferSize = UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream);
 			m_burstSize = UnsafeNativeMethods.AAudioStream_getFramesPerBurst(stream);
-			UnsafeNativeMethods.AAudioStream_close(stream);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_close(stream));
 		}
 
 		int m_burstSize;
@@ -120,10 +120,10 @@ namespace Cryville.Audio.AAudio {
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
 			Helpers.SetWaveFormatUsageAndShareMode(builder, format, usage, shareMode);
-			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
-			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream));
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_delete(builder));
 			suggestion = Helpers.FromInternalWaveFormat(stream);
-			UnsafeNativeMethods.AAudioStream_close(stream);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_close(stream));
 			return format == suggestion;
 		}
 
@@ -131,8 +131,8 @@ namespace Cryville.Audio.AAudio {
 		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
 			Helpers.SetWaveFormatUsageAndShareMode(builder, format, usage, shareMode);
-			UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream);
-			UnsafeNativeMethods.AAudioStreamBuilder_delete(builder);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream));
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_delete(builder));
 			if (bufferSize > 0) {
 				UnsafeNativeMethods.AAudioStream_setBufferSizeInFrames(stream, bufferSize);
 			}

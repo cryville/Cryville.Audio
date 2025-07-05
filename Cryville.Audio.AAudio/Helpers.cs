@@ -1,6 +1,7 @@
 using Cryville.Audio.AAudio.Native;
 using Cryville.Interop.Java.Helper;
 using System;
+using System.Globalization;
 
 namespace Cryville.Audio.AAudio {
 	internal static class Helpers {
@@ -69,5 +70,11 @@ namespace Cryville.Audio.AAudio {
 			AudioUsage.Game => aaudio_usage_t.AAUDIO_USAGE_GAME,
 			_ => aaudio_usage_t.AAUDIO_USAGE_MEDIA,
 		};
+
+		public static void ThrowIfError(aaudio_result_t result) {
+			if (result == aaudio_result_t.AAUDIO_OK) return;
+			if (result == aaudio_result_t.AAUDIO_ERROR_DISCONNECTED) throw new AudioClientDisconnectedException();
+			throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "AAudio error: {0}", result));
+		}
 	}
 }

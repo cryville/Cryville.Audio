@@ -45,7 +45,7 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public override double Position {
 			get {
-				UnsafeNativeMethods.AAudioStream_getTimestamp(_stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _);
+				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_getTimestamp(_stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _));
 				return frames / (double)Format.SampleRate;
 			}
 		}
@@ -67,8 +67,8 @@ namespace Cryville.Audio.AAudio {
 				}
 				m_status = AudioClientStatus.Starting;
 			}
-			UnsafeNativeMethods.AAudioStream_requestStart(_stream);
-			UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING, out var state, 2000000000);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestStart(_stream));
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING, out var state, 2000000000));
 			if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED) throw new InvalidOperationException("Failed to start the audio client.");
 			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
@@ -86,8 +86,8 @@ namespace Cryville.Audio.AAudio {
 				}
 				m_status = AudioClientStatus.Pausing;
 			}
-			UnsafeNativeMethods.AAudioStream_requestPause(_stream);
-			UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out var state, 2000000000);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestPause(_stream));
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out var state, 2000000000));
 			if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED) throw new InvalidOperationException("Failed to pause the audio client.");
 			lock (_statusLock) m_status = AudioClientStatus.Idle;
 		}
@@ -103,7 +103,7 @@ namespace Cryville.Audio.AAudio {
 				m_status = AudioClientStatus.Closing;
 			}
 			_instances.Remove(_stream);
-			UnsafeNativeMethods.AAudioStream_close(_stream);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_close(_stream));
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
