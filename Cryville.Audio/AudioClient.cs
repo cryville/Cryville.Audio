@@ -62,8 +62,13 @@ namespace Cryville.Audio {
 					throw new NotSupportedException("Wrong data-flow direction.");
 				value?.SetFormat(Format, BufferSize);
 				m_source = value;
+				OnSetSource();
 			}
 		}
+		/// <summary>
+		/// Called when the source is set.
+		/// </summary>
+		protected virtual void OnSetSource() { }
 
 		/// <summary>
 		/// Starts the wave data transmission.

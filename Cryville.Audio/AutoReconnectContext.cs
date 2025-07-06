@@ -10,6 +10,8 @@ namespace Cryville.Audio {
 	/// <param name="dataFlow">The data-flow direction.</param>
 	/// <remarks>
 	/// <para>Call <see cref="Init" /> to initialize the context.</para>
+	/// <para>Be cautious when replacing the audio stream with <see cref="AudioClient.Source" />. If the audio stream needs to recreated, the replaced audio stream will be discarded, and <see cref="CreateAudioStream" /> will be called to create the new stream.</para>
+	/// <para>The caller must not dispose <see cref="MainStream" />, and <see cref="AudioClient.Source" /> as well if it was not replaced. The caller is responsible for disposing any replaced <see cref="AudioClient.Source" />.</para>
 	/// </remarks>
 	public abstract class AutoReconnectContext(IAudioDeviceManager manager, DataFlow dataFlow) : AudioClient {
 		[SuppressMessage("CodeQuality", "IDE0079", Justification = "False report")]
@@ -50,6 +52,9 @@ namespace Cryville.Audio {
 
 		/// <inheritdoc />
 		public override double BufferPosition => _client?.BufferPosition ?? throw new InvalidOperationException("Not initialized.");
+
+		/// <inheritdoc />
+		protected override void OnSetSource() => Client.Source = Source;
 
 		/// <inheritdoc />
 		public override void Start() {
@@ -109,14 +114,20 @@ namespace Cryville.Audio {
 				m_status = AudioClientStatus.Closing;
 			}
 			CloseClient();
-			_stream?.Dispose();
+			MainStream?.Dispose();
 			CloseDevice();
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
 
 		IAudioDevice? _device;
 		AudioClient? _client;
-		AudioStream? _stream;
+		/// <summary>
+		/// The stream created with <see cref="CreateAudioStream" />.
+		/// </summary>
+		/// <remarks>
+		/// <para>The audio stream held by this property is owned by the context and must not be disposed by the caller.</para>
+		/// </remarks>
+		public AudioStream? MainStream { get; private set; }
 		/// <summary>
 		/// Selects the audio device.
 		/// </summary>
@@ -137,6 +148,10 @@ namespace Cryville.Audio {
 		/// Creates an audio stream as the source stream of the audio client.
 		/// </summary>
 		/// <returns>The audio stream as the source stream of the audio client.</returns>
+		/// <remarks>
+		/// <para>This method is called when the context is initialized or when the audio stream needs to be recreated after reconnection. For the latter case, the caller can use <see cref="MainStream" /> to capture the state of the last audio stream. When this method returns, the last stream will be disposed and <see cref="MainStream" /> will be replaced with the new stream returned by this method.</para>
+		/// <para>The audio stream needs to be recreated after reconnection if the format or the buffer size of the audio client is changed.</para>
+		/// </remarks>
 		protected abstract AudioStream CreateAudioStream();
 
 		/// <summary>
@@ -161,10 +176,13 @@ namespace Cryville.Audio {
 					clientDevice.ReactivateClient();
 				_client = ConnectTo(_device!);
 				if (m_format != _client.Format || m_bufferSize != _client.BufferSize) {
-					_stream?.Dispose();
-					_stream = CreateAudioStream();
+					var newStream = CreateAudioStream();
+					MainStream?.Dispose();
+					Source = MainStream = newStream;
 				}
-				_client.Source = _stream;
+				else {
+					OnSetSource();
+				}
 				m_format = _client.Format;
 				m_bufferSize = _client.BufferSize;
 				_client.PlaybackDisconnected += OnAudioClientPlaybackDisconnected;
