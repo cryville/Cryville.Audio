@@ -19,18 +19,18 @@ namespace Cryville.Audio {
 		readonly IAudioDeviceManager _manager = manager ?? throw new ArgumentNullException(nameof(manager));
 
 		/// <inheritdoc />
-		public override IAudioDevice Device => _client?.Device ?? throw new InvalidOperationException("Not initialized.");
+		public override IAudioDevice Device => Client.Device;
 
 		WaveFormat m_format;
 		/// <inheritdoc />
-		public override WaveFormat Format => _client != null ? m_format : throw new InvalidOperationException("Not initialized.");
+		public override WaveFormat Format { get { _ = Client; return m_format; } }
 
 		int m_bufferSize;
 		/// <inheritdoc />
-		public override int BufferSize => _client != null ? m_bufferSize : throw new InvalidOperationException("Not initialized.");
+		public override int BufferSize { get { _ = Client; return m_bufferSize; } }
 
 		/// <inheritdoc />
-		public override float MaximumLatency => _client?.MaximumLatency ?? throw new InvalidOperationException("Not initialized.");
+		public override float MaximumLatency => Client.MaximumLatency;
 
 		readonly object _statusLock = new();
 		volatile AudioClientStatus m_status;
@@ -41,7 +41,7 @@ namespace Cryville.Audio {
 		public override double Position {
 			get {
 				try {
-					return _client?.Position ?? throw new InvalidOperationException("Not initialized.");
+					return Client.Position;
 				}
 				catch (AudioClientDisconnectedException) {
 					OnAudioClientDisconnected();
@@ -51,14 +51,13 @@ namespace Cryville.Audio {
 		}
 
 		/// <inheritdoc />
-		public override double BufferPosition => _client?.BufferPosition ?? throw new InvalidOperationException("Not initialized.");
+		public override double BufferPosition => Client.BufferPosition;
 
 		/// <inheritdoc />
 		protected override void OnSetSource() => Client.Source = Source;
 
 		/// <inheritdoc />
 		public override void Start() {
-			if (_client == null) throw new InvalidOperationException("Not initialized.");
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Playing:
@@ -71,7 +70,7 @@ namespace Cryville.Audio {
 				m_status = AudioClientStatus.Starting;
 			}
 			try {
-				_client.Start();
+				Client.Start();
 				lock (_statusLock) m_status = AudioClientStatus.Playing;
 			}
 			catch (AudioClientDisconnectedException) {
@@ -82,7 +81,6 @@ namespace Cryville.Audio {
 
 		/// <inheritdoc />
 		public override void Pause() {
-			if (_client == null) throw new InvalidOperationException("Not initialized.");
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Idle:
@@ -95,7 +93,7 @@ namespace Cryville.Audio {
 				m_status = AudioClientStatus.Pausing;
 			}
 			try {
-				_client.Pause();
+				Client.Pause();
 				lock (_statusLock) m_status = AudioClientStatus.Idle;
 			}
 			catch (AudioClientDisconnectedException) {
@@ -121,6 +119,7 @@ namespace Cryville.Audio {
 
 		IAudioDevice? _device;
 		AudioClient? _client;
+		AudioClient Client => _client ?? throw new InvalidOperationException("Not initialized.");
 		/// <summary>
 		/// The stream created with <see cref="CreateAudioStream" />.
 		/// </summary>
