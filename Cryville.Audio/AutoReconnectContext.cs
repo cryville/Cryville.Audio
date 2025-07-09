@@ -188,6 +188,9 @@ namespace Cryville.Audio {
 				if (m_status == AudioClientStatus.Playing) {
 					_client.Start();
 				}
+				else {
+					lock (_statusLock) m_status = AudioClientStatus.Idle;
+				}
 			}
 			catch (ObjectDisposedException) {
 				ReconnectDevice();
