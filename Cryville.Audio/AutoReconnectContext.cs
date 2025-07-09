@@ -175,6 +175,8 @@ namespace Cryville.Audio {
 					clientDevice.ReactivateClient();
 				_client = ConnectTo(_device!);
 				if (m_format != _client.Format || m_bufferSize != _client.BufferSize) {
+					m_format = _client.Format;
+					m_bufferSize = _client.BufferSize;
 					var newStream = CreateAudioStream();
 					MainStream?.Dispose();
 					Source = MainStream = newStream;
@@ -182,8 +184,6 @@ namespace Cryville.Audio {
 				else {
 					OnSetSource();
 				}
-				m_format = _client.Format;
-				m_bufferSize = _client.BufferSize;
 				_client.PlaybackDisconnected += OnAudioClientPlaybackDisconnected;
 				if (m_status == AudioClientStatus.Playing) {
 					_client.Start();
