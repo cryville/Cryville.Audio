@@ -249,7 +249,12 @@ namespace Cryville.Audio.Wasapi {
 			}
 			catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
 				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
-				OnPlaybackDisconnected();
+				// Launch a new thread to handle the disconnection in case of deadlock
+				var thread = new Thread(OnPlaybackDisconnected) {
+					IsBackground = true,
+					Name = "AudioClient disconnection handler",
+				};
+				thread.Start();
 			}
 		}
 
