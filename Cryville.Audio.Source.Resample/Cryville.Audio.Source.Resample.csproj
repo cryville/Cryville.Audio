@@ -11,7 +11,7 @@
 	<PropertyGroup>
 		<Authors>Cryville</Authors>
 		<Copyright>Copyright (c) Cryville 2025</Copyright>
-		<Description></Description>
+		<Description>Resampler source for Cryville.Audio.</Description>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -19,7 +19,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>audio</PackageTags>
 		<RepositoryUrl>https://github.com/cryville/Cryville.Audio</RepositoryUrl>
-		<Version>6.0.0-rc.4</Version>
+		<Version>6.0.0-rc.9</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
