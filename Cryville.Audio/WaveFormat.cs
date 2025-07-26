@@ -64,6 +64,16 @@ namespace Cryville.Audio {
 			};
 			return ChannelMask != 0;
 		}
+		/// <summary>
+		/// Validates <see cref="ChannelMask" />, assigning the default channel mask if it is not specified.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">No default channel mask is found. -or- The set channel mask mismatches with the channel count.</exception>
+		public void ValidateChannelMask() {
+			if (ChannelMask == 0 && !AssignDefaultChannelMask())
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Mo default channel mask defined for {0} channels.", Channels));
+			if (!IsChannelMaskValid())
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Channel mask {0} mismatched with channel count {1}.", ChannelMask, Channels));
+		}
 
 		/// <summary>
 		/// Bytes per frame.

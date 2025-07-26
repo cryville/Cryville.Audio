@@ -150,10 +150,7 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public AudioClient Connect(WaveFormat format, int bufferSize = 0, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
-			if (format.ChannelMask == 0 && !format.AssignDefaultChannelMask())
-				throw new ArgumentException("Mo default channel mask defined.", nameof(format));
-			if (!format.IsChannelMaskValid())
-				throw new ArgumentException("Invalid channel mask.", nameof(format));
+			format.ValidateChannelMask();
 			if (_client == null)
 				throw new InvalidOperationException("The device is not available.");
 			return new AudioClientWrapper(_client, this, format, bufferSize, usage, shareMode);
