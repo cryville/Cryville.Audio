@@ -51,6 +51,9 @@ namespace Cryville.Audio {
 		/// Gets whether <paramref name="format" /> is supported by the audio stream.
 		/// </summary>
 		/// <param name="format">The wave format.</param>
+		/// <remarks>
+		/// <para>When overridden, must return <see langword="true" /> when <paramref name="format" /> equals with <see cref="DefaultFormat" />.</para>
+		/// </remarks>
 		public virtual bool IsFormatSupported(WaveFormat format) => format == DefaultFormat;
 
 		/// <inheritdoc />
