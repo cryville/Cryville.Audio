@@ -79,6 +79,7 @@ namespace Cryville.Audio.Source.Libav {
 					Channels = (ushort)codecCtx->ch_layout.nb_channels,
 					SampleFormat = FromInternalSampleFormat(codecCtx->sample_fmt),
 					SampleRate = (uint)codecCtx->sample_rate,
+					ChannelMask = FromInternalChannelMask(codecCtx->ch_layout),
 				};
 
 				packet = ffmpeg.av_packet_alloc();
@@ -100,7 +101,8 @@ namespace Cryville.Audio.Source.Libav {
 				frameSize = OutFormat.Value.FrameSize;
 
 				AVChannelLayout outLayout;
-				ffmpeg.av_channel_layout_default(&outLayout, outFormat.Channels);
+				if (outFormat.ChannelMask == 0) ffmpeg.av_channel_layout_default(&outLayout, outFormat.Channels);
+				else outLayout = ToInternalChannelLayout(outFormat);
 
 				frame = ffmpeg.av_frame_alloc();
 
@@ -251,6 +253,42 @@ namespace Cryville.Audio.Source.Libav {
 				SampleFormat.F64 => AVSampleFormat.AV_SAMPLE_FMT_DBL,
 				_ => throw new NotSupportedException(),
 			};
+			static ChannelMask FromInternalChannelMask(AVChannelLayout value) {
+				if (value.order == AVChannelOrder.AV_CHANNEL_ORDER_UNSPEC) return 0;
+				if (value.order != AVChannelOrder.AV_CHANNEL_ORDER_NATIVE) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The channel order {0} is not supported.", value.order));
+
+				ulong internalChannelMask = value.u.mask;
+				ulong channelMask = internalChannelMask & 0x01f9_8003_ffff;
+				if (channelMask != internalChannelMask) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The Libav channel mask {0} contains a channel that is not supported.", internalChannelMask));
+				return (ChannelMask)(
+					(channelMask & 0x3ffff) |
+					((channelMask & 0x0001_8000_0000) >> 7) |
+					((channelMask & 0x0008_0000_0000) >> 12) |
+					((channelMask & 0x0030_0000_0000) >> 18) |
+					((channelMask & 0x0040_0000_0000) >> 17) |
+					((channelMask & 0x0080_0000_0000) >> 19) |
+					((channelMask & 0x0100_0000_0000) >> 18)
+				);
+			}
+			static AVChannelLayout ToInternalChannelLayout(WaveFormat value) {
+				value.ValidateChannelMask();
+				ulong channelMask = (ulong)value.ChannelMask;
+				ulong internalChannelMask = channelMask & 0x3ffffff;
+				if (internalChannelMask != channelMask) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The channel mask {0} contains a channel that is not supported by Libav.", channelMask));
+				return new AVChannelLayout {
+					order = AVChannelOrder.AV_CHANNEL_ORDER_NATIVE,
+					nb_channels = value.Channels,
+					u = { mask =
+						(internalChannelMask & 0x3ffff) |
+						((internalChannelMask & 0x000c0000) << 18) |
+						((internalChannelMask & 0x00100000) << 19) |
+						((internalChannelMask & 0x00200000) << 17) |
+						((internalChannelMask & 0x00400000) << 18) |
+						((internalChannelMask & 0x00800000) << 12) |
+						((internalChannelMask & 0x03000000) << 7)
+					},
+				};
+			}
 		}
 		readonly Internal _internal = new(file);
 
