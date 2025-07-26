@@ -5,6 +5,9 @@ namespace Cryville.Audio {
 	/// <summary>
 	/// The wave format.
 	/// </summary>
+	/// <remarks>
+	/// <para><see cref="ChannelMask" /> should be set explicitly if there are more than two channels.</para>
+	/// </remarks>
 	public struct WaveFormat : IEquatable<WaveFormat> {
 		/// <summary>
 		/// The channel count.
