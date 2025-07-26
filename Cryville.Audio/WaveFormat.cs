@@ -63,6 +63,11 @@ namespace Cryville.Audio {
 				6 => ChannelMask.FiveBack | ChannelMask.LFPoint1,
 				7 => ChannelMask.SixBack | ChannelMask.LFPoint1,
 				8 => ChannelMask.Seven | ChannelMask.LFPoint1,
+				10 => ChannelMask.FiveBack | ChannelMask.LFPoint1 | ChannelMask.TopPoint4,
+				12 => ChannelMask.Seven | ChannelMask.LFPoint1 | ChannelMask.TopPoint4,
+				14 => ChannelMask.Nine | ChannelMask.LFPoint1 | ChannelMask.TopPoint4,
+				16 => ChannelMask.Octagonal | ChannelMask.FrontWideLeft | ChannelMask.FrontWideRight | ChannelMask.TopPoint4 | ChannelMask.TopFrontCenter | ChannelMask.TopBackCenter,
+				24 => ChannelMask.Octagonal | ChannelMask.FrontLeftOfCenter | ChannelMask.FrontRightOfCenter | ChannelMask.LFPoint2 | ChannelMask.TopPoint6 | ChannelMask.TopFrontCenter | ChannelMask.TopBackCenter | ChannelMask.TopCenter | ChannelMask.BottomFrontLeft | ChannelMask.BottomFrontCenter | ChannelMask.BottomFrontRight,
 				_ => 0,
 			};
 			return ChannelMask != 0;
