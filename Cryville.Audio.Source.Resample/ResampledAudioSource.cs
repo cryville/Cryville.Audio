@@ -5,29 +5,43 @@ namespace Cryville.Audio.Source.Resample {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that resamples another <see cref="AudioStream" />.
 	/// </summary>
-	/// <param name="source">The source <see cref="AudioStream" />.</param>
-	/// <param name="sourceFormat">The wave format set to the source. The <see cref="WaveFormat.Channels" /> property of this parameter is ignored and is always set to the channel count of the destination format.</param>
-	/// <param name="highQuality">Whether to resample with high quality.</param>
 	/// <remarks>
-	/// <para>Call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on a <see cref="ResampledAudioSource" /> to set the destination format. The format of the source <see cref="AudioStream" /> will be set to <paramref name="sourceFormat" /> (or its <see cref="AudioStream.DefaultFormat" /> if <paramref name="sourceFormat" /> is <see langword="null" />) upon calling that method. Do not call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on the source <see cref="AudioStream" />.</para>
-	/// <para><paramref name="sourceFormat" />, if set, must be set to a supported wave format of the source audio stream.</para>
+	/// <para>Call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on a <see cref="ResampledAudioSource" /> to set the destination format.</para>
 	/// </remarks>
-	public class ResampledAudioSource(AudioStream source, WaveFormat? sourceFormat = null, bool highQuality = true) : AudioStream {
-		/// <inheritdoc />
-		public override bool EndOfData => source.EndOfData;
+	public class ResampledAudioSource : AudioStream {
+		readonly AudioStream _source;
+		readonly bool _highQuality;
+
+		/// <summary>
+		/// Creates an instance of the <see cref="ResampledAudioSource" /> class.
+		/// </summary>
+		/// <param name="source">The source <see cref="AudioStream" />.</param>
+		/// <param name="sourceFormat">The wave format set to the source, if set, must be a supported wave format of the source audio stream.</param>
+		/// <param name="highQuality">Whether to resample with high quality.</param>
+		public ResampledAudioSource(AudioStream source, WaveFormat? sourceFormat = null, bool highQuality = true) {
+			_source = source ?? throw new ArgumentNullException(nameof(source));
+			_highQuality = highQuality;
+
+			DefaultFormat = sourceFormat ?? source.DefaultFormat;
+			if (!source.IsFormatSupported(DefaultFormat)) {
+				throw new NotSupportedException("Format not supported.");
+			}
+		}
 
 		/// <inheritdoc />
-		public override long FrameLength => (long)(source.FrameLength * _internal?._factor ?? 0);
+		public override bool EndOfData => _source.EndOfData;
 
 		/// <inheritdoc />
-		public override WaveFormat DefaultFormat => source.DefaultFormat;
+		public override long FrameLength => (long)(_source.FrameLength * _internal?._factor ?? 0);
+
 		/// <inheritdoc />
-		public override bool IsFormatSupported(WaveFormat format) => format.Channels == source.DefaultFormat.Channels;
+		public override WaveFormat DefaultFormat { get; }
+		/// <inheritdoc />
+		public override bool IsFormatSupported(WaveFormat format) => format.Channels == DefaultFormat.Channels && format.ChannelMask == DefaultFormat.ChannelMask;
 		/// <inheritdoc />
 		protected override void OnSetFormat() {
-			var inFormat = (sourceFormat ?? source.DefaultFormat) with { Channels = Format.Channels };
-			_internal = new(inFormat, Format, BufferSize, highQuality);
-			source.SetFormat(inFormat, _internal._inBufferFrameLength);
+			_internal = new(DefaultFormat, Format, BufferSize, _highQuality);
+			_source.SetFormat(DefaultFormat, _internal._inBufferFrameLength);
 		}
 
 		sealed class Internal {
@@ -103,7 +117,7 @@ namespace Cryville.Audio.Source.Resample {
 		Internal? _internal;
 		/// <inheritdoc />
 		protected override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
-			return _internal?.ReadFramesInternal(source, ref buffer, frameCount) ?? 0;
+			return _internal?.ReadFramesInternal(_source, ref buffer, frameCount) ?? 0;
 		}
 
 		/// <inheritdoc />
