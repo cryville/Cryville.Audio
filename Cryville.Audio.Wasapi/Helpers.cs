@@ -3,6 +3,7 @@ using Microsoft.Windows.MMDevice;
 using Microsoft.Windows.Mme;
 using Microsoft.Windows.MmReg;
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using WAVE_FORMAT = Microsoft.Windows.MmReg.WAVE_FORMAT;
 
@@ -36,10 +37,13 @@ namespace Cryville.Audio.Wasapi {
 			if (value.Channels <= 2) return new WAVEFORMATEXTENSIBLE { Format = result };
 			result.wFormatTag = (ushort)WAVE_FORMAT.EXTENSIBLE;
 			result.cbSize = 22;
+			int channelMask = (int)value.ChannelMask;
+			int internalChannelMask = channelMask & 0x3ffff;
+			if (internalChannelMask != channelMask) throw new PlatformNotSupportedException(string.Format(CultureInfo.InvariantCulture, "The channel mask {0} contains a channel that is not supported by WASAPI.", channelMask));
 			return new WAVEFORMATEXTENSIBLE {
 				Format = result,
 				Samples = result.wBitsPerSample,
-				dwChannelMask = (int)value.ChannelMask & 0x2ffff,
+				dwChannelMask = internalChannelMask,
 				SubFormat = value.SampleFormat is SampleFormat.F32 or SampleFormat.F64 ? _floatSubtypeGuid : _pcmSubtypeGuid,
 			};
 		}
@@ -59,7 +63,10 @@ namespace Cryville.Audio.Wasapi {
 			var result = FromInternalFormat(format);
 			if (format.cbSize < 22)
 				return result;
-			result.ChannelMask = (ChannelMask)(value.dwChannelMask & 0x2ffff);
+			int internalChannelMask = value.dwChannelMask;
+			int channelMask = internalChannelMask & 0x3ffff;
+			if (channelMask != internalChannelMask) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The WASAPI channel mask {0} contains a channel that is not supported.", internalChannelMask));
+			result.ChannelMask = (ChannelMask)channelMask;
 			return result;
 		}
 		public static WaveFormat FromInternalFormat(WAVEFORMATEX value) => new() {

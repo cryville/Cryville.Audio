@@ -132,6 +132,9 @@ namespace Cryville.Audio.Wasapi {
 				ReactivateClient();
 				return IsFormatSupported(format, out suggestion, usage, shareMode);
 			}
+			catch (PlatformNotSupportedException) when (format.ChannelMask != 0) {
+				return IsFormatSupported(format with { ChannelMask = 0 }, out suggestion, usage, shareMode);
+			}
 		}
 
 		/// <inheritdoc />
