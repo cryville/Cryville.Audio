@@ -100,7 +100,7 @@ namespace Cryville.Audio {
 			Channels = 2,
 			SampleRate = 48000,
 			SampleFormat = SampleFormat.S16,
-			ChannelMask = ChannelMask.Stereo
+			ChannelMask = ChannelMask.Stereo,
 		};
 
 		/// <inheritdoc />
