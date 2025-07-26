@@ -18,7 +18,10 @@ namespace Cryville.Audio.AAudio {
 			var cm = (ChannelMask)0;
 			if (AndroidHelper.DeviceApiLevel >= 32) {
 				try {
-					cm = (ChannelMask)((int)UnsafeNativeMethods.AAudioStream_getChannelMask(stream) & 0x02ffffff);
+					int internalChannelMask = (int)UnsafeNativeMethods.AAudioStream_getChannelMask(stream);
+					int channelMask = internalChannelMask & 0x03ffffff;
+					if (channelMask != internalChannelMask) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The AAudio channel mask {0} contains a channel that is not supported.", internalChannelMask));
+					cm = (ChannelMask)channelMask;
 				}
 				catch (EntryPointNotFoundException) { }
 			}
@@ -38,7 +41,10 @@ namespace Cryville.Audio.AAudio {
 				if (format.ChannelMask != 0) {
 					if (!format.IsChannelMaskValid()) throw new ArgumentException("Invalid channel mask.", nameof(format));
 					try {
-						UnsafeNativeMethods.AAudioStreamBuilder_setChannelMask(builder, (aaudio_channel_mask_t)((int)format.ChannelMask & 0x02ffffff));
+						int channelMask = (int)format.ChannelMask;
+						int internalChannelMask = channelMask & 0x03ffffff;
+						if (internalChannelMask != channelMask) throw new PlatformNotSupportedException(string.Format(CultureInfo.InvariantCulture, "The channel mask {0} contains a channel that is not supported by AAudio.", channelMask));
+						UnsafeNativeMethods.AAudioStreamBuilder_setChannelMask(builder, (aaudio_channel_mask_t)internalChannelMask);
 					}
 					catch (EntryPointNotFoundException) { }
 				}

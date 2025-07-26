@@ -119,7 +119,12 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public bool IsFormatSupported(WaveFormat format, out WaveFormat? suggestion, AudioUsage usage = AudioUsage.Media, AudioShareMode shareMode = AudioShareMode.Shared) {
 			var builder = CreateStreamBuilder();
-			Helpers.SetWaveFormatUsageAndShareMode(builder, format, usage, shareMode);
+			try {
+				Helpers.SetWaveFormatUsageAndShareMode(builder, format, usage, shareMode);
+			}
+			catch (PlatformNotSupportedException) when (format.ChannelMask != 0) {
+				return IsFormatSupported(format with { ChannelMask = 0 }, out suggestion, usage, shareMode);
+			}
 			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_openStream(builder, out var stream));
 			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStreamBuilder_delete(builder));
 			suggestion = Helpers.FromInternalWaveFormat(stream);
