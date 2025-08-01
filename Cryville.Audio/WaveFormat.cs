@@ -105,7 +105,7 @@ namespace Cryville.Audio {
 
 		/// <inheritdoc />
 		public override readonly string ToString() {
-			return string.Format(CultureInfo.InvariantCulture, "{0}ch ({3}) * {1}Hz * {2}bits", Channels, SampleRate, BitsPerSample, ChannelMask);
+			return string.Format(CultureInfo.InvariantCulture, "{0}ch ({3}) * {1}Hz * {2}bits ({4})", Channels, SampleRate, BitsPerSample, ChannelMask, SampleFormat);
 		}
 
 		/// <inheritdoc />
