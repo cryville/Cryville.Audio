@@ -154,7 +154,7 @@ namespace Cryville.Audio.AAudio {
 
 		[MonoPInvokeCallback(typeof(AAudioStream_errorCallback))]
 		internal static void ErrorCallback(IntPtr stream, IntPtr _, aaudio_result_t _2) {
-			if (!_instances.TryGetValue(stream, out var instance)) 
+			if (!_instances.TryGetValue(stream, out var instance))
 				return;
 			// Launch a new thread to handle the disconnection in case of deadlock
 			var thread = new Thread(instance.OnPlaybackDisconnected) {
