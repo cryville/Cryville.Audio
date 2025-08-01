@@ -2,19 +2,14 @@ using Microsoft.Windows.MMDevice;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.Wasapi {
-	internal sealed class MMDeviceCollectionWrapper : IEnumerable<IAudioDevice>, IDisposable {
+	internal sealed class MMDeviceCollectionWrapper : IEnumerable<IAudioDevice> {
 		readonly IMMDeviceCollection _internal;
 
 		internal MMDeviceCollectionWrapper(IMMDeviceCollection obj) {
 			_internal = obj;
 			_internal.GetCount(out m_count);
-		}
-
-		public void Dispose() {
-			Marshal.ReleaseComObject(_internal);
 		}
 
 		private uint m_count;

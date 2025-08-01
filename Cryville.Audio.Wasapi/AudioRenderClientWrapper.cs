@@ -1,16 +1,11 @@
 using Microsoft.Windows.AudioClient;
-using System;
-using System.Runtime.InteropServices;
 using UnsafeIL;
 
 namespace Cryville.Audio.Wasapi {
-	internal sealed class AudioRenderClientWrapper : IDisposable {
+	internal sealed class AudioRenderClientWrapper {
 		readonly IAudioRenderClient _internal;
 		internal AudioRenderClientWrapper(IAudioRenderClient obj) {
 			_internal = obj;
-		}
-		public void Dispose() {
-			Marshal.ReleaseComObject(_internal);
 		}
 		public unsafe ref byte GetBuffer(uint frames) {
 			_internal.GetBuffer(frames, out var result);

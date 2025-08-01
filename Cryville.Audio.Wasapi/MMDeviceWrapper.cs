@@ -31,11 +31,7 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		/// <inheritdoc />
-		protected virtual void Dispose(bool disposing) {
-			if (!disposing) return;
-			m_properties?.Dispose();
-			if (_client != null) Marshal.ReleaseComObject(_client);
-		}
+		protected virtual void Dispose(bool disposing) { }
 
 		PropertyStore? m_properties;
 		/// <summary>
@@ -69,7 +65,6 @@ namespace Cryville.Audio.Wasapi {
 					var endpoint = (IMMEndpoint)Marshal.GetObjectForIUnknown(pEndpoint);
 					endpoint.GetDataFlow(out var pResult);
 					m_dataFlow = Helpers.FromInternalDataFlowEnum(pResult);
-					Marshal.ReleaseComObject(endpoint);
 				}
 				return m_dataFlow.Value;
 			}
@@ -139,7 +134,6 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public void ReactivateClient() {
-			if (_client != null) Marshal.ReleaseComObject(_client);
 			try {
 				_internal.Activate(typeof(IAudioClient2).GUID, (uint)CLSCTX.ALL, IntPtr.Zero, out var client);
 				_client = (IAudioClient2)client;

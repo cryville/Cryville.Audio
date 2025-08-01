@@ -2,7 +2,6 @@ using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.MMDevice;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Cryville.Audio.Wasapi {
 	/// <summary>
@@ -29,12 +28,7 @@ namespace Cryville.Audio.Wasapi {
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">Whether the method is being called by user.</param>
-		protected virtual void Dispose(bool disposing) {
-			if (!disposing) return;
-			if (_internal != null) {
-				Marshal.ReleaseComObject(_internal);
-			}
-		}
+		protected virtual void Dispose(bool disposing) { }
 
 		/// <inheritdoc />
 		public IEnumerable<IAudioDevice> GetDevices(DataFlow dataFlow) {
