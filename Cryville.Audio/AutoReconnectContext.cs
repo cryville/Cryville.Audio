@@ -161,7 +161,6 @@ namespace Cryville.Audio {
 			ReconnectClient();
 		}
 		void OnAudioClientPlaybackDisconnected(object sender, EventArgs e) {
-			OnPlaybackDisconnected();
 			OnAudioClientDisconnected();
 		}
 		void OnAudioClientDisconnected() {
