@@ -166,7 +166,8 @@ namespace Cryville.Audio {
 		void OnAudioClientDisconnected() {
 			ReconnectClient();
 		}
-		void ReconnectClient() {
+		const int _maxReconnectionDepth = 4;
+		void ReconnectClient(int depth = 0) {
 			CloseClient();
 			try {
 				Debug.Assert(_device != null);
@@ -192,8 +193,10 @@ namespace Cryville.Audio {
 				}
 			}
 			catch (ObjectDisposedException) {
+				if (depth >= _maxReconnectionDepth)
+					throw;
 				ReconnectDevice();
-				ReconnectClient();
+				ReconnectClient(depth + 1);
 			}
 		}
 		void ReconnectDevice() {
