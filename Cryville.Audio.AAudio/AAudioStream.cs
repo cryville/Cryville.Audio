@@ -104,7 +104,7 @@ namespace Cryville.Audio.AAudio {
 				AudioClientStatus.Closed => aaudio_stream_state_t.AAUDIO_STREAM_STATE_CLOSED,
 				AudioClientStatus.Disconnected => aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED,
 				_ => throw new NotImplementedException(),
-			}, out var nextState, (long)(timeout.TotalMilliseconds * 1000));
+			}, out var nextState, (long)(timeout.TotalMilliseconds * 1e6));
 			if (result == aaudio_result_t.AAUDIO_ERROR_TIMEOUT) {
 				newStatus = currentStatus;
 				return false;
