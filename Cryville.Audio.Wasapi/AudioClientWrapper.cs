@@ -242,6 +242,7 @@ namespace Cryville.Audio.Wasapi {
 						ref byte buffer = ref _renderClient.GetBuffer(frames);
 						Source.ReadFrames(ref buffer, (int)frames);
 						_renderClient.ReleaseBuffer(frames);
+						Source.ReadFramesGreedily(ref buffer, (int)frames);
 					}
 					m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
 					if (_threadAbortFlag) break;

@@ -132,7 +132,7 @@ namespace Cryville.Audio.AAudio {
 		unsafe void FillBuffer(IntPtr ptr, int frames) {
 			ref byte buffer = ref Unsafe.AsRef<byte>((void*)ptr);
 			if (Source == null) AudioStream.SilentBuffer(Format, ref buffer, frames);
-			else Source.ReadFrames(ref buffer, frames);
+			else Source.ReadFramesGreedily(ref buffer, frames);
 			m_bufferPosition += (double)frames / Format.SampleRate;
 		}
 
