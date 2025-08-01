@@ -186,12 +186,11 @@ namespace Cryville.Audio.WaveformAudio {
 			while (true) {
 				foreach (var b in _buffers) {
 					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
-						if (Source == null) {
+						if (Stream == null) {
 							AudioStream.SilentBuffer(Format, ref b.Buffer[0], BufferSize);
 						}
 						else {
-							Source.ReadFrames(b.Buffer, 0, BufferSize);
-							Source.ReadFramesGreedily(b.Buffer, 0, BufferSize);
+							Stream.ReadFramesGreedily(b.Buffer, 0, BufferSize);
 						}
 						MmSysComExports.MMR(MmeExports.waveOutWrite(_waveOutHandle, ref b.Header, SIZE_WAVEHDR));
 						m_bufferPosition += (double)BufferSize / m_format.SampleRate;

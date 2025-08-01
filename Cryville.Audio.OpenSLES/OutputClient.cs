@@ -180,8 +180,8 @@ namespace Cryville.Audio.OpenSLES {
 				if (_freeBufferCount >= BUFFER_COUNT) return;
 				_freeBufferCount++;
 				int length = BufferSize * m_format.FrameSize;
-				if (Source == null) AudioStream.SilentBuffer(Format, ref _buf[_bufIndex][0], BufferSize);
-				else Source.ReadFramesGreedily(_buf[_bufIndex], 0, BufferSize);
+				if (Stream == null) AudioStream.SilentBuffer(Format, ref _buf[_bufIndex][0], BufferSize);
+				else Stream.ReadFramesGreedily(_buf[_bufIndex], 0, BufferSize);
 				Helpers.SLR(_bq.Obj.Enqueue(_bq, _hBuf[_bufIndex++].AddrOfPinnedObject(), (uint)length));
 				_bufIndex %= BUFFER_COUNT;
 				m_bufferPosition += (double)BufferSize / m_format.SampleRate;

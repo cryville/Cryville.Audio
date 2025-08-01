@@ -235,14 +235,13 @@ namespace Cryville.Audio.Wasapi {
 					_internal.GetCurrentPadding(out var padding);
 					var frames = m_bufferFrames - padding;
 					if (frames == 0) continue;
-					if (Source == null) {
+					if (Stream == null) {
 						_renderClient.SilentBuffer(frames);
 					}
 					else {
 						ref byte buffer = ref _renderClient.GetBuffer(frames);
-						Source.ReadFrames(ref buffer, (int)frames);
+						Stream.ReadFramesGreedily(ref buffer, (int)frames);
 						_renderClient.ReleaseBuffer(frames);
-						Source.ReadFramesGreedily(ref buffer, (int)frames);
 					}
 					m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
 					if (_threadAbortFlag) break;

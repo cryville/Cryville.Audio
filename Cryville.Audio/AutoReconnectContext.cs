@@ -10,8 +10,8 @@ namespace Cryville.Audio {
 	/// <param name="dataFlow">The data-flow direction.</param>
 	/// <remarks>
 	/// <para>Call <see cref="Init" /> to initialize the context.</para>
-	/// <para>Be cautious when replacing the audio stream with <see cref="AudioClient.Source" />. If the audio stream needs to recreated, the replaced audio stream will be discarded, and <see cref="CreateAudioStream" /> will be called to create the new stream.</para>
-	/// <para>The caller must not dispose <see cref="MainStream" />, and <see cref="AudioClient.Source" /> as well if it was not replaced. The caller is responsible for disposing any replaced <see cref="AudioClient.Source" />.</para>
+	/// <para>Be cautious when replacing the audio stream with <see cref="AudioClient.Stream" />. If the audio stream needs to recreated, the replaced audio stream will be discarded, and <see cref="CreateAudioStream" /> will be called to create the new stream.</para>
+	/// <para>The caller must not dispose <see cref="MainStream" />, and <see cref="AudioClient.Stream" /> as well if it was not replaced. The caller is responsible for disposing any replaced <see cref="AudioClient.Stream" />.</para>
 	/// </remarks>
 	public abstract class AutoReconnectContext(IAudioDeviceManager manager, DataFlow dataFlow) : AudioClient {
 		[SuppressMessage("CodeQuality", "IDE0079", Justification = "False report")]
@@ -54,7 +54,7 @@ namespace Cryville.Audio {
 		public override double BufferPosition => Client.BufferPosition;
 
 		/// <inheritdoc />
-		protected override void OnSetSource() => Client.Source = Source;
+		protected override void OnSetStream() => Client.Stream = Stream;
 
 		/// <inheritdoc />
 		public override void Start() {
@@ -179,10 +179,10 @@ namespace Cryville.Audio {
 					m_bufferSize = _client.BufferSize;
 					var newStream = CreateAudioStream();
 					MainStream?.Dispose();
-					Source = MainStream = newStream;
+					Stream = MainStream = newStream;
 				}
 				else {
-					OnSetSource();
+					OnSetStream();
 				}
 				_client.PlaybackDisconnected += OnAudioClientPlaybackDisconnected;
 				if (m_status == AudioClientStatus.Playing) {

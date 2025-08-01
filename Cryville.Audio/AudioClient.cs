@@ -52,12 +52,15 @@ namespace Cryville.Audio {
 		/// </summary>
 		public abstract double BufferPosition { get; }
 
-		AudioStream? m_source;
+		AudioStream? m_stream;
 		/// <summary>
-		/// The audio source.
+		/// The audio stream.
 		/// </summary>
-		public AudioStream? Source {
-			get => m_source;
+		/// <remarks>
+		/// If the value of this property is <see langword="null" /> while playing, the output will be silence.
+		/// </remarks>
+		public AudioStream? Stream {
+			get => m_stream;
 			set {
 				if (value != null) {
 					var format = Format;
@@ -66,14 +69,14 @@ namespace Cryville.Audio {
 						throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Mismatched audio format. Client: {0}. Source: {1}.", format, value.Format));
 					value.BufferSize = BufferSize;
 				}
-				m_source = value;
-				OnSetSource();
+				m_stream = value;
+				OnSetStream();
 			}
 		}
 		/// <summary>
 		/// Called when the source is set.
 		/// </summary>
-		protected virtual void OnSetSource() { }
+		protected virtual void OnSetStream() { }
 
 		/// <summary>
 		/// Starts the wave data transmission.
