@@ -96,6 +96,7 @@ namespace Cryville.Audio.WaveformAudio {
 
 		/// <inheritdoc />
 		public override void Start() {
+			if (_thread != null) return;
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Playing:
@@ -131,9 +132,7 @@ namespace Cryville.Audio.WaveformAudio {
 				}
 				m_status = AudioClientStatus.Pausing;
 			}
-			StopPlaybackThread();
-			MmSysComExports.MMR(MmeExports.waveOutPause(_waveOutHandle));
-			lock (_statusLock) m_status = AudioClientStatus.Idle;
+			thread.Interrupt();
 		}
 
 		/// <inheritdoc />
@@ -146,7 +145,8 @@ namespace Cryville.Audio.WaveformAudio {
 				}
 				m_status = AudioClientStatus.Closing;
 			}
-			StopPlaybackThread();
+			_thread?.Interrupt();
+			_thread?.Join(4000);
 			CloseNative();
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
@@ -168,37 +168,41 @@ namespace Cryville.Audio.WaveformAudio {
 			_eventHandle.Close();
 		}
 
-		void StopPlaybackThread() {
-			_threadAbortFlag = true;
-			if (!(_thread?.Join(Math.Max(2000, BufferSize / (int)Format.SampleRate * 4000)) ?? true))
-				throw new InvalidOperationException("Failed to pause audio client.");
-		}
-
 		Thread? _thread;
-		bool _threadAbortFlag;
 		void ThreadLogic() {
-			_threadAbortFlag = false;
 			uint waitThreshold = Math.Max(1000, (uint)BufferSize / Format.SampleRate * 2000);
-			while (true) {
-				foreach (var b in _buffers) {
-					if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
-						if (Stream == null) {
-							AudioStream.SilentBuffer(Format, ref b.Buffer[0], BufferSize);
+			try {
+				while (true) {
+					foreach (var b in _buffers) {
+						if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
+							if (Stream == null) {
+								AudioStream.SilentBuffer(Format, ref b.Buffer[0], BufferSize);
+							}
+							else {
+								Stream.ReadFramesGreedily(b.Buffer, 0, BufferSize);
+							}
+							MmSysComExports.MMR(MmeExports.waveOutWrite(handle, ref b.Header, SIZE_WAVEHDR));
+							m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 						}
-						else {
-							Stream.ReadFramesGreedily(b.Buffer, 0, BufferSize);
-						}
-						MmSysComExports.MMR(MmeExports.waveOutWrite(_waveOutHandle, ref b.Header, SIZE_WAVEHDR));
-						m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 					}
+					if (!_eventHandle.WaitOne(waitThreshold))
+						throw new TimeoutException("Timed out while pending for event.");
 				}
-				if (!_eventHandle.WaitOne(waitThreshold))
-					throw new TimeoutException("Timed out while pending for event.");
-				if (_threadAbortFlag) {
-					// Wait for all the buffers to be returned, to avoid dead buffers
-					_ = Synch.WaitForSingleObject(_eventHandle, waitThreshold);
+			}
+			catch (ThreadInterruptedException) {
+				// Wait for all the buffers to be returned, to avoid dead buffers
+				for (; ; ) {
+					foreach (var b in _buffers) {
+						if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) != 0) {
+							goto waitForNextBuffer;
+						}
+					}
 					break;
+				waitForNextBuffer:
+					_eventHandle.WaitOne(waitThreshold);
 				}
+				MmSysComExports.MMR(MmeExports.waveOutPause(handle));
+				lock (_statusLock) if (m_status == AudioClientStatus.Pausing) m_status = AudioClientStatus.Idle;
 			}
 		}
 	}

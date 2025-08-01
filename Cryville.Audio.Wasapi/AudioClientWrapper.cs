@@ -137,6 +137,7 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public override void Start() {
+			if (_thread != null) return;
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Playing:
@@ -167,6 +168,8 @@ namespace Cryville.Audio.Wasapi {
 
 		/// <inheritdoc />
 		public override void Pause() {
+			var thread = Interlocked.Exchange(ref _thread, null);
+			if (thread == null) return;
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Idle:
@@ -178,15 +181,7 @@ namespace Cryville.Audio.Wasapi {
 				}
 				m_status = AudioClientStatus.Pausing;
 			}
-			StopPlaybackThread();
-			try {
-				_internal.Stop();
-			}
-			catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
-				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
-				throw new AudioClientDisconnectedException(ex);
-			}
-			lock (_statusLock) m_status = AudioClientStatus.Idle;
+			thread.Interrupt();
 		}
 
 		/// <inheritdoc />
@@ -199,7 +194,7 @@ namespace Cryville.Audio.Wasapi {
 				}
 				m_status = AudioClientStatus.Closing;
 			}
-			StopPlaybackThread();
+			_thread?.Interrupt();
 			CloseNative();
 			lock (_statusLock) m_status = AudioClientStatus.Closed;
 		}
@@ -208,34 +203,32 @@ namespace Cryville.Audio.Wasapi {
 			_eventHandle.Close();
 		}
 
-		void StopPlaybackThread() {
-			_threadAbortFlag = true;
-			if (!(_thread?.Join(1000) ?? true))
-				throw new InvalidOperationException("Failed to pause audio client.");
-		}
-
 		Thread? _thread;
-		bool _threadAbortFlag;
 		void ThreadLogic() {
-			_threadAbortFlag = false;
 			try {
-				int waitThreshold = Math.Max(2000, BufferSize * 4000 / (int)Format.SampleRate);
-				while (true) {
-					if (!_eventHandle.WaitOne(waitThreshold))
-						throw new TimeoutException("Timed out while pending for event.");
-					_internal.GetCurrentPadding(out var padding);
-					var frames = m_bufferFrames - padding;
-					if (frames == 0) continue;
-					if (Stream == null) {
-						_renderClient.SilentBuffer(frames);
+				try {
+					int waitThreshold = Math.Max(2000, BufferSize * 4000 / (int)Format.SampleRate);
+					while (true) {
+						if (!_eventHandle.WaitOne(waitThreshold))
+							throw new TimeoutException("Timed out while pending for event.");
+						_internal.GetCurrentPadding(out var padding);
+						var frames = m_bufferFrames - padding;
+						if (frames == 0) continue;
+						if (Stream == null) {
+							_renderClient.SilentBuffer(frames);
+						}
+						else {
+							ref byte buffer = ref _renderClient.GetBuffer(frames);
+							Stream.ReadFramesGreedily(ref buffer, (int)frames);
+							_renderClient.ReleaseBuffer(frames);
+						}
+						m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
 					}
-					else {
-						ref byte buffer = ref _renderClient.GetBuffer(frames);
-						Stream.ReadFramesGreedily(ref buffer, (int)frames);
-						_renderClient.ReleaseBuffer(frames);
-					}
-					m_bufferPosition += (double)frames / m_format.Format.nSamplesPerSec;
-					if (_threadAbortFlag) break;
+				}
+				catch (ThreadInterruptedException) {
+					_internal.Stop();
+					_thread = null;
+					lock (_statusLock) if (m_status == AudioClientStatus.Pausing) m_status = AudioClientStatus.Idle;
 				}
 			}
 			catch (COMException ex) when ((uint)ex.ErrorCode == 0x88890004) {
