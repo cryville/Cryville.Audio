@@ -27,12 +27,11 @@ namespace Cryville.Audio.WaveformAudio {
 			m_format = format;
 			var iFormat = Helpers.ToInternalFormat(format);
 
-			_eventHandle = Synch.CreateEventW(IntPtr.Zero, false, false, null);
-			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
+			_eventHandle = new(false);
 
 			MmSysComExports.MMR(MmeExports.waveOutOpen(
 				ref _waveOutHandle, m_device.Index,
-				ref iFormat, _eventHandle, IntPtr.Zero,
+				ref iFormat, _eventHandle.SafeWaitHandle.DangerousGetHandle(), IntPtr.Zero,
 				(uint)CALLBACK_TYPE.CALLBACK_EVENT
 			));
 
@@ -59,7 +58,7 @@ namespace Cryville.Audio.WaveformAudio {
 		}
 
 		IntPtr _waveOutHandle;
-		IntPtr _eventHandle;
+		readonly AutoResetEvent _eventHandle;
 		readonly WaveBuffer[] _buffers;
 
 		readonly WaveOutDevice m_device;
@@ -166,10 +165,7 @@ namespace Cryville.Audio.WaveformAudio {
 				}
 				MmSysComExports.MMR(MmeExports.waveOutClose(waveOutHandle));
 			}
-			IntPtr eventHandle = Interlocked.Exchange(ref _eventHandle, IntPtr.Zero);
-			if (eventHandle != IntPtr.Zero) {
-				Handle.CloseHandle(eventHandle);
-			}
+			_eventHandle.Close();
 		}
 
 		void StopPlaybackThread() {
@@ -196,8 +192,8 @@ namespace Cryville.Audio.WaveformAudio {
 						m_bufferPosition += (double)BufferSize / m_format.SampleRate;
 					}
 				}
-				if (Synch.WaitForSingleObject(_eventHandle, waitThreshold) != /* WAIT_OBJECT_0 */ 0)
-					throw new InvalidOperationException("Error while pending for event.");
+				if (!_eventHandle.WaitOne(waitThreshold))
+					throw new TimeoutException("Timed out while pending for event.");
 				if (_threadAbortFlag) {
 					// Wait for all the buffers to be returned, to avoid dead buffers
 					_ = Synch.WaitForSingleObject(_eventHandle, waitThreshold);

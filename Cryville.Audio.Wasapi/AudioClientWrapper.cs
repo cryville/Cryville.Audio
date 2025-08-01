@@ -45,9 +45,8 @@ namespace Cryville.Audio.Wasapi {
 				client2.SetClientProperties(ref props);
 			}
 
-			_eventHandle = Synch.CreateEventW(IntPtr.Zero, false, false, null);
-			if (_eventHandle == IntPtr.Zero) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
-			_internal.SetEventHandle(_eventHandle);
+			_eventHandle = new(false);
+			_internal.SetEventHandle(_eventHandle.SafeWaitHandle.DangerousGetHandle());
 
 			_internal.GetService(typeof(IAudioClock).GUID, out var clock);
 			_clock = (IAudioClock)clock;
@@ -72,7 +71,7 @@ namespace Cryville.Audio.Wasapi {
 			CloseNative();
 		}
 
-		IntPtr _eventHandle;
+		readonly AutoResetEvent _eventHandle;
 		readonly AudioRenderClientWrapper _renderClient;
 		readonly IAudioClock _clock;
 
@@ -84,8 +83,6 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		public override WaveFormat Format {
 			get {
-				if (_eventHandle == IntPtr.Zero)
-					throw new InvalidOperationException("Connection not initialized.");
 				return Helpers.FromInternalFormat(m_format);
 			}
 		}
@@ -94,8 +91,6 @@ namespace Cryville.Audio.Wasapi {
 		/// <inheritdoc />
 		public override int BufferSize {
 			get {
-				if (_eventHandle == IntPtr.Zero)
-					throw new InvalidOperationException("Connection not initialized.");
 				return (int)m_bufferFrames;
 			}
 		}
@@ -210,10 +205,7 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		void CloseNative() {
-			IntPtr eventHandle = Interlocked.Exchange(ref _eventHandle, IntPtr.Zero);
-			if (eventHandle != IntPtr.Zero) {
-				Handle.CloseHandle(eventHandle);
-			}
+			_eventHandle.Close();
 		}
 
 		void StopPlaybackThread() {
@@ -227,9 +219,10 @@ namespace Cryville.Audio.Wasapi {
 		void ThreadLogic() {
 			_threadAbortFlag = false;
 			try {
+				int waitThreshold = Math.Max(2000, BufferSize * 4000 / (int)Format.SampleRate);
 				while (true) {
-					if (Synch.WaitForSingleObject(_eventHandle, 2000) != /* WAIT_OBJECT_0 */ 0)
-						throw new InvalidOperationException("Error while pending for event.");
+					if (!_eventHandle.WaitOne(waitThreshold))
+						throw new TimeoutException("Timed out while pending for event.");
 					_internal.GetCurrentPadding(out var padding);
 					var frames = m_bufferFrames - padding;
 					if (frames == 0) continue;
