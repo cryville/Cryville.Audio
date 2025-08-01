@@ -10,8 +10,9 @@ namespace Cryville.Audio.Source {
 	/// <para>This stream is not seekable. Use <see cref="Rewind" /> to reset its timestamp to zero.</para>
 	/// </remarks>
 	/// <param name="source">The <see cref="AudioStream" /> to be cached.</param>
-	/// <param name="duration">The duration of the cache in seconds.</param>
-	public class CachedAudioSource(AudioStream source, double duration) : AudioStream {
+	/// <param name="cacheFrameCount">The duration of the cache in frames.</param>
+	/// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
+	public class CachedAudioSource(AudioStream source, long cacheFrameCount) : AudioStream((source ?? throw new ArgumentNullException(nameof(source))).Format) {
 		/// <summary>
 		/// Gets a clone of this <see cref="CachedAudioSource" /> with the timestamp reset.
 		/// </summary>
@@ -33,33 +34,22 @@ namespace Cryville.Audio.Source {
 		/// </remarks>
 		public void Rewind() => FramePosition = 0;
 
-		sealed class Cache(AudioStream source, double duration) {
+		sealed class Cache(AudioStream source, long cacheFrameCount, WaveFormat format) {
 			public readonly AudioStream Source = source;
-			public readonly double Duration = duration;
-			WaveFormat _format;
-			public long FrameLength = -1;
+			public long CacheFrameCount = cacheFrameCount;
 			public long FramePosition;
-			public byte[]? Buffer;
+			public byte[] CacheBuffer = new byte[cacheFrameCount * format.FrameSize];
 
-			public void SetFormat(WaveFormat format, int bufferSize) {
-				_format = format;
-				Source.SetFormat(format, bufferSize);
-				FrameLength = (long)(Duration * format.SampleRate);
-				Buffer = new byte[FrameLength * format.FrameSize];
-			}
 			public void FillBufferTo(long frameOffset) {
 				if (frameOffset <= FramePosition) return;
-				_ = Source.ReadFrames(ref Buffer![FramePosition * _format.FrameSize], (int)(frameOffset - FramePosition));
+				_ = Source.ReadFramesGreedily(ref CacheBuffer[FramePosition * format.FrameSize], (int)(frameOffset - FramePosition));
 				FramePosition = frameOffset;
 			}
 		}
-		readonly Cache _cache = new(source, duration);
+		readonly Cache _cache = new(source, cacheFrameCount, source.Format);
 
 		/// <inheritdoc />
-		public override bool EndOfData => Position >= (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length;
-
-		/// <inheritdoc />
-		public override long FrameLength => (_cache.Buffer ?? throw new InvalidOperationException("Format not set.")).Length / Format.FrameSize;
+		public override long FrameLength => _cache.CacheBuffer.Length / Format.FrameSize;
 
 		/// <summary>
 		/// Whether this audio stream has been disposed.
@@ -73,25 +63,20 @@ namespace Cryville.Audio.Source {
 		}
 
 		/// <inheritdoc />
-		public override WaveFormat DefaultFormat => _cache.Source.DefaultFormat;
-		/// <inheritdoc />
-		public override bool IsFormatSupported(WaveFormat format) => _cache.Source.IsFormatSupported(format);
-
-		/// <inheritdoc />
-		protected override void OnSetFormat() {
-			if (_cache.Buffer != null) return;
-			_cache.SetFormat(Format, BufferSize);
+		protected override int EnsureBufferSize(int targetBufferSize) {
+			source.BufferSize = targetBufferSize;
+			return source.BufferSize;
 		}
 
 		/// <inheritdoc />
 		protected override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			long frameOffsetToLoad = Math.Min(_cache.FrameLength, FramePosition + frameCount);
+			long frameOffsetToLoad = Math.Min(_cache.CacheFrameCount, FramePosition + frameCount);
 			_cache.FillBufferTo(frameOffsetToLoad);
-			long rem = _cache.FrameLength - FramePosition;
+			long rem = _cache.CacheFrameCount - FramePosition;
 			int frames = (int)Math.Min(rem, frameCount);
 			if (frames > 0) {
-				fixed (byte* sptr = _cache.Buffer, dptr = &buffer) {
+				fixed (byte* sptr = _cache.CacheBuffer, dptr = &buffer) {
 					Unsafe.CopyBlock(dptr, sptr + Position, (uint)(frames * Format.FrameSize));
 				}
 			}
@@ -119,5 +104,21 @@ namespace Cryville.Audio.Source {
 		public override void SetLength(long value) => throw new NotSupportedException();
 		/// <inheritdoc />
 		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+	}
+
+	/// <summary>
+	/// A builder that builds <see cref="CachedAudioSource" />.
+	/// </summary>
+	/// <param name="source">The <see cref="AudioStream" /> to be cached.</param>
+	public class CachedAudioSourceBuilder(AudioStream source) : AudioStreamBuilder<CachedAudioSource> {
+		/// <inheritdoc />
+		public override WaveFormat DefaultFormat => source.Format;
+		/// <summary>
+		/// The duration of the cache in frames.
+		/// </summary>
+		public long CacheFrameCount { get; set; }
+
+		/// <inheritdoc />
+		public override CachedAudioSource Build(WaveFormat format) => new(source, CacheFrameCount);
 	}
 }

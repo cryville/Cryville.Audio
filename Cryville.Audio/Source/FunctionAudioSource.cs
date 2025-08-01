@@ -5,16 +5,13 @@ namespace Cryville.Audio.Source {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that generates sound by a given function.
 	/// </summary>
-	public abstract class FunctionAudioSource : AudioStream {
+	public abstract class FunctionAudioSource(WaveFormat format) : AudioDoubleSampleStream(format) {
 		double _time;
 
 		/// <summary>
 		/// The channel count of the output format.
 		/// </summary>
 		protected int Channels => Format.Channels;
-
-		/// <inheritdoc />
-		public override bool EndOfData => false;
 
 		/// <inheritdoc />
 		public override long FrameLength => long.MaxValue;
@@ -29,32 +26,16 @@ namespace Cryville.Audio.Source {
 			base.Dispose(disposing);
 			Disposed = true;
 		}
-		/// <inheritdoc />
-		public override WaveFormat DefaultFormat => WaveFormat.Default;
-		/// <inheritdoc />
-		public sealed override bool IsFormatSupported(WaveFormat format) {
-			return format.SampleFormat == SampleFormat.U8
-				|| format.SampleFormat == SampleFormat.S16
-				|| format.SampleFormat == SampleFormat.S24
-				|| format.SampleFormat == SampleFormat.S32
-				|| format.SampleFormat == SampleFormat.F32
-				|| format.SampleFormat == SampleFormat.F64;
-		}
-
-		SampleWriter? _sampleHandler;
 
 		/// <inheritdoc />
-		protected override unsafe void OnSetFormat() => _sampleHandler = SampleConvert.GetSampleWriter(Format.SampleFormat);
-
-		/// <inheritdoc />
-		protected sealed override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
+		protected sealed override unsafe int ReadFramesInternal(ref double buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
-			fixed (byte* fptr = &buffer) {
-				byte* ptr = fptr;
+			fixed (double* fptr = &buffer) {
+				double* ptr = fptr;
 				for (int i = 0; i < frameCount; i++) {
 					for (int j = 0; j < Format.Channels; j++) {
 						float v = Func(_time, j);
-						_sampleHandler!(ref ptr, v);
+						*ptr++ = v;
 					}
 					_time += 1d / Format.SampleRate;
 				}
@@ -95,5 +76,15 @@ namespace Cryville.Audio.Source {
 		public override void SetLength(long value) => throw new NotSupportedException();
 		/// <inheritdoc />
 		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+	}
+
+	/// <summary>
+	/// A builder that builds <see cref="FunctionAudioSource" />.
+	/// </summary>
+	public abstract class FunctionAudioSourceBuilder<T> : AudioStreamBuilder<T> where T : FunctionAudioSource {
+		/// <inheritdoc />
+		public override WaveFormat DefaultFormat => WaveFormat.Default;
+		/// <inheritdoc />
+		public sealed override bool IsFormatSupported(WaveFormat format) => true;
 	}
 }

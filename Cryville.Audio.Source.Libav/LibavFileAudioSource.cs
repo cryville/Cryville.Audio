@@ -10,8 +10,7 @@ namespace Cryville.Audio.Source.Libav {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that uses Libav to demux and decode audio files.
 	/// </summary>
-	/// <param name="file">The audio file.</param>
-	public class LibavFileAudioSource(string file) : AudioStream {
+	public class LibavFileAudioSource : AudioStream {
 		internal sealed unsafe class Internal {
 			readonly AVFormatContext* formatCtx;
 			AVCodec* codec;
@@ -26,7 +25,6 @@ namespace Cryville.Audio.Source.Libav {
 			long _pts;
 			WaveFormat? OutFormat;
 			WaveFormat? InFormat;
-			int BufferSize;
 			int frameSize;
 			public bool EOF;
 			public Internal(string file) {
@@ -85,18 +83,36 @@ namespace Cryville.Audio.Source.Libav {
 				packet = ffmpeg.av_packet_alloc();
 			}
 
-			public WaveFormat GetInFormat() {
+			public WaveFormat? GetInFormat() {
 				if (formatCtx == null) throw new ObjectDisposedException(null);
-				if (codecCtx == null) OpenStream(BestStreamIndex);
-				return InFormat!.Value;
+				return InFormat;
+			}
+			public WaveFormat GetInFormat(int streamIndex) {
+				if (formatCtx == null) throw new ObjectDisposedException(null);
+				var param = formatCtx->streams[streamIndex]->codecpar;
+				if (param->codec_type != AVMediaType.AVMEDIA_TYPE_AUDIO)
+					throw new ArgumentException("The specified stream is not an audio stream.");
+				var codec = ffmpeg.avcodec_find_decoder(param->codec_id);
+				if (codec == null) throw new LibavException("Codec not found.");
+				var codecCtx = ffmpeg.avcodec_alloc_context3(codec);
+				ffmpeg.avcodec_parameters_to_context(codecCtx, param);
+				HR(ffmpeg.avcodec_open2(codecCtx, codec, null));
+				var format = new WaveFormat() {
+					Channels = (ushort)codecCtx->ch_layout.nb_channels,
+					SampleFormat = FromInternalSampleFormat(codecCtx->sample_fmt),
+					SampleRate = (uint)codecCtx->sample_rate,
+					ChannelMask = FromInternalChannelMask(codecCtx->ch_layout),
+				};
+				ffmpeg.avcodec_close(codecCtx);
+				ffmpeg.avcodec_free_context(&codecCtx);
+				return format;
 			}
 
-			public void SetFormat(WaveFormat format, int bufferSize) {
+			public void SetFormat(WaveFormat format) {
 				if (formatCtx == null) throw new ObjectDisposedException(null);
 				if (OutFormat != null) throw new InvalidOperationException("Format already set.");
 				if (codecCtx == null) OpenStream(BestStreamIndex);
 				OutFormat = format;
-				BufferSize = bufferSize;
 				var outFormat = OutFormat.Value;
 				frameSize = OutFormat.Value.FrameSize;
 
@@ -243,7 +259,7 @@ namespace Cryville.Audio.Source.Libav {
 				AVSampleFormat.AV_SAMPLE_FMT_S32 or AVSampleFormat.AV_SAMPLE_FMT_S32P => SampleFormat.S32,
 				AVSampleFormat.AV_SAMPLE_FMT_FLT or AVSampleFormat.AV_SAMPLE_FMT_FLTP => SampleFormat.F32,
 				AVSampleFormat.AV_SAMPLE_FMT_DBL or AVSampleFormat.AV_SAMPLE_FMT_DBLP => SampleFormat.F64,
-				_ => throw new NotSupportedException(),
+				_ => throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Unsupported Libav sample format: {0}.", value)),
 			};
 			static AVSampleFormat ToInternalSampleFormat(SampleFormat value) => value switch {
 				SampleFormat.U8 => AVSampleFormat.AV_SAMPLE_FMT_U8,
@@ -251,7 +267,7 @@ namespace Cryville.Audio.Source.Libav {
 				SampleFormat.S32 => AVSampleFormat.AV_SAMPLE_FMT_S32,
 				SampleFormat.F32 => AVSampleFormat.AV_SAMPLE_FMT_FLT,
 				SampleFormat.F64 => AVSampleFormat.AV_SAMPLE_FMT_DBL,
-				_ => throw new NotSupportedException(),
+				_ => throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Unsupported sample format: {0}.", value)),
 			};
 			static ChannelMask FromInternalChannelMask(AVChannelLayout value) {
 				if (value.order == AVChannelOrder.AV_CHANNEL_ORDER_UNSPEC) return 0;
@@ -290,7 +306,19 @@ namespace Cryville.Audio.Source.Libav {
 				};
 			}
 		}
-		readonly Internal _internal = new(file);
+		readonly Internal _internal;
+
+		internal LibavFileAudioSource(Internal context, WaveFormat format) : base(format) {
+			_internal = context;
+			_internal.SetFormat(format);
+		}
+
+		/// <summary>
+		/// Creates an instance of the <see cref="LibavFileAudioSource" /> class.
+		/// </summary>
+		/// <param name="file">The audio file.</param>
+		/// <param name="format">The wave format.</param>
+		public LibavFileAudioSource(string file, WaveFormat format) : this(new Internal(file), format) { }
 
 		/// <summary>
 		/// Whether this audio stream has been disposed.
@@ -305,9 +333,6 @@ namespace Cryville.Audio.Source.Libav {
 		}
 
 		/// <inheritdoc />
-		public override bool EndOfData => _internal.EOF;
-
-		/// <inheritdoc />
 		/// <remarks>
 		/// <para>This property may be inaccurate.</para>
 		/// </remarks>
@@ -316,58 +341,12 @@ namespace Cryville.Audio.Source.Libav {
 		/// <remarks>
 		/// <para>This property may be inaccurate.</para>
 		/// </remarks>
-		public override double TimeLength => GetStreamDuration(_internal.SelectedStream);
+		public override double TimeLength => _internal.GetDuration(_internal.SelectedStream);
 		/// <inheritdoc />
 		public override double TimePosition => _time;
 
-		/// <summary>
-		/// The index to the best audio stream.
-		/// </summary>
-		public int BestStreamIndex => _internal.BestStreamIndex;
-		/// <summary>
-		/// The collection of indices to all audio streams.
-		/// </summary>
-		public ReadOnlyCollection<int> Streams => _internal.Streams;
-
-		/// <summary>
-		/// Selects the best stream as the source.
-		/// </summary>
-		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
-		/// <remarks>
-		/// <para>This method can only be called before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
-		/// </remarks>
-		public void SelectStream() => SelectStream(BestStreamIndex);
-
-		/// <summary>
-		/// Selects a stream as the source.
-		/// </summary>
-		/// <param name="index">The index of the stream.</param>
-		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
-		/// <remarks>
-		/// <para>This method can only be called before <see cref="AudioStream.SetFormat(WaveFormat, int)" /> is called, which is called while setting <see cref="AudioClient.Source" />.</para>
-		/// </remarks>
-		public void SelectStream(int index) => _internal.OpenStream(index);
-
-		/// <summary>
-		/// Gets the duration of a stream or the file.
-		/// </summary>
-		/// <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
-		/// <returns>The duration in seconds.</returns>
-		public double GetStreamDuration(int streamId = -1) => _internal.GetDuration(streamId);
-		/// <inheritdoc />
-		public override WaveFormat DefaultFormat => _internal.GetInFormat();
-		/// <inheritdoc />
-		public override bool IsFormatSupported(WaveFormat format)
-			=> format.SampleFormat == SampleFormat.U8
-			|| format.SampleFormat == SampleFormat.S16
-			|| format.SampleFormat == SampleFormat.S32
-			|| format.SampleFormat == SampleFormat.F32
-			|| format.SampleFormat == SampleFormat.F64;
-
-		/// <inheritdoc />
-		protected override void OnSetFormat() => _internal.SetFormat(Format, BufferSize);
-
 		double _time;
+
 		/// <inheritdoc />
 		protected override int ReadFramesInternal(ref byte buffer, int frameCount) {
 			if (Disposed) throw new ObjectDisposedException(null);
@@ -421,5 +400,62 @@ namespace Cryville.Audio.Source.Libav {
 		public LibavException(string message, Exception innerException) : base(message, innerException) { }
 		/// <inheritdoc />
 		protected LibavException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
+
+	/// <summary>
+	/// A builder that builds <see cref="LibavFileAudioSource" />.
+	/// </summary>
+	/// <param name="file">The audio file.</param>
+	public class LibavFileAudioSourceBuilder(string file) : AudioStreamBuilder<LibavFileAudioSource> {
+		readonly LibavFileAudioSource.Internal _internal = new(file);
+
+		/// <summary>
+		/// The index to the best audio stream.
+		/// </summary>
+		public int BestStreamIndex => _internal.BestStreamIndex;
+		/// <summary>
+		/// The collection of indices to all audio streams.
+		/// </summary>
+		public ReadOnlyCollection<int> Streams => _internal.Streams;
+
+		/// <summary>
+		/// Selects the best stream as the source.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
+		public void SelectStream() => SelectStream(BestStreamIndex);
+
+		/// <summary>
+		/// Selects a stream as the source.
+		/// </summary>
+		/// <param name="index">The index of the stream.</param>
+		/// <exception cref="InvalidOperationException">The stream has been selected.</exception>
+		public void SelectStream(int index) => _internal.OpenStream(index);
+
+		/// <summary>
+		/// Gets the wave format of a stream of the file.
+		/// </summary>
+		/// <param name="streamId">The stream index.</param>
+		/// <returns>The wave format.</returns>
+		public WaveFormat GetStreamFormat(int streamId) => _internal.GetInFormat(streamId);
+
+		/// <summary>
+		/// Gets the duration of a stream of the file.
+		/// </summary>
+		/// <param name="streamId">The stream index. The duration of the file is retrieved if <c>-1</c> is specified.</param>
+		/// <returns>The duration in seconds.</returns>
+		public double GetStreamDuration(int streamId = -1) => _internal.GetDuration(streamId);
+
+		/// <inheritdoc />
+		public override WaveFormat DefaultFormat => _internal.GetInFormat() ?? _internal.GetInFormat(BestStreamIndex);
+		/// <inheritdoc />
+		public override bool IsFormatSupported(WaveFormat format)
+			=> format.SampleFormat == SampleFormat.U8
+			|| format.SampleFormat == SampleFormat.S16
+			|| format.SampleFormat == SampleFormat.S32
+			|| format.SampleFormat == SampleFormat.F32
+			|| format.SampleFormat == SampleFormat.F64;
+
+		/// <inheritdoc />
+		public override LibavFileAudioSource Build(WaveFormat format) => new(_internal, format);
 	}
 }

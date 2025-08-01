@@ -9,52 +9,34 @@ namespace Cryville.Audio {
 		/// <summary>
 		/// The wave format.
 		/// </summary>
-		protected WaveFormat Format { get; private set; }
-		/// <summary>
-		/// The buffer size in frames.
-		/// </summary>
-		protected int BufferSize { get; private set; }
+		public WaveFormat Format { get; }
 
+		int m_bufferSize;
 		/// <summary>
-		/// Whether if the stream has reached the end of data.
+		/// The minimum buffer size in frames.
 		/// </summary>
-		public abstract bool EndOfData { get; }
-
-		/// <summary>
-		/// Sets the wave format and the buffer size of this audio stream.
-		/// </summary>
-		/// <param name="format">The wave format.</param>
-		/// <param name="bufferSize">The buffer size in frames.</param>
-		/// <exception cref="InvalidOperationException">This method has already been called successfully once on the audio stream.</exception>
-		/// <exception cref="NotSupportedException"><paramref name="format" /> is not supported by the audio stream.</exception>
-		public void SetFormat(WaveFormat format, int bufferSize) {
-			format.ValidateChannelMask();
-			if (!IsFormatSupported(format))
-				throw new NotSupportedException("Format not supported.");
-			if (format == Format && bufferSize == BufferSize) return;
-			if (Format != default || BufferSize != 0)
-				throw new InvalidOperationException("Format already set.");
-			Format = format;
-			BufferSize = bufferSize;
-			OnSetFormat();
+		public int BufferSize {
+			get => m_bufferSize;
+			set {
+				if (value <= m_bufferSize) return;
+				m_bufferSize = EnsureBufferSize(value);
+			}
 		}
+		/// <summary>
+		/// Ensures the minimum size of the buffer.
+		/// </summary>
+		/// <param name="targetBufferSize">The requested minimum buffer size in frames.</param>
+		protected virtual int EnsureBufferSize(int targetBufferSize) => 0;
 
 		/// <summary>
-		/// Called when the wave format and the buffer size is determined.
-		/// </summary>
-		protected abstract void OnSetFormat();
-		/// <summary>
-		/// The default wave format of the stream.
-		/// </summary>
-		public abstract WaveFormat DefaultFormat { get; }
-		/// <summary>
-		/// Gets whether <paramref name="format" /> is supported by the audio stream.
+		/// Creates an instance of the <see cref="AudioStream" /> class.
 		/// </summary>
 		/// <param name="format">The wave format.</param>
-		/// <remarks>
-		/// <para>When overridden, must return <see langword="true" /> when <paramref name="format" /> equals with <see cref="DefaultFormat" />.</para>
-		/// </remarks>
-		public virtual bool IsFormatSupported(WaveFormat format) => format == DefaultFormat;
+		/// <exception cref="NotSupportedException">When overridden, <paramref name="format" /> is not supported.</exception>
+		protected AudioStream(WaveFormat format) {
+			format.ValidateChannelMask();
+			Format = format;
+		}
 
 		/// <inheritdoc />
 		public sealed override long Seek(long offset, SeekOrigin origin) {
@@ -115,7 +97,7 @@ namespace Cryville.Audio {
 		/// </summary>
 		public virtual double TimeLength => (double)FrameLength / Format.SampleRate;
 
-		long m_framePosition;
+		private protected long m_framePosition;
 
 		/// <inheritdoc />
 		public sealed override long Position {
@@ -141,7 +123,7 @@ namespace Cryville.Audio {
 			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 			if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
 			if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
-			if (Format == default) throw new InvalidOperationException("Format not set.");
+			if (count > 0 && count < Format.FrameSize) throw new ArgumentException("count is smaller than the frame size.");
 		}
 
 		/// <inheritdoc />
@@ -157,6 +139,7 @@ namespace Cryville.Audio {
 		public int ReadFrames(byte[] buffer, int offset, int frameCount) {
 			CheckParams(buffer, offset, frameCount * Format.FrameSize);
 			if (frameCount == 0) return 0;
+			BufferSize = frameCount;
 			frameCount = ReadFramesInternal(ref buffer[offset], frameCount);
 			m_framePosition += frameCount;
 			return frameCount;
@@ -169,13 +152,14 @@ namespace Cryville.Audio {
 		/// <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>
 		/// <returns>The total number of frames read into the buffer. This can be less than the number of frames requested if that many frames are not currently available, or zero (0) if <paramref name="frameCount" /> is 0 or the end of the stream has been reached.</returns>
 		public int ReadFrames(ref byte buffer, int frameCount) {
+			BufferSize = frameCount;
 			frameCount = ReadFramesInternal(ref buffer, frameCount);
 			m_framePosition += frameCount;
 			return frameCount;
 		}
 
 		/// <summary>
-		/// When overridden in a derived class, reads a sequence of frames from the current stream and advances the position within the stream by the number of bytes read.
+		/// When overridden in a derived class, reads a sequence of frames from the current stream.
 		/// </summary>
 		/// <param name="buffer">A reference to the buffer. When this method returns, the buffer contains the specified data replaced by the frames read from the current audio source.</param>
 		/// <param name="frameCount">The maximum number of frames to be read from the current audio stream.</param>

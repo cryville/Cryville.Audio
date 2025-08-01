@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace Cryville.Audio.Source.Resample {
@@ -6,7 +7,7 @@ namespace Cryville.Audio.Source.Resample {
 	/// An <see cref="AudioStream" /> that resamples another <see cref="AudioStream" />.
 	/// </summary>
 	/// <remarks>
-	/// <para>Call <see cref="AudioStream.SetFormat(WaveFormat, int)" /> on a <see cref="ResampledAudioSource" /> to set the destination format.</para>
+	/// <para>This class is able to convert the sample rate and sample format of an audio stream to the specified sample rate and sample format. It is not able to convert the channel count and channel layout.</para>
 	/// </remarks>
 	public class ResampledAudioSource : AudioStream {
 		readonly AudioStream _source;
@@ -16,49 +17,37 @@ namespace Cryville.Audio.Source.Resample {
 		/// Creates an instance of the <see cref="ResampledAudioSource" /> class.
 		/// </summary>
 		/// <param name="source">The source <see cref="AudioStream" />.</param>
-		/// <param name="sourceFormat">The wave format set to the source, if set, must be a supported wave format of the source audio stream.</param>
+		/// <param name="format">The wave format.</param>
 		/// <param name="highQuality">Whether to resample with high quality.</param>
-		public ResampledAudioSource(AudioStream source, WaveFormat? sourceFormat = null, bool highQuality = true) {
+		public ResampledAudioSource(AudioStream source, WaveFormat format, bool highQuality = true) : base(format) {
 			_source = source ?? throw new ArgumentNullException(nameof(source));
 			_highQuality = highQuality;
 
-			DefaultFormat = sourceFormat ?? source.DefaultFormat;
-			if (!source.IsFormatSupported(DefaultFormat)) {
-				throw new NotSupportedException("Format not supported.");
-			}
-		}
+			if (!IsFormatSupported(Format, source.Format)) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Resampling to a different channel layout is not supported. Source: {0}. Target: {1}.", source.Format, Format));
 
-		/// <inheritdoc />
-		public override bool EndOfData => _source.EndOfData;
+			_internal = new(source.Format, Format, _highQuality);
+			_source.BufferSize = _internal._inBufferFrameLength;
+		}
+		internal static bool IsFormatSupported(WaveFormat format, WaveFormat sourceFormat) => format.Channels == sourceFormat.Channels && format.ChannelMask == sourceFormat.ChannelMask;
 
 		/// <inheritdoc />
 		public override long FrameLength => (long)(_source.FrameLength * _internal?._factor ?? 0);
 
-		/// <inheritdoc />
-		public override WaveFormat DefaultFormat { get; }
-		/// <inheritdoc />
-		public override bool IsFormatSupported(WaveFormat format) => format.Channels == DefaultFormat.Channels && format.ChannelMask == DefaultFormat.ChannelMask;
-		/// <inheritdoc />
-		protected override void OnSetFormat() {
-			_internal = new(DefaultFormat, Format, BufferSize, _highQuality);
-			_source.SetFormat(DefaultFormat, _internal._inBufferFrameLength);
-		}
-
 		sealed class Internal {
 			readonly WaveFormat _inFormat;
 			public readonly double _factor;
-			public readonly int _inBufferFrameLength;
+			public int _inBufferFrameLength;
 			readonly int _filterWidth;
 			readonly int _channelCount;
 			int _inFrameOffset;
-			readonly byte[] _inBuffer;
+			byte[] _inBuffer = [];
 			readonly Resampler[] _resampler;
 			readonly double[][] _inSampleBuffer;
 			readonly double[][] _outSampleBuffer;
 			readonly SampleReader _sampleReader;
 			readonly SampleWriter _sampleWriter;
 
-			public Internal(WaveFormat inFormat, WaveFormat outFormat, int outBufferFrameLength, bool highQuality) {
+			public Internal(WaveFormat inFormat, WaveFormat outFormat, bool highQuality) {
 				_inFormat = inFormat;
 				_channelCount = outFormat.Channels;
 				_factor = (double)outFormat.SampleRate / inFormat.SampleRate;
@@ -67,16 +56,34 @@ namespace Cryville.Audio.Source.Resample {
 				for (int i = 0; i < _channelCount; i++) _resampler[i] = new(highQuality, _factor, _factor);
 				_filterWidth = _resampler[0].FilterWidth;
 
-				_inBufferFrameLength = (int)(outBufferFrameLength / _factor) + _filterWidth;
-				_inBuffer = new byte[_inBufferFrameLength * inFormat.FrameSize];
-
 				_inSampleBuffer = new double[_channelCount][];
-				for (int i = 0; i < _channelCount; i++) _inSampleBuffer[i] = new double[_inBufferFrameLength];
 				_outSampleBuffer = new double[_channelCount][];
-				for (int i = 0; i < _channelCount; i++) _outSampleBuffer[i] = new double[outBufferFrameLength];
+
+				for (int i = 0; i < _channelCount; i++) {
+					_inSampleBuffer[i] = [];
+					_outSampleBuffer[i] = [];
+				}
 
 				_sampleReader = SampleConvert.GetSampleReader(inFormat.SampleFormat);
 				_sampleWriter = SampleConvert.GetSampleWriter(outFormat.SampleFormat);
+			}
+			public int EnsureBufferSize(int targetBufferSize, int currentBufferSize) {
+				int newBufferSize = AudioStreamHelpers.GetNewBufferSize(targetBufferSize, currentBufferSize);
+				if (newBufferSize <= currentBufferSize) return currentBufferSize;
+
+				_inBufferFrameLength = (int)(newBufferSize / _factor) + _filterWidth;
+				_inBuffer = new byte[_inBufferFrameLength * _inFormat.FrameSize];
+
+				for (int i = 0; i < _channelCount; i++) {
+					var oldInSampleBuffer = _inSampleBuffer[i];
+					var newInSampleBuffer = new double[_inBufferFrameLength];
+					Array.Copy(oldInSampleBuffer, newInSampleBuffer, oldInSampleBuffer.Length);
+					_inSampleBuffer[i] = newInSampleBuffer;
+
+					_outSampleBuffer[i] = new double[newBufferSize];
+				}
+
+				return newBufferSize;
 			}
 			public unsafe int ReadFramesInternal(AudioStream source, ref byte buffer, int frameCount) {
 				int inFrameCount = _inBufferFrameLength - _inFrameOffset;
@@ -114,7 +121,14 @@ namespace Cryville.Audio.Source.Resample {
 			}
 		}
 
-		Internal? _internal;
+		/// <inheritdoc />
+		protected override int EnsureBufferSize(int targetBufferSize) {
+			int newBufferSize = _internal.EnsureBufferSize(targetBufferSize, BufferSize);
+			_source.BufferSize = _internal._inBufferFrameLength;
+			return newBufferSize;
+		}
+
+		readonly Internal _internal;
 		/// <inheritdoc />
 		protected override unsafe int ReadFramesInternal(ref byte buffer, int frameCount) {
 			return _internal?.ReadFramesInternal(_source, ref buffer, frameCount) ?? 0;
@@ -137,5 +151,24 @@ namespace Cryville.Audio.Source.Resample {
 		public override void SetLength(long value) => throw new NotSupportedException();
 		/// <inheritdoc />
 		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+	}
+
+	/// <summary>
+	/// A builder that builds <see cref="ResampledAudioSource" />.
+	/// </summary>
+	/// <param name="source">The source <see cref="AudioStream" />.</param>
+	public class ResampledAudioSourceBuilder(AudioStream source) : AudioStreamBuilder<ResampledAudioSource> {
+		/// <inheritdoc />
+		public override WaveFormat DefaultFormat => source.Format;
+		/// <inheritdoc />
+		public override bool IsFormatSupported(WaveFormat format) => ResampledAudioSource.IsFormatSupported(format, source.Format);
+
+		/// <summary>
+		/// Whether to resample with high quality.
+		/// </summary>
+		public bool HighQuality { get; set; } = true;
+
+		/// <inheritdoc />
+		public override ResampledAudioSource Build(WaveFormat format) => new(source, format, HighQuality);
 	}
 }

@@ -4,7 +4,7 @@ namespace Cryville.Audio.Source {
 	/// <summary>
 	/// An <see cref="AudioStream" /> that generates single tone.
 	/// </summary>
-	public sealed class SingleToneAudioSource : FunctionAudioSource {
+	public sealed class SingleToneAudioSource(WaveFormat format) : FunctionAudioSource(format) {
 		/// <summary>
 		/// The tone type.
 		/// </summary>
@@ -44,5 +44,13 @@ namespace Cryville.Audio.Source {
 		/// Square wave.
 		/// </summary>
 		Square,
+	}
+
+	/// <summary>
+	/// A builder that builds <see cref="SingleToneAudioSource" />.
+	/// </summary>
+	public class SingleToneAudioSourceBuilder : FunctionAudioSourceBuilder<SingleToneAudioSource> {
+		/// <inheritdoc />
+		public override SingleToneAudioSource Build(WaveFormat format) => new(format);
 	}
 }

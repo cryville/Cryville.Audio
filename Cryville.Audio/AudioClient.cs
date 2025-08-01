@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace Cryville.Audio {
 	/// <summary>
@@ -58,9 +59,13 @@ namespace Cryville.Audio {
 		public AudioStream? Source {
 			get => m_source;
 			set {
-				if (Device.DataFlow != DataFlow.Out)
-					throw new NotSupportedException("Wrong data-flow direction.");
-				value?.SetFormat(Format, BufferSize);
+				if (value != null) {
+					var format = Format;
+					format.ValidateChannelMask();
+					if (value.Format != format)
+						throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Mismatched audio format. Client: {0}. Source: {1}.", format, value.Format));
+					value.BufferSize = BufferSize;
+				}
 				m_source = value;
 				OnSetSource();
 			}

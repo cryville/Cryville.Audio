@@ -174,7 +174,7 @@ namespace Cryville.Audio {
 				if (_device is IAudioClientDevice clientDevice)
 					clientDevice.ReactivateClient();
 				_client = ConnectTo(_device!);
-				if (m_format != _client.Format || m_bufferSize != _client.BufferSize) {
+				if (m_format != _client.Format) {
 					m_format = _client.Format;
 					m_bufferSize = _client.BufferSize;
 					var newStream = CreateAudioStream();
