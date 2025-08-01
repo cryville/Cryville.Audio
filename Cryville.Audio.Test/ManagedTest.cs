@@ -14,11 +14,7 @@ namespace Cryville.Audio.Test {
 		/// <summary>
 		/// The path to an audio file of a common format that has only one stream, encoded with a common audio codec.
 		/// </summary>
-		public const string AudioFile = @"";
-		/// <summary>
-		/// The path to a video file of a common format that has one audio stream and one video stream. The audio stream is encoded with a common audio codec.
-		/// </summary>
-		public const string VideoFile = @"";
+		public static string File { get; set; } = @"";
 		*/
 	}
 
@@ -103,8 +99,8 @@ namespace Cryville.Audio.Test {
 
 		[Test]
 		public virtual void PlaySingleTone() {
-			var source = new SingleToneAudioSource { Type = ToneType.Sine, Frequency = 440, Amplitude = 1f };
-			client.Source = source;
+			var source = new SingleToneAudioSource(client.Format) { Type = ToneType.Sine, Frequency = 440, Amplitude = 1f };
+			client.Stream = source;
 
 			client.Start();
 
@@ -118,10 +114,10 @@ namespace Cryville.Audio.Test {
 			LogPosition("Square 440Hz");
 			Thread.Sleep(1000);
 
-			client.Source = null;
+			client.Stream = null;
 			LogPosition("Mute");
 			Thread.Sleep(1000);
-			client.Source = source;
+			client.Stream = source;
 			source.Frequency = 880f;
 
 			source.Type = ToneType.Sine;
@@ -135,68 +131,65 @@ namespace Cryville.Audio.Test {
 			Thread.Sleep(1000);
 
 			LogPosition("Playback done");
-			client.Source = null;
+			client.Stream = null;
 			client.Pause();
 
 			source.Dispose();
 		}
 
 		[Test]
-		[TestCase(ManagedTestCaseResources.AudioFile)]
-		[TestCase(ManagedTestCaseResources.VideoFile)]
-		public virtual void PlayWithLibAV(string file) {
+		public virtual void PlayWithLibAV() {
 			Log("API: {0}", manager.GetType().Namespace);
-			var source = new LibavFileAudioSource(file);
-			Log("Duration: {0}s", source.GetStreamDuration());
-			Log("Best stream index: {0}", source.BestStreamIndex);
-			Log("Best stream duration: {0}s", source.GetStreamDuration(source.BestStreamIndex));
-			source.SelectStream();
-			client.Source = source;
+			var builder = new LibavFileAudioSourceBuilder(ManagedTestCaseResources.File);
+			Log("Duration: {0}s", builder.GetStreamDuration());
+			Log("Best stream index: {0}", builder.BestStreamIndex);
+			Log("Streams:");
+			foreach (var index in builder.Streams) {
+				Log("\t[{0}] Format: {1}, Duration: {2}s", index, builder.GetStreamFormat(index), builder.GetStreamDuration(index));
+			}
+			var source = builder.Build(client.Format);
+			client.Stream = source;
 			client.Start();
 			for (int i = 0; i < 10; i++) {
 				LogPosition("");
 				Thread.Sleep(1000);
 			}
-			client.Source = null;
+			client.Stream = null;
 			client.Pause();
 			source.Dispose();
 		}
 
 		[Test]
-		[TestCase(ManagedTestCaseResources.AudioFile)]
-		[TestCase(ManagedTestCaseResources.VideoFile)]
-		public virtual void PlayResampledWithLibAV(string file) {
+		public virtual void PlayResampledWithLibAV() {
 			Log("API: {0}", manager.GetType().Namespace);
-			var source = new LibavFileAudioSource(file);
-			Log("Duration: {0}s", source.GetStreamDuration());
-			Log("Best stream index: {0}", source.BestStreamIndex);
-			Log("Best stream duration: {0}s", source.GetStreamDuration(source.BestStreamIndex));
-			source.SelectStream();
-			Log("Source wave format: {0}", source.DefaultFormat);
+			var builder = new LibavFileAudioSourceBuilder(ManagedTestCaseResources.File);
+			var source = builder.Build(builder.DefaultFormat);
+			Log("Duration: {0}s", builder.GetStreamDuration());
+			Log("Best stream index: {0}", builder.BestStreamIndex);
+			Log("Best stream duration: {0}s", builder.GetStreamDuration(builder.BestStreamIndex));
+			Log("Source wave format: {0}", source.Format);
 			Log("Output wave format: {0}", client.Format);
-			var resampledSource = new ResampledAudioSource(source);
-			client.Source = resampledSource;
+			var resampledSource = new ResampledAudioSource(source, client.Format);
+			client.Stream = resampledSource;
 			client.Start();
 			for (int i = 0; i < 10; i++) {
 				LogPosition("");
 				Thread.Sleep(1000);
 			}
-			client.Source = null;
+			client.Stream = null;
 			client.Pause();
 			resampledSource.Dispose();
 			source.Dispose();
 		}
 
 		[Test]
-		[TestCase(ManagedTestCaseResources.AudioFile)]
-		[TestCase(ManagedTestCaseResources.VideoFile)]
-		public virtual void PlaySoughtWithLibAV(string file) {
+		public virtual void PlaySoughtWithLibAV() {
 			Log("API: {0}", manager.GetType().Namespace);
-			var source = new LibavFileAudioSource(file);
-			Log("Duration: {0}s", source.GetStreamDuration());
-			Log("Best stream index: {0}", source.BestStreamIndex);
-			Log("Best stream duration: {0}s", source.GetStreamDuration(source.BestStreamIndex));
-			client.Source = source;
+			var source = new LibavFileAudioSource(ManagedTestCaseResources.File, client.Format);
+			//Log("Duration: {0}s", source.GetStreamDuration());
+			//Log("Best stream index: {0}", source.BestStreamIndex);
+			//Log("Best stream duration: {0}s", source.GetStreamDuration(source.BestStreamIndex));
+			client.Stream = source;
 			source.SeekTime(60, SeekOrigin.Begin);
 			client.Start();
 			for (int i = 0; i < 10; i++) {
@@ -211,26 +204,23 @@ namespace Cryville.Audio.Test {
 				Thread.Sleep(1000);
 			}
 			client.Pause();
-			client.Source = null;
+			client.Stream = null;
 			source.Dispose();
 		}
 
 		[Test]
-		[TestCase(ManagedTestCaseResources.AudioFile, ManagedTestCaseResources.AudioFile)]
-		public virtual void PlayWithSimpleQueue(string file1, string file2) {
+		public virtual void PlayWithSimpleQueue() {
 			Log("API: {0}", manager.GetType().Namespace);
-			var source = new SimpleSequencerSource();
-			client.Source = source;
+			var source = new SimpleSequencerSource(client.Format);
+			client.Stream = source;
 			client.Start();
 
 			var session = source.NewSession();
 
-			var source1 = new LibavFileAudioSource(file1);
-			source1.SelectStream();
+			var source1 = new LibavFileAudioSource(ManagedTestCaseResources.File, client.Format);
 			session.Sequence(1, source1);
 
-			var source2 = new LibavFileAudioSource(file2);
-			source2.SelectStream();
+			var source2 = new LibavFileAudioSource(ManagedTestCaseResources.File, client.Format);
 			session.Sequence(4, source2);
 
 			source.Playing = true;
@@ -239,7 +229,7 @@ namespace Cryville.Audio.Test {
 				LogPosition(string.Format("Polyphony: {0}", source.Polyphony));
 				Thread.Sleep(1000);
 			}
-			client.Source = null;
+			client.Stream = null;
 			client.Pause();
 			source1.Dispose();
 			source2.Dispose();
@@ -247,18 +237,16 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
-		[TestCase(ManagedTestCaseResources.AudioFile)]
-		public virtual void PlayCachedWithSimpleQueue(string file) {
+		public virtual void PlayCachedWithSimpleQueue() {
 			Log("API: {0}", manager.GetType().Namespace);
-			var source = new SimpleSequencerSource();
-			client.Source = source;
+			var source = new SimpleSequencerSource(client.Format);
+			client.Stream = source;
 
 			var session = source.NewSession();
 
-			var rsource = new LibavFileAudioSource(file);
-			rsource.SelectStream();
+			var rsource = new LibavFileAudioSource(ManagedTestCaseResources.File, client.Format);
 
-			var source1 = new CachedAudioSource(rsource, 15);
+			var source1 = new CachedAudioSource(rsource, 15 * rsource.Format.SampleRate);
 			session.Sequence(1, source1);
 
 			CachedAudioSource source2 = null;
@@ -274,7 +262,7 @@ namespace Cryville.Audio.Test {
 				}
 				Thread.Sleep(1000);
 			}
-			client.Source = null;
+			client.Stream = null;
 			client.Pause();
 			source2?.Dispose();
 			source1.Dispose();
@@ -283,17 +271,15 @@ namespace Cryville.Audio.Test {
 		}
 
 		[Test]
-		[TestCase(ManagedTestCaseResources.AudioFile, ManagedTestCaseResources.AudioFile)]
-		public virtual void PlayTwoSessions(string file1, string file2) {
+		public virtual void PlayTwoSessions() {
 			Log("API: {0}", manager.GetType().Namespace);
-			var source = new SimpleSequencerSource();
-			client.Source = source;
+			var source = new SimpleSequencerSource(client.Format);
+			client.Stream = source;
 			client.Start();
 
 			var session = source.NewSession();
 
-			var source1 = new LibavFileAudioSource(file1);
-			source1.SelectStream();
+			var source1 = new LibavFileAudioSource(ManagedTestCaseResources.File, client.Format);
 			session.Sequence(0, source1);
 
 			source.Playing = true;
@@ -305,8 +291,7 @@ namespace Cryville.Audio.Test {
 
 			session = source.NewSession();
 
-			var source2 = new LibavFileAudioSource(file2);
-			source2.SelectStream();
+			var source2 = new LibavFileAudioSource(ManagedTestCaseResources.File, client.Format);
 			session.Sequence(0, source2);
 
 			source.Playing = true;
@@ -316,7 +301,7 @@ namespace Cryville.Audio.Test {
 				Thread.Sleep(1000);
 			}
 
-			client.Source = null;
+			client.Stream = null;
 			client.Pause();
 			source1.Dispose();
 			source2.Dispose();

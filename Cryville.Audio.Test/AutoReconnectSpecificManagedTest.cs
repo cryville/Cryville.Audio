@@ -20,7 +20,9 @@ namespace Cryville.Audio.Test {
 		sealed class AutoReconnectContextImpl(IAudioDeviceManager manager, DataFlow dataFlow) : AutoReconnectContext(manager, dataFlow) {
 			protected override AudioStream CreateAudioStream() {
 				TestContext.WriteLine("Recreating audio stream");
-				return new SingleToneAudioSource() { Type = ToneType.Sine, Frequency = 440, Amplitude = 1 };
+				TestContext.WriteLine("Connection Format: {0}", Format);
+				TestContext.WriteLine("Buffer Size: {0}", BufferSize);
+				return new SingleToneAudioSource(Format) { Type = ToneType.Sine, Frequency = 440, Amplitude = 1 };
 			}
 		}
 
