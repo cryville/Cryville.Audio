@@ -23,6 +23,8 @@ namespace Cryville.Audio.WaveformAudio {
 			_ptrheader = GCHandle.Alloc(Header, GCHandleType.Pinned);
 		}
 
+		public bool IsInQueue => (Header.dwFlags & (uint)WHDR.INQUEUE) != 0;
+
 		public void Release() {
 			_ptrheader.Free();
 			_ptrbuffer.Free();

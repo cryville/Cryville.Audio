@@ -179,7 +179,7 @@ namespace Cryville.Audio.WaveformAudio {
 			try {
 				while (true) {
 					foreach (var b in _buffers) {
-						if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) == 0) {
+						if (!b.IsInQueue) {
 							if (Stream == null) {
 								AudioStream.SilentBuffer(Format, ref b.Buffer[0], BufferSize);
 							}
@@ -198,7 +198,7 @@ namespace Cryville.Audio.WaveformAudio {
 				// Wait for all the buffers to be returned, to avoid dead buffers
 				for (; ; ) {
 					foreach (var b in _buffers) {
-						if ((b.Header.dwFlags & (uint)WHDR.INQUEUE) != 0) {
+						if (b.IsInQueue) {
 							goto waitForNextBuffer;
 						}
 					}
