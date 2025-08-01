@@ -175,7 +175,7 @@ namespace Cryville.Audio.WaveformAudio {
 		void ThreadLogic() {
 			var handle = _waveOutHandle;
 			if (handle == IntPtr.Zero) return;
-			uint waitThreshold = Math.Max(1000, (uint)BufferSize / Format.SampleRate * 2000);
+			int waitThreshold = Math.Max(2000, BufferSize * 4000 / (int)Format.SampleRate);
 			try {
 				while (true) {
 					foreach (var b in _buffers) {
