@@ -157,7 +157,6 @@ namespace Cryville.Audio.AAudio {
 			if (!_instances.TryGetValue(stream, out var instance)) 
 				return;
 			// Launch a new thread to handle the disconnection in case of deadlock
-			lock (instance._statusLock) instance.m_status = AudioClientStatus.Disconnected;
 			var thread = new Thread(instance.OnPlaybackDisconnected) {
 				IsBackground = true,
 				Name = "AAudioStream disconnection handler",
