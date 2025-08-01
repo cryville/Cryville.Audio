@@ -49,7 +49,7 @@ namespace Cryville.Audio {
 		/// <param name="frameOffset">An offset in frames relative to the <paramref name="origin" /> parameter.</param>
 		/// <param name="origin">A value of type <see cref="SeekOrigin" /> indicating the reference point used to obtain the new time.</param>
 		/// <returns>The new time in frames within the current audio stream.</returns>
-		public double SeekFrame(long frameOffset, SeekOrigin origin) {
+		public long SeekFrame(long frameOffset, SeekOrigin origin) {
 			m_framePosition = SeekFrameInternal(frameOffset, origin);
 			return m_framePosition;
 		}
