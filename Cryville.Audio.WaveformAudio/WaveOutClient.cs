@@ -1,4 +1,3 @@
-using Microsoft.Windows;
 using Microsoft.Windows.Mme;
 using Microsoft.Windows.MmSysCom;
 using System;
@@ -95,7 +94,9 @@ namespace Cryville.Audio.WaveformAudio {
 		public override double BufferPosition => m_bufferPosition;
 
 		/// <inheritdoc />
-		public override void Start() {
+		public override void RequestStart() {
+			var handle = _waveOutHandle;
+			if (handle == IntPtr.Zero) throw new ObjectDisposedException(null);
 			if (_thread != null) return;
 			lock (_statusLock) {
 				switch (m_status) {
@@ -115,12 +116,14 @@ namespace Cryville.Audio.WaveformAudio {
 			};
 			thread.Start();
 			_thread = thread;
-			MmSysComExports.MMR(MmeExports.waveOutRestart(_waveOutHandle));
+			MmSysComExports.MMR(MmeExports.waveOutRestart(handle));
 			lock (_statusLock) m_status = AudioClientStatus.Playing;
 		}
 
 		/// <inheritdoc />
-		public override void Pause() {
+		public override void RequestPause() {
+			var thread = Interlocked.Exchange(ref _thread, null);
+			if (thread == null) return;
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Idle:
@@ -170,6 +173,8 @@ namespace Cryville.Audio.WaveformAudio {
 
 		Thread? _thread;
 		void ThreadLogic() {
+			var handle = _waveOutHandle;
+			if (handle == IntPtr.Zero) return;
 			uint waitThreshold = Math.Max(1000, (uint)BufferSize / Format.SampleRate * 2000);
 			try {
 				while (true) {

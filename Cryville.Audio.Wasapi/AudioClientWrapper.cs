@@ -1,4 +1,3 @@
-using Microsoft.Windows;
 using Microsoft.Windows.AudioClient;
 using Microsoft.Windows.AudioSessionTypes;
 using Microsoft.Windows.MmReg;
@@ -136,7 +135,7 @@ namespace Cryville.Audio.Wasapi {
 		public override double BufferPosition => m_bufferPosition;
 
 		/// <inheritdoc />
-		public override void Start() {
+		public override void RequestStart() {
 			if (_thread != null) return;
 			lock (_statusLock) {
 				switch (m_status) {
@@ -167,7 +166,7 @@ namespace Cryville.Audio.Wasapi {
 		}
 
 		/// <inheritdoc />
-		public override void Pause() {
+		public override void RequestPause() {
 			var thread = Interlocked.Exchange(ref _thread, null);
 			if (thread == null) return;
 			lock (_statusLock) {

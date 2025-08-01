@@ -17,7 +17,7 @@ namespace Cryville.Audio.AAudio {
 		static readonly Dictionary<IntPtr, AAudioStream> _instances = [];
 
 		readonly AAudioStreamBuilder _builder;
-		readonly IntPtr _stream;
+		IntPtr _stream;
 
 		internal AAudioStream(AAudioStreamBuilder builder, IntPtr stream) {
 			_builder = builder;
@@ -34,27 +34,52 @@ namespace Cryville.Audio.AAudio {
 		public override WaveFormat Format => m_format;
 
 		/// <inheritdoc />
-		public override int BufferSize => UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(_stream);
+		public override int BufferSize {
+			get {
+				IntPtr stream = _stream;
+				if (stream == IntPtr.Zero) throw new ObjectDisposedException(null);
+				return UnsafeNativeMethods.AAudioStream_getBufferSizeInFrames(stream);
+			}
+		}
 
 		/// <inheritdoc />
 		public override float MaximumLatency => 0;
 
-		readonly object _statusLock = new();
-		volatile AudioClientStatus m_status;
 		/// <inheritdoc />
-		public override AudioClientStatus Status => m_status;
+		public override AudioClientStatus Status {
+			get {
+				IntPtr stream = _stream;
+				if (stream == IntPtr.Zero) return AudioClientStatus.Closed;
+				return FromInternalState(UnsafeNativeMethods.AAudioStream_getState(stream));
+			}
+		}
+
+		static AudioClientStatus FromInternalState(aaudio_stream_state_t state) {
+			return state switch {
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_OPEN or
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED or
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_FLUSHING or
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_FLUSHED or
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_STOPPED => AudioClientStatus.Idle,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING => AudioClientStatus.Starting,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED => AudioClientStatus.Playing,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING or
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_STOPPING => AudioClientStatus.Pausing,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_CLOSING => AudioClientStatus.Closing,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_CLOSED => AudioClientStatus.Closed,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED => AudioClientStatus.Disconnected,
+				aaudio_stream_state_t.AAUDIO_STREAM_STATE_UNINITIALIZED => throw new ObjectDisposedException(null),
+				_ => throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Unknown AAudio state: {0}.", state)),
+			};
+		}
 
 		/// <inheritdoc />
 		public override double Position {
 			get {
-				try {
-					Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_getTimestamp(_stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _));
-					return frames / (double)Format.SampleRate;
-				}
-				catch (AudioClientDisconnectedException) {
-					lock (_statusLock) m_status = AudioClientStatus.Disconnected;
-					throw;
-				}
+				IntPtr stream = _stream;
+				if (stream == IntPtr.Zero) throw new ObjectDisposedException(null);
+				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_getTimestamp(stream, clockid_t.CLOCK_MONOTONIC, out var frames, out _));
+				return frames / (double)Format.SampleRate;
 			}
 		}
 
@@ -62,71 +87,54 @@ namespace Cryville.Audio.AAudio {
 		/// <inheritdoc />
 		public override double BufferPosition => m_bufferPosition;
 
+		bool _started;
 		/// <inheritdoc />
-		public override void Start() {
-			lock (_statusLock) {
-				switch (m_status) {
-					case AudioClientStatus.Playing:
-					case AudioClientStatus.Starting:
-						return;
-					case AudioClientStatus.Closing:
-					case AudioClientStatus.Closed:
-						throw new ObjectDisposedException(null);
-				}
-				m_status = AudioClientStatus.Starting;
+		public override bool WaitForNextStatus(AudioClientStatus currentStatus, out AudioClientStatus newStatus, TimeSpan timeout) {
+			IntPtr stream = _stream;
+			if (stream == IntPtr.Zero) {
+				newStatus = AudioClientStatus.Closed;
+				return currentStatus != AudioClientStatus.Closed;
 			}
-			try {
-				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestStart(_stream));
-				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING, out var state, 2000000000));
-				if (state == aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED) throw new AudioClientDisconnectedException();
-				if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to start the audio client. State: {0}", state));
+			var result = UnsafeNativeMethods.AAudioStream_waitForStateChange(stream, currentStatus switch {
+				AudioClientStatus.Idle => _started ? aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED : aaudio_stream_state_t.AAUDIO_STREAM_STATE_OPEN,
+				AudioClientStatus.Starting => aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTING,
+				AudioClientStatus.Playing => aaudio_stream_state_t.AAUDIO_STREAM_STATE_STARTED,
+				AudioClientStatus.Pausing => aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING,
+				AudioClientStatus.Closing => aaudio_stream_state_t.AAUDIO_STREAM_STATE_CLOSING,
+				AudioClientStatus.Closed => aaudio_stream_state_t.AAUDIO_STREAM_STATE_CLOSED,
+				AudioClientStatus.Disconnected => aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED,
+				_ => throw new NotImplementedException(),
+			}, out var nextState, (long)(timeout.TotalMilliseconds * 1000));
+			if (result == aaudio_result_t.AAUDIO_ERROR_TIMEOUT) {
+				newStatus = currentStatus;
+				return false;
 			}
-			catch (AudioClientDisconnectedException) {
-				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
-				throw;
-			}
-			lock (_statusLock) m_status = AudioClientStatus.Playing;
+			Helpers.ThrowIfError(result);
+			newStatus = FromInternalState(nextState);
+			return true;
 		}
 
 		/// <inheritdoc />
-		public override void Pause() {
-			lock (_statusLock) {
-				switch (m_status) {
-					case AudioClientStatus.Idle:
-					case AudioClientStatus.Pausing:
-						return;
-					case AudioClientStatus.Closing:
-					case AudioClientStatus.Closed:
-						throw new ObjectDisposedException(null);
-				}
-				m_status = AudioClientStatus.Pausing;
-			}
-			try {
-				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestPause(_stream));
-				Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_waitForStateChange(_stream, aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSING, out var state, 2000000000));
-				if (state == aaudio_stream_state_t.AAUDIO_STREAM_STATE_DISCONNECTED) throw new AudioClientDisconnectedException();
-				if (state != aaudio_stream_state_t.AAUDIO_STREAM_STATE_PAUSED) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to pause the audio client. State: {0}", state));
-			}
-			catch (AudioClientDisconnectedException) {
-				lock (_statusLock) m_status = AudioClientStatus.Disconnected;
-				throw;
-			}
-			lock (_statusLock) m_status = AudioClientStatus.Idle;
+		public override void RequestStart() {
+			IntPtr stream = _stream;
+			if (stream == IntPtr.Zero) throw new ObjectDisposedException(null);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestStart(stream));
+			_started = true;
+		}
+
+		/// <inheritdoc />
+		public override void RequestPause() {
+			IntPtr stream = _stream;
+			if (stream == IntPtr.Zero) throw new ObjectDisposedException(null);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_requestPause(stream));
 		}
 
 		/// <inheritdoc />
 		public override void Close() {
-			lock (_statusLock) {
-				switch (m_status) {
-					case AudioClientStatus.Closing:
-					case AudioClientStatus.Closed:
-						return;
-				}
-				m_status = AudioClientStatus.Closing;
-			}
-			_instances.Remove(_stream);
-			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_close(_stream));
-			lock (_statusLock) m_status = AudioClientStatus.Closed;
+			IntPtr stream = Interlocked.Exchange(ref _stream, IntPtr.Zero);
+			if (stream == IntPtr.Zero) return;
+			_instances.Remove(stream);
+			Helpers.ThrowIfError(UnsafeNativeMethods.AAudioStream_close(stream));
 		}
 
 		unsafe void FillBuffer(IntPtr ptr, int frames) {

@@ -57,7 +57,7 @@ namespace Cryville.Audio {
 		protected override void OnSetStream() => Client.Stream = Stream;
 
 		/// <inheritdoc />
-		public override void Start() {
+		public override void RequestStart() {
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Playing:
@@ -80,7 +80,7 @@ namespace Cryville.Audio {
 		}
 
 		/// <inheritdoc />
-		public override void Pause() {
+		public override void RequestPause() {
 			lock (_statusLock) {
 				switch (m_status) {
 					case AudioClientStatus.Idle:

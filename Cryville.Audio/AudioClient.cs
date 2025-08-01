@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 
 namespace Cryville.Audio {
 	/// <summary>
@@ -79,19 +80,73 @@ namespace Cryville.Audio {
 		protected virtual void OnSetStream() { }
 
 		/// <summary>
+		/// Waits until the status mismatch with the given current status.
+		/// </summary>
+		/// <param name="currentStatus">The current status to avoid.</param>
+		/// <param name="newStatus">The new status.</param>
+		/// <param name="timeout">Timeout.</param>
+		/// <returns>Whether the waiting operation completed within the given timeout.</returns>
+		public virtual bool WaitForNextStatus(AudioClientStatus currentStatus, out AudioClientStatus newStatus, TimeSpan timeout) {
+			TimeSpan sleepDuration = TimeSpan.FromMilliseconds(16);
+			for (; Status == currentStatus; Thread.Sleep(sleepDuration)) {
+				if (timeout <= TimeSpan.Zero) {
+					newStatus = currentStatus;
+					return false;
+				}
+				if (timeout < sleepDuration)
+					sleepDuration = timeout;
+				timeout -= sleepDuration;
+			}
+			newStatus = Status;
+			return true;
+		}
+
+		readonly static TimeSpan _defaultTimeout = TimeSpan.FromSeconds(4);
+		/// <summary>
 		/// Starts the wave data transmission.
 		/// </summary>
-		/// <remarks>
-		/// If <see cref="Source" /> is <see langword="null" /> while playing, the output will be silence.
-		/// </remarks>
-		public abstract void Start();
+		public void Start() => Start(_defaultTimeout);
+		/// <summary>
+		/// Starts the wave data transmission.
+		/// </summary>
+		/// <param name="timeout">Timeout.</param>
+		public void Start(TimeSpan timeout) {
+			RequestStart();
+			if (!WaitForNextStatus(AudioClientStatus.Starting, out var newStatus, timeout)) {
+				throw new TimeoutException("Failed to start audio client: Timed out.");
+			}
+			if (newStatus != AudioClientStatus.Playing) {
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to start audio client: {0}.", newStatus));
+			}
+		}
+		/// <summary>
+		/// Requests to start the wave data transmission.
+		/// </summary>
+		public abstract void RequestStart();
 		/// <summary>
 		/// Pauses the wave data transmission.
 		/// </summary>
 		/// <remarks>
 		/// This method does not reset <see cref="Position" /> and <see cref="BufferPosition" />.
 		/// </remarks>
-		public abstract void Pause();
+		public void Pause() => Pause(_defaultTimeout);
+		/// <summary>
+		/// Pauses the wave data transmission.
+		/// </summary>
+		/// <param name="timeout">Timeout.</param>
+		public void Pause(TimeSpan timeout) {
+			RequestPause();
+			if (!WaitForNextStatus(AudioClientStatus.Pausing, out var newStatus, timeout)) {
+				throw new TimeoutException("Failed to pause audio client: Timed out.");
+			}
+			if (newStatus != AudioClientStatus.Idle) {
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to pause audio client: {0}.", newStatus));
+			}
+		}
+		/// <summary>
+		/// Requests to pause the wave data transmission.
+		/// </summary>
+		public abstract void RequestPause();
 		/// <summary>
 		/// Closes the connection.
 		/// </summary>
