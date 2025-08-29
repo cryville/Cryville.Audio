@@ -116,7 +116,7 @@ namespace Cryville.Audio {
 				throw new TimeoutException("Failed to start audio client: Timed out.");
 			}
 			if (newStatus != AudioClientStatus.Playing) {
-				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to start audio client: {0}.", newStatus));
+				AudioStreamHelpers.ThrowStatusException(newStatus, "Failed to start audio client");
 			}
 		}
 		/// <summary>
@@ -140,7 +140,7 @@ namespace Cryville.Audio {
 				throw new TimeoutException("Failed to pause audio client: Timed out.");
 			}
 			if (newStatus != AudioClientStatus.Idle) {
-				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to pause audio client: {0}.", newStatus));
+				AudioStreamHelpers.ThrowStatusException(newStatus, "Failed to pause audio client");
 			}
 		}
 		/// <summary>

@@ -1,3 +1,6 @@
+using System;
+using System.Globalization;
+
 namespace Cryville.Audio {
 	/// <summary>
 	/// Provides a set of <see langword="static" /> methods related to <see cref="AudioStream" />.
@@ -18,6 +21,19 @@ namespace Cryville.Audio {
 			if (targetBufferSize > currentBufferSize)
 				currentBufferSize = targetBufferSize;
 			return currentBufferSize;
+		}
+		/// <summary>
+		/// Throws an exception indicating an unexpected audio client status.
+		/// </summary>
+		/// <param name="unexpectedStatus">The unexpected audio client status.</param>
+		/// <param name="messagePrefix">The prefix of the exception message.</param>
+		/// <exception cref="AudioClientDisconnectedException"><paramref name="unexpectedStatus" /> is <see cref="AudioClientStatus.Disconnected" />.</exception>
+		/// <exception cref="InvalidOperationException"><paramref name="unexpectedStatus" /> is not <see cref="AudioClientStatus.Disconnected" />.</exception>
+		public static void ThrowStatusException(AudioClientStatus unexpectedStatus, string messagePrefix = "Unexpected status") {
+			string message = string.Format(CultureInfo.InvariantCulture, "{0}: {1}.", messagePrefix, unexpectedStatus);
+			if (unexpectedStatus == AudioClientStatus.Disconnected)
+				throw new AudioClientDisconnectedException(message);
+			throw new InvalidOperationException(message);
 		}
 	}
 }
